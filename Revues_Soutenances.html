@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revues & Soutenances - LE BRAS DE FER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon: #ff7a00;
+            --bg-deep: #000000;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-sub: #86868b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: "Inter", sans-serif;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        .ambient-light {
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 80vh;
+            background: radial-gradient(circle, rgba(255, 122, 0, 0.08), transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, .tech-font { font-family: "Orbitron", sans-serif; letter-spacing: -0.5px; }
+
+        .section-tag {
+            color: var(--neon);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            display: block;
+            font-weight: 600;
+        }
+
+        .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+        .chapter { margin-bottom: 160px; }
+        .chapter-header { margin-bottom: 60px; max-width: 600px; }
+        .chapter-header h2 { font-size: 3rem; margin: 0 0 15px 0; line-height: 1.1; }
+        .chapter-header p { font-size: 1.3rem; color: var(--text-sub); font-weight: 300; }
+
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 5rem;
+            margin: 20px 0;
+            color: #ff7a00;
+            text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3);
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        header p { font-size: 1.5rem; color: var(--text-sub); max-width: 600px; }
+
+        /* ---- TIMELINE ---- */
+        .timeline-container {
+            position: relative;
+            padding: 4rem 0;
+        }
+
+        /* Ligne qui se dessine au scroll */
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 0; /* démarre à 0 */
+            background: linear-gradient(180deg, var(--neon), #ff5500);
+            transform: translateX(-50%);
+            transition: height 0.05s linear;
+            box-shadow: 0 0 8px rgba(255, 122, 0, 0.4);
+        }
+
+        /* Timeline Item — état initial caché, glisse depuis la ligne */
+        .timeline-item {
+            position: relative;
+            margin-bottom: 6rem;
+        }
+
+        /* Les cards impaires (à gauche de la ligne) glissent depuis la droite */
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-left: auto;
+            margin-right: 60px;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        /* Les cards paires (à droite de la ligne) glissent depuis la gauche */
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-right: auto;
+            margin-left: 60px;
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .timeline-content {
+            position: relative;
+            width: calc(50% - 60px);
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 35px;
+        }
+
+        .timeline-item.visible:nth-child(odd) .timeline-content {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item.visible:nth-child(even) .timeline-content {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Point sur la ligne — pop quand la ligne le touche */
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--neon), #ff5500);
+            border-radius: 50%;
+            border: 4px solid var(--bg-deep);
+            box-shadow: 0 0 30px var(--neon);
+            z-index: 2;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .timeline-dot.popped {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Review Card Content */
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .review-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .review-date {
+            font-size: 0.9rem;
+            color: var(--neon);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 122, 0, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 122, 0, 0.3);
+        }
+
+        .review-description { color: var(--text-sub); margin-bottom: 1.5rem; line-height: 1.8; }
+
+        .review-stats { display: flex; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+        .stat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--text-sub); }
+        .stat-icon { width: 20px; height: 20px; opacity: 0.7; }
+
+        .open-presentation-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 15px 40px;
+            background: transparent;
+            color: var(--neon);
+            border: 1px solid var(--neon);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: "Orbitron";
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .open-presentation-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--neon);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .open-presentation-btn:hover::before { left: 0; }
+        .open-presentation-btn:hover { color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
+
+        /* ---- MODAL PLEIN ÉCRAN ---- */
+        .presentation-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000000;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .presentation-modal.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .presentation-container {
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 122, 0, 0.3);
+            color: white;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10001;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 122, 0, 0.2);
+            border-color: var(--neon);
+            transform: rotate(90deg);
+        }
+
+        .slides-container {
+            width: 100vw; height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+        .slide.exit-left { opacity: 0; transform: translateX(-100px); }
+
+        /* Wrapper calé exactement sur les dimensions réelles de l'image */
+        .slide-wrapper {
+            position: relative;
+            display: inline-flex; /* se rétracte à la taille de l'image */
+            align-items: flex-end;
+            justify-content: flex-end;
+            max-width: 100vw;
+            max-height: 100vh;
+        }
+
+        .slide img {
+            display: block;
+            max-width: 100vw;
+            max-height: 100vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Numéro de page — coin inférieur droit EXACT de l'image */
+        .slide-number {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 12px;
+            border: 1px solid rgba(255, 122, 0, 0.5);
+            border-right: none;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Orbitron";
+            font-size: 1rem;
+            color: var(--neon);
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .slide-number.hidden { display: none; }
+
+        .nav-area {
+            position: fixed;
+            top: 0; bottom: 0;
+            width: 50%;
+            z-index: 10000;
+            cursor: default;
+        }
+        .nav-area-left { left: 0; }
+        .nav-area-right { right: 0; }
+
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon), #ff5500);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--neon);
+            z-index: 10002;
+        }
+
+        /* Footer */
+        .btn-back {
+            display: inline-block;
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: 1px solid var(--neon);
+            color: var(--neon);
+            text-decoration: none;
+            font-family: "Orbitron";
+            transition: 0.3s;
+            margin-top: 50px;
+        }
+        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
+
+        /* Reveal header */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .timeline-line { left: 30px; }
+            .timeline-content { width: calc(100% - 80px); margin-left: 80px !important; margin-right: 0 !important; }
+            .timeline-dot { left: 30px; }
+            header h1 { font-size: 3rem; }
+            .chapter-header h2 { font-size: 2rem; }
+            .close-btn { top: 10px; right: 10px; width: 40px; height: 40px; }
+            .slide-number { width: 40px; height: 40px; font-size: 0.85rem; }
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon), #ff5500); border-radius: 5px; }
+
+        /* ---- PARTICULES ---- */
+        .background-particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 122, 0, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: floatParticle 20s infinite ease-in-out;
+            opacity: 0.12;
+        }
+
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33%       { transform: translate(100px, -100px) rotate(120deg); }
+            66%       { transform: translate(-50px, 50px) rotate(240deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+    <div class="background-particles" id="particles"></div>
+
+    <header class="reveal">
+        <span class="section-tag">Historique Projet</span>
+        <h1>REVUES &<br>SOUTENANCES</h1>
+        <p>Chronologie complète des présentations d'avancement du projet.</p>
+    </header>
+
+    <div class="container">
+        <div class="timeline-container" id="timelineContainer">
+            <div class="timeline-line" id="timelineLine"></div>
+
+            <!-- Poster de début -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="review-header">
+                        <div><h3 class="review-title">Poster de Début de Projet</h3></div>
+                        <p class="review-date">2 Octobre 2025</p>
+                    </div>
+                    <p class="review-description">Présentation visuelle synthétique du projet : objectifs, contexte, équipe et plan d'action initial.</p>
+                    <div class="review-stats">
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                            <span>1 poster</span>
+                        </div>
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>5 min</span>
+                        </div>
+                    </div>
+                    <button class="open-presentation-btn" onclick="openPresentation(0)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Voir le poster
+                    </button>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Revue 1 -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="review-header">
+                        <div><h3 class="review-title">Revue 1 de Projet</h3></div>
+                        <p class="review-date">4 Novembre 2025</p>
+                    </div>
+                    <p class="review-description">Première revue d'avancement : présentation des premiers travaux de conception, choix techniques et planification détaillée.</p>
+                    <div class="review-stats">
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                            <span>11 slides</span>
+                        </div>
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>~30 min</span>
+                        </div>
+                    </div>
+                    <button class="open-presentation-btn" onclick="openPresentation(1)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Ouvrir la présentation
+                    </button>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Revue 2 -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="review-header">
+                        <div><h3 class="review-title">Revue 2 de Projet</h3></div>
+                        <p class="review-date">25 Novembre 2025</p>
+                    </div>
+                    <p class="review-description">Deuxième revue d'avancement : bilan des développements réalisés, tests effectués et ajustements de la stratégie.</p>
+                    <div class="review-stats">
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                            <span>14 slides</span>
+                        </div>
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>~35 min</span>
+                        </div>
+                    </div>
+                    <button class="open-presentation-btn" onclick="openPresentation(2)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Ouvrir la présentation
+                    </button>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Soutenance Blanche -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="review-header">
+                        <div><h3 class="review-title">Soutenance Blanche de Mi-Projet</h3></div>
+                        <p class="review-date">10 Décembre 2025</p>
+                    </div>
+                    <p class="review-description">Répétition générale avant la soutenance officielle : test de la présentation, du timing et préparation aux questions du jury.</p>
+                    <div class="review-stats">
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                            <span>7 slides</span>
+                        </div>
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>~20 min</span>
+                        </div>
+                    </div>
+                    <button class="open-presentation-btn" onclick="openPresentation(3)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Ouvrir la présentation
+                    </button>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- Soutenance Finale -->
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="review-header">
+                        <div><h3 class="review-title">Soutenance de Mi-Projet</h3></div>
+                        <p class="review-date">17 Décembre 2025</p>
+                    </div>
+                    <p class="review-description">Soutenance officielle devant le jury : présentation complète du projet, résultats obtenus, démonstration et session de questions-réponses.</p>
+                    <div class="review-stats">
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                            <span>27 slides</span>
+                        </div>
+                        <div class="stat">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>~60 min</span>
+                        </div>
+                    </div>
+                    <button class="open-presentation-btn" onclick="openPresentation(4)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Ouvrir la présentation
+                    </button>
+                </div>
+                <div class="timeline-dot"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 100px;">
+            <a href="Details_Du_Projet.html" class="btn-back">Retour à la Mosaïque</a>
+        </div>
+    </div>
+
+    <!-- Presentation Modal -->
+    <div class="presentation-modal" id="presentationModal">
+        <div class="presentation-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <button class="close-btn" onclick="closePresentation()">×</button>
+            <div class="nav-area nav-area-left" id="navLeft"></div>
+            <div class="nav-area nav-area-right" id="navRight"></div>
+            <div class="slides-container" id="slidesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const presentations = [
+            { title: "Poster de Début de Projet",        date: "2 Octobre 2025",    folder: "poster",             slideCount: 1,  isPoster: true  },
+            { title: "Revue 1 de Projet",                date: "4 Novembre 2025",   folder: "revue1",             slideCount: 11, isPoster: false },
+            { title: "Revue 2 de Projet",                date: "25 Novembre 2025",  folder: "revue2",             slideCount: 14, isPoster: false },
+            { title: "Soutenance Blanche de Mi-Projet",  date: "10 Décembre 2025",  folder: "soutenance-blanche", slideCount: 7,  isPoster: false },
+            { title: "Soutenance de Mi-Projet",          date: "17 Décembre 2025",  folder: "soutenance-finale",  slideCount: 27, isPoster: false }
+        ];
+
+        let currentPresentationIndex = 0;
+        let currentSlideIndex = 0;
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let isThrottled = false;
+
+        /* ─── Présentation ─── */
+        function openPresentation(index) {
+            currentPresentationIndex = index;
+            currentSlideIndex = 0;
+            const presentation = presentations[index];
+
+            const slidesContainer = document.getElementById('slidesContainer');
+            slidesContainer.innerHTML = '';
+
+            for (let i = 1; i <= presentation.slideCount; i++) {
+                const slideEl = document.createElement('div');
+                slideEl.className = 'slide';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'slide-wrapper';
+
+                const img = document.createElement('img');
+                img.src = `slides/${presentation.folder}/slide-${i}.png`;
+                img.alt = `Slide ${i}`;
+                img.onerror = function () {
+                    this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><rect width="1920" height="1080" fill="%23000"/><text x="50%" y="50%" text-anchor="middle" fill="%23ff7a00" font-family="Arial" font-size="48">Image non trouvée : slide-' + i + '.png</text></svg>';
+                };
+
+                wrapper.appendChild(img);
+
+                // Numéro de page — masqué pour le poster
+                if (!presentation.isPoster) {
+                    const slideNumber = document.createElement('div');
+                    slideNumber.className = 'slide-number';
+                    slideNumber.textContent = i;
+                    wrapper.appendChild(slideNumber);
+                }
+
+                slideEl.appendChild(wrapper);
+                slidesContainer.appendChild(slideEl);
+            }
+
+            const modal = document.getElementById('presentationModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            showSlide(0);
+
+            document.getElementById('navLeft').onclick = previousSlide;
+            document.getElementById('navRight').onclick = nextSlide;
+
+            const container = document.getElementById('slidesContainer');
+            container.addEventListener('touchstart', handleTouchStart, false);
+            container.addEventListener('touchend', handleTouchEnd, false);
+            modal.addEventListener('wheel', handleWheel, { passive: false });
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        function closePresentation() {
+            const modal = document.getElementById('presentationModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+
+            const container = document.getElementById('slidesContainer');
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchend', handleTouchEnd);
+            modal.removeEventListener('wheel', handleWheel);
+            document.removeEventListener('keydown', handleKeyPress);
+        }
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const presentation = presentations[currentPresentationIndex];
+
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'exit-left');
+                if (i === index)      slide.classList.add('active');
+                else if (i < index)   slide.classList.add('exit-left');
+            });
+
+            currentSlideIndex = index;
+            const progress = ((index + 1) / presentation.slideCount) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function nextSlide()     { const n = document.querySelectorAll('.slide').length; if (currentSlideIndex < n - 1) showSlide(currentSlideIndex + 1); }
+        function previousSlide() { if (currentSlideIndex > 0) showSlide(currentSlideIndex - 1); }
+
+        function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
+        function handleTouchEnd(e)   { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }
+
+        function handleSwipe() {
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) diff > 0 ? nextSlide() : previousSlide();
+        }
+
+        function handleWheel(e) {
+            if (Math.abs(e.deltaX) > 0) e.preventDefault();
+            if (isThrottled) return;
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                if (e.deltaX > 10)       { nextSlide();     isThrottled = true; setTimeout(() => { isThrottled = false; }, 500); }
+                else if (e.deltaX < -10) { previousSlide(); isThrottled = true; setTimeout(() => { isThrottled = false; }, 500); }
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft')               { e.preventDefault(); previousSlide(); }
+            else if (e.key === 'Escape')                   closePresentation();
+        }
+
+        /* ─── Timeline line — se dessine au scroll ─── */
+        const timelineContainer = document.getElementById('timelineContainer');
+        const timelineLine      = document.getElementById('timelineLine');
+        let lineFixed   = false;
+        let dotOffsets  = [];
+        let lastDotMax  = 0;
+        let minLineH    = 0; // plancher : la ligne ne peut plus rétrécir en dessous
+
+        // Calcul fiable des positions via positions réelles rendues
+        function computeDotOffsets() {
+            const containerTop = timelineContainer.getBoundingClientRect().top + window.scrollY;
+            dotOffsets = [];
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                const dot = item.querySelector('.timeline-dot');
+                const dotRect = dot.getBoundingClientRect();
+                // Centre du dot par rapport au haut du container
+                const pos = dotRect.top + window.scrollY - containerTop + dotRect.height / 2;
+                dotOffsets.push(pos);
+            });
+            lastDotMax = dotOffsets[dotOffsets.length - 1];
+        }
+
+        function updateTimelineLine() {
+            if (lineFixed) return;
+
+            // Recalcul des positions à chaque frame pour éviter tout décalage
+            computeDotOffsets();
+
+            const containerRect = timelineContainer.getBoundingClientRect();
+            const windowH       = window.innerHeight;
+
+            // Front naturel de la ligne selon le scroll
+            const scrolled  = Math.max(0, windowH * 0.55 - containerRect.top);
+            // Plafonné au dernier point, et jamais en dessous du plancher
+            const lineH     = Math.max(minLineH, Math.min(lastDotMax, scrolled));
+
+            timelineLine.style.height = lineH + 'px';
+
+            // Largeur progressive : part de 0.5px, atteint 2px sur les 120 premiers px
+            const widthProgress = Math.min(1, lineH / 120);
+            const lineW = 0.5 + widthProgress * 1.5; // 0.5px → 2px
+            timelineLine.style.width = lineW + 'px';
+
+            // Déclencher le pop de chaque point quand la ligne le touche
+            const items = document.querySelectorAll('.timeline-item');
+            items.forEach((item, idx) => {
+                const dot = item.querySelector('.timeline-dot');
+
+                if (lineH >= dotOffsets[idx]) {
+                    // Mettre à jour le plancher : la ligne ne peut plus reculer au-delà de ce point
+                    if (dotOffsets[idx] > minLineH) {
+                        minLineH = dotOffsets[idx];
+                    }
+                    // 1) Pop du point (immédiat)
+                    if (!dot.classList.contains('popped')) {
+                        dot.classList.add('popped');
+                        // 2) Apparition de la box (léger délai après le pop)
+                        setTimeout(() => item.classList.add('visible'), 180);
+                    }
+                }
+            });
+
+            // Figer la ligne une fois qu'elle atteint le dernier point
+            if (lineH >= lastDotMax) {
+                lineFixed = true;
+                window.removeEventListener('scroll', updateTimelineLine);
+            }
+        }
+
+        /* ─── Particules ─── */
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 100 + 50;
+            p.style.width  = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left   = Math.random() * 100 + '%';
+            p.style.top    = Math.random() * 100 + '%';
+            p.style.animationDelay    = Math.random() * 20 + 's';
+            p.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            particlesContainer.appendChild(p);
+        }
+
+        /* ─── Reveal du header ─── */
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        /* ─── Events ─── */
+        window.addEventListener('scroll', updateTimelineLine, { passive: true });
+        window.addEventListener('resize', () => { computeDotOffsets(); updateTimelineLine(); }, { passive: true });
+
+        // Init
+        computeDotOffsets();
+        updateTimelineLine();
+    </script>
+
+</body>
+</html>
