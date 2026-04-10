@@ -154,97 +154,81 @@
         }
 
         /* =============================================
-           AJOUT : BOUTON RÉALITÉ AUGMENTÉE
+           BOUTON RÉALITÉ AUGMENTÉE
            ============================================= */
 
-        /* Masqué sur desktop, visible seulement sur mobile */
+        /* Masqué par défaut sur tous les écrans.
+           Le JS l'affiche uniquement sur iOS et Android. */
         #ar-btn {
             display: none;
         }
 
-        @media (max-width: 900px) and (hover: none) and (pointer: coarse) {
-            #ar-btn {
-                display: flex;
-                align-items: center;
-                gap: 10px;
+        /* Styles communs iOS + Android (display géré par le JS) */
+        #ar-btn.ar-ready {
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 10;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
 
-                /* Style inspiré du design du site */
-                background: rgba(0, 0, 0, 0.6);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
-                border: 1px solid var(--neon);
-                color: var(--neon);
-                font-family: "Orbitron", sans-serif;
-                font-size: 0.75rem;
-                font-weight: 600;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-                padding: 14px 28px;
-                border-radius: 50px;
-                cursor: pointer;
-                white-space: nowrap;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--neon);
+            color: var(--neon);
+            font-family: "Orbitron", sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 14px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
 
-                /* Halo orange ambiant */
-                box-shadow:
-                    0 0 20px rgba(255, 122, 0, 0.25),
-                    inset 0 0 12px rgba(255, 122, 0, 0.05);
+            box-shadow:
+                0 0 20px rgba(255, 122, 0, 0.25),
+                inset 0 0 12px rgba(255, 122, 0, 0.05);
 
-                transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
-                -webkit-tap-highlight-color: transparent;
-                text-decoration: none; /* Nécessaire quand <button> devient <a> sur iOS */
-            }
-
-            #ar-btn:active {
-                transform: translateX(-50%) scale(0.96);
-                background: rgba(255, 122, 0, 0.15);
-                box-shadow:
-                    0 0 40px rgba(255, 122, 0, 0.5),
-                    inset 0 0 16px rgba(255, 122, 0, 0.1);
-            }
-
-            /* Animation de pulsation pour attirer l'attention */
-            #ar-btn::before {
-                content: '';
-                position: absolute;
-                inset: -2px;
-                border-radius: 50px;
-                border: 1px solid rgba(255, 122, 0, 0.4);
-                animation: ar-pulse 2.5s ease-in-out infinite;
-                pointer-events: none;
-            }
-
-            @keyframes ar-pulse {
-                0%, 100% { opacity: 0.6; transform: scale(1); }
-                50%       { opacity: 0;   transform: scale(1.08); }
-            }
-
-            /* État indisponible */
-            #ar-btn.ar-unavailable {
-                border-color: #444;
-                color: #555;
-                box-shadow: none;
-                cursor: default;
-            }
-
-            #ar-btn.ar-unavailable::before {
-                display: none;
-            }
+            transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Icône SVG dans le bouton */
+        #ar-btn.ar-ready:active {
+            transform: translateX(-50%) scale(0.96);
+            background: rgba(255, 122, 0, 0.15);
+            box-shadow:
+                0 0 40px rgba(255, 122, 0, 0.5),
+                inset 0 0 16px rgba(255, 122, 0, 0.1);
+        }
+
+        #ar-btn.ar-ready::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 122, 0, 0.4);
+            animation: ar-pulse 2.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ar-pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50%       { opacity: 0;   transform: scale(1.08); }
+        }
+
         #ar-btn svg {
             width: 18px;
             height: 18px;
             flex-shrink: 0;
         }
         /* =============================================
-           FIN AJOUT
+           FIN BOUTON AR
            ============================================= */
     </style>
 </head>
@@ -355,11 +339,7 @@
             <div id="three-canvas-container"></div>
             <div id="loader-text">INITIALISATION DU SYSTÈME...</div>
 
-            <!-- =============================================
-                 AJOUT : BOUTON AR (masqué sur desktop via CSS)
-                 ============================================= -->
             <button id="ar-btn" aria-label="Voir le robot en réalité augmentée, en taille réelle">
-                <!-- Icône AR : cube avec coins de visée -->
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M2 7V2h5M17 2h5v5M22 17v5h-5M7 22H2v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12 8l4 2.3v4.4L12 17l-4-2.3v-4.4L12 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -367,9 +347,6 @@
                 </svg>
                 Voir en taille réelle
             </button>
-            <!-- =============================================
-                 FIN AJOUT
-                 ============================================= -->
         </div>
     </section>
 
@@ -412,7 +389,6 @@
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
         camera.position.set(2, 1.5, 3.5);
 
-        // OPTIMISATION : powerPreference pour forcer le GPU et pixelRatio limité à 2
         const renderer = new THREE.WebGLRenderer({ 
             antialias: true, 
             alpha: true,
@@ -448,7 +424,6 @@
 
         const loader = new GLTFLoader();
         
-        // OPTIMISATION : Ajout de la gestion de la progression réelle
         loader.load('robot_complet.glb', (gltf) => {
             const model = gltf.scene;
             scene.add(model);
@@ -482,7 +457,6 @@
             model.traverse(n => { if(n.isMesh) console.log(n.name, '→ parent:', n.parent?.name) });
 
         }, (xhr) => {
-            // Mise à jour du texte avec le pourcentage réel
             if (xhr.lengthComputable) {
                 const percentComplete = Math.round((xhr.loaded / xhr.total) * 100);
                 loaderText.innerText = `CHARGEMENT : ${percentComplete}%`;
@@ -526,8 +500,7 @@
     </script>
 
     <!-- =============================================
-         AJOUT : SCRIPT RÉALITÉ AUGMENTÉE
-         (script classique, indépendant du module Three.js)
+         SCRIPT RÉALITÉ AUGMENTÉE
          ============================================= -->
     <script>
         (function () {
@@ -535,29 +508,25 @@
             if (!arBtn) return;
 
             // URL absolue du modèle (requise par Scene Viewer Android).
-            // Fallback si la page est ouverte en local (file://) : URL relative.
             let modelUrl;
             try {
                 modelUrl = new URL('robot_complet.glb', window.location.href).href;
-                // file:// n'est pas accepté par Scene Viewer : on garde juste le chemin relatif
                 if (modelUrl.startsWith('file://')) modelUrl = 'robot_complet.glb';
             } catch (e) {
                 modelUrl = 'robot_complet.glb';
             }
 
             // Détection plateforme
-            // Note : depuis iPadOS 13, les iPads envoient un UA "Macintosh" identique à desktop.
-            // On ajoute le check navigator.maxTouchPoints pour les couvrir.
             const isIOS     = (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
                                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
                                && !window.MSStream;
             const isAndroid = /Android/i.test(navigator.userAgent);
 
             // ----- iOS : AR Quick Look -----
-            // IMPORTANT : Safari exige que l'utilisateur tape DIRECTEMENT sur un <a rel="ar">.
-            // Un .click() programmatique est bloqué par le navigateur. On remplace donc le
-            // <button> par un vrai <a rel="ar"> dès le chargement de la page.
-            // Fonctionne avec .glb depuis iOS 15 / Safari 15. Requiert HTTPS en production.
+            // Safari exige un tap direct sur <a rel="ar"> avec un <img> enfant.
+            // ORDRE CRITIQUE :
+            //   1. innerHTML = ... (contenu visuel)
+            //   2. insertBefore(img, firstChild) — l'img doit survivre, pas être effacée
             function setupIosAR() {
                 const anchor = document.createElement('a');
                 anchor.setAttribute('rel', 'ar');
@@ -565,22 +534,24 @@
                 anchor.id = 'ar-btn';
                 anchor.setAttribute('aria-label', arBtn.getAttribute('aria-label'));
 
-                // Apple exige un <img> enfant direct pour activer AR Quick Look.
+                // 1. Copie du contenu visuel en premier
+                anchor.innerHTML = arBtn.innerHTML;
+
+                // 2. Insertion de l'img APRÈS le innerHTML (sinon innerHTML += l'écrase)
+                //    Apple exige que cet <img> soit le premier enfant direct.
                 const img = document.createElement('img');
                 img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
                 img.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
-                anchor.appendChild(img);
+                anchor.insertBefore(img, anchor.firstChild);
 
-                // Copie le contenu visuel (icône SVG + texte)
-                anchor.innerHTML += arBtn.innerHTML;
+                // Activation du style visible
+                anchor.classList.add('ar-ready');
 
                 // Substitution dans le DOM : <button> → <a rel="ar">
                 arBtn.parentNode.replaceChild(anchor, arBtn);
             }
 
             // ----- Android : Google Scene Viewer -----
-            // Ouvre le viewer AR natif de Google via un Intent URL.
-            // Fallback = page actuelle si l'app n'est pas disponible.
             function launchAndroidAR() {
                 const fallback = encodeURIComponent(window.location.href);
                 const file     = encodeURIComponent(modelUrl);
@@ -602,18 +573,16 @@
 
             // ----- Branchement plateforme -----
             if (isIOS) {
-                setupIosAR(); // Remplacement immédiat au chargement, pas au clic
-
+                setupIosAR();
             } else if (isAndroid) {
+                arBtn.classList.add('ar-ready');
                 arBtn.addEventListener('click', launchAndroidAR);
-
-            } else {
-                arBtn.style.display = 'none'; // Desktop : masqué (CSS le fait déjà)
             }
+            // Desktop : bouton reste display:none (géré par CSS)
         })();
     </script>
     <!-- =============================================
-         FIN AJOUT
+         FIN SCRIPT AR
          ============================================= -->
 
 </body>
