@@ -17,6 +17,7 @@
     </script>
 
     <style>
+        /* ---- DESIGN SYSTEM ---- */
         :root {
             --neon: #ff7a00;
             --bg-deep: #000000;
@@ -35,6 +36,7 @@
 
         h1, h2, h3, .tech-font { font-family: "Orbitron", sans-serif; letter-spacing: -1px; }
         
+        /* FOND AMBIANT */
         .ambient-light {
             position: fixed;
             top: -20%; left: 50%;
@@ -45,6 +47,7 @@
             pointer-events: none;
         }
 
+        /* STYLE TAG */
         .section-tag {
             color: var(--neon);
             font-size: 0.75rem;
@@ -56,6 +59,7 @@
             font-family: "Inter", sans-serif;
         }
 
+        /* ---- LAYOUT ---- */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
         
         .section-full {
@@ -77,6 +81,7 @@
         .highlight { color: var(--text-main); font-weight: 600; }
         .neon-text { color: var(--neon); text-shadow: 0 0 20px rgba(255, 122, 0, 0.5); }
 
+        /* ---- GRILLES ---- */
         .grid-feature {
             display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
             align-items: center; margin: 150px 0; text-align: left;
@@ -94,6 +99,7 @@
         .stat-number { font-size: 5rem; font-family: "Orbitron"; font-weight: 900; color: var(--text-main); line-height: 1; }
         .stat-label { font-size: 1.2rem; color: var(--text-sub); margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
 
+        /* ---- BOUTON RETOUR ---- */
         .btn-back {
             display: inline-block; padding: 15px 40px; border-radius: 50px;
             border: 1px solid var(--neon); color: var(--neon); text-decoration: none;
@@ -101,6 +107,7 @@
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
 
+        /* ---- DIVIDER LASER ---- */
         .divider {
             margin: 0 auto 60px auto;
             height: 2px;
@@ -110,6 +117,7 @@
             filter: drop-shadow(0 0 6px #ff9900);
         }
 
+        /* ---- 3D ---- */
         #viewer-container {
             width: 100%; height: 80vh; border-radius: 40px;
             background: radial-gradient(circle at center, #1a1a1a, #000);
@@ -122,6 +130,7 @@
             outline: none;
         }
 
+        /* OPTIMISATION CSS : On cible uniquement les propriétés nécessaires */
         .reveal { 
             opacity: 0; 
             transform: translateY(40px); 
@@ -136,90 +145,36 @@
             text-align: center;
         }
 
-        /* =============================================
-           COLOR PICKER
-           ============================================= */
-        #color-picker-panel {
-            position: absolute;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: none;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.4s ease;
+        @media (max-width: 900px) {
+            .section-title { font-size: 2.5rem; }
+            .grid-feature, .stats-wrapper { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+            .feature-card { padding: 40px 20px; }
+            .section-full { min-height: auto; padding: 80px 0; }
+            .reveal { opacity: 1 !important; transform: none !important; }
         }
-
-        #color-picker-panel.visible {
-            opacity: 1;
-        }
-
-        #color-swatches {
-            display: flex;
-            gap: 12px;
-            background: rgba(10, 10, 10, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 60px;
-            padding: 12px 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
-
-        .color-swatch {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2.5px solid transparent;
-            transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
-            flex-shrink: 0;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            /* Cible tactile agrandie invisible */
-            padding: 0;
-            position: relative;
-        }
-
-        .color-swatch::after {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-        }
-
-        .color-swatch:hover { transform: scale(1.18); }
-
-        .color-swatch.active {
-            border-color: rgba(255,255,255,0.9);
-            box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 0 14px rgba(255,255,255,0.2);
-            transform: scale(1.12);
-        }
-
-        /* Sur mobile : swatches plus grands, panel au-dessus du bouton AR */
-        @media (max-width: 768px) {
-            #color-swatches { gap: 14px; padding: 13px 22px; }
-            .color-swatch { width: 40px; height: 40px; }
-        }
-        /* =============================================
-           FIN COLOR PICKER
-           ============================================= */
 
         /* =============================================
            BOUTON RÉALITÉ AUGMENTÉE
            ============================================= */
-        #ar-btn { display: none; }
 
+        /* Masqué par défaut sur tous les écrans.
+           Le JS l'affiche uniquement sur iOS et Android. */
+        #ar-btn {
+            display: none;
+        }
+
+        /* Styles communs iOS + Android (display géré par le JS) */
         #ar-btn.ar-ready {
             display: flex;
             align-items: center;
             gap: 10px;
+
             position: absolute;
-            bottom: 90px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
+
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -235,7 +190,11 @@
             cursor: pointer;
             white-space: nowrap;
             text-decoration: none;
-            box-shadow: 0 0 20px rgba(255, 122, 0, 0.25), inset 0 0 12px rgba(255, 122, 0, 0.05);
+
+            box-shadow:
+                0 0 20px rgba(255, 122, 0, 0.25),
+                inset 0 0 12px rgba(255, 122, 0, 0.05);
+
             transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
             -webkit-tap-highlight-color: transparent;
         }
@@ -243,7 +202,9 @@
         #ar-btn.ar-ready:active {
             transform: translateX(-50%) scale(0.96);
             background: rgba(255, 122, 0, 0.15);
-            box-shadow: 0 0 40px rgba(255, 122, 0, 0.5), inset 0 0 16px rgba(255, 122, 0, 0.1);
+            box-shadow:
+                0 0 40px rgba(255, 122, 0, 0.5),
+                inset 0 0 16px rgba(255, 122, 0, 0.1);
         }
 
         #ar-btn.ar-ready::before {
@@ -261,16 +222,14 @@
             50%       { opacity: 0;   transform: scale(1.08); }
         }
 
-        #ar-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-        @media (max-width: 900px) {
-            .section-title { font-size: 2.5rem; }
-            .grid-feature, .stats-wrapper { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-            .feature-card { padding: 40px 20px; }
-            .section-full { min-height: auto; padding: 80px 0; }
-            .reveal { opacity: 1 !important; transform: none !important; }
-            #color-picker-panel { bottom: 80px; }
+        #ar-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
         }
+        /* =============================================
+           FIN BOUTON AR
+           ============================================= */
     </style>
 </head>
 <body>
@@ -279,9 +238,11 @@
 
     <header style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;" class="reveal">
         <span class="section-tag">Ingénierie de Précision S1</span>
+        
         <h1 style="font-size: 5rem; margin: 20px 0; color: #ff7a00; text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3); letter-spacing: -2px; line-height: 1.1; font-family: 'Orbitron'; font-weight: 900;">
             LE BRAS<br>DE FER.
         </h1>
+
         <p style="font-size: 1.5rem; color: var(--text-sub); max-width: 600px;">
             L'automatisation ne consiste pas seulement à aller plus vite.<br>
             Il s'agit d'atteindre la perfection, cube après cube.
@@ -378,13 +339,6 @@
             <div id="three-canvas-container"></div>
             <div id="loader-text">INITIALISATION DU SYSTÈME...</div>
 
-            <!-- COLOR PICKER -->
-            <div id="color-picker-panel">
-                <div id="color-swatches">
-                    <!-- Les swatches sont générés par JS -->
-                </div>
-            </div>
-
             <button id="ar-btn" aria-label="Voir le robot en réalité augmentée, en taille réelle">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M2 7V2h5M17 2h5v5M22 17v5h-5M7 22H2v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -406,7 +360,7 @@
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        /* --- ANIMATION DE PAGE --- */
+        /* --- LOGIQUE D'ANIMATION DE PAGE --- */
         const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -418,18 +372,28 @@
         }, observerOptions);
 
         const hiddenElements = document.querySelectorAll('.reveal');
-        if (hiddenElements.length > 0) setTimeout(() => hiddenElements[0].classList.add('active'), 100);
+        if (hiddenElements.length > 0) {
+            setTimeout(() => {
+                hiddenElements[0].classList.add('active');
+            }, 100);
+        }
         hiddenElements.forEach(el => observer.observe(el));
 
-        /* --- THREE.JS --- */
+
+        /* --- LOGIQUE THREE.JS OPTIMISÉE --- */
         const container = document.getElementById('three-canvas-container');
         const loaderText = document.getElementById('loader-text');
         
         const scene = new THREE.Scene();
+        
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
         camera.position.set(2, 1.5, 3.5);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: true, 
+            alpha: true,
+            powerPreference: "high-performance" 
+        });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -440,10 +404,12 @@
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
+
         const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
         mainLight.position.set(5, 10, 7);
         mainLight.castShadow = true;
         scene.add(mainLight);
+
         const rimLight = new THREE.SpotLight(0xff7a00, 5);
         rimLight.position.set(-5, 5, -5);
         scene.add(rimLight);
@@ -456,133 +422,44 @@
         controls.autoRotateSpeed = 2.0;
         controls.maxPolarAngle = Math.PI / 2;
 
-        /* =============================================
-           COLOR PICKER — configuration
-           ============================================= */
-
-        // Noms de meshes qui appartiennent à la structure (châssis)
-        // Tout ce qui ne correspond pas à ce pattern est considéré comme servo/détail.
-        const STRUCTURE_PATTERNS = [
-            'Base_bras', 'Base-', 'ara5mm', 'ara-',
-            'demir1', 'demir2', '2020_aluminium',
-            'Patin', 'Rail', 'Bielle', 'Mors',
-            'BASE_PINCE', 'RONDELLE_CERVEAU', 'servo_pince'
-        ];
-
-        function isStructureMesh(name) {
-            return STRUCTURE_PATTERNS.some(p => name.startsWith(p) || name.includes(p));
-        }
-
-        // Palette de couleurs : { label, hex, shadow }
-        const COLOR_PALETTE = [
-            { label: 'Blanc',       hex: '#e8e8ec', shadow: 'rgba(232,232,236,0.5)' },
-            { label: 'Acier',       hex: '#8a9bb0', shadow: 'rgba(138,155,176,0.5)' },
-            { label: 'Anthracite',  hex: '#2e3440', shadow: 'rgba(46,52,64,0.5)'    },
-            { label: 'Nuit',        hex: '#0d1117', shadow: 'rgba(13,17,23,0.5)'    },
-            { label: 'Orange',      hex: '#ff7a00', shadow: 'rgba(255,122,0,0.6)'   },
-            { label: 'Rouge',       hex: '#c0392b', shadow: 'rgba(192,57,43,0.5)'   },
-            { label: 'Bleu',        hex: '#1a6bc4', shadow: 'rgba(26,107,196,0.5)'  },
-            { label: 'Vert',        hex: '#27ae60', shadow: 'rgba(39,174,96,0.5)'   },
-        ];
-
-        // Stocker les matériaux de structure pour les modifier facilement
-        const structureMaterials = [];
-        let activeSwatchIndex = 0;
-
-        function applyStructureColor(hexColor) {
-            structureMaterials.forEach(mat => {
-                mat.color.set(hexColor);
-                // Neutralise l'émission colorée et plafonne la réflectivité
-                // pour éviter que la couleur "saigne" sur les pièces noires adjacentes
-                if (mat.emissive) mat.emissive.set(0x000000);
-                if (mat.metalness !== undefined) mat.metalness = Math.min(mat.metalness, 0.15);
-                if (mat.roughness !== undefined) mat.roughness = Math.max(mat.roughness, 0.55);
-            });
-        }
-
-        function buildColorPicker() {
-            const panel  = document.getElementById('color-picker-panel');
-            const swatchContainer = document.getElementById('color-swatches');
-
-            COLOR_PALETTE.forEach((colorDef, i) => {
-                const swatch = document.createElement('button');
-                swatch.className = 'color-swatch' + (i === activeSwatchIndex ? ' active' : '');
-                swatch.title = colorDef.label;
-                swatch.style.background = colorDef.hex;
-                swatch.style.boxShadow = i === activeSwatchIndex
-                    ? `0 0 12px ${colorDef.shadow}, 0 0 0 2px rgba(255,255,255,0.15)`
-                    : 'none';
-
-                swatch.addEventListener('click', () => {
-                    swatchContainer.querySelectorAll('.color-swatch').forEach((s, j) => {
-                        s.classList.toggle('active', j === i);
-                        s.style.boxShadow = j === i
-                            ? `0 0 12px ${COLOR_PALETTE[j].shadow}, 0 0 0 2px rgba(255,255,255,0.15)`
-                            : 'none';
-                    });
-                    activeSwatchIndex = i;
-                    applyStructureColor(colorDef.hex);
-                });
-
-                swatchContainer.appendChild(swatch);
-            });
-
-            panel.style.display = 'flex';
-            requestAnimationFrame(() => panel.classList.add('visible'));
-        }
-
-        /* =============================================
-           CHARGEMENT DU MODÈLE
-           ============================================= */
         const loader = new GLTFLoader();
-
+        
         loader.load('robot_complet.glb', (gltf) => {
             const model = gltf.scene;
             scene.add(model);
-
-            // Centrage
+            
             const box = new THREE.Box3().setFromObject(model);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
+            
             model.position.x += (model.position.x - center.x);
             model.position.y += (model.position.y - center.y);
             model.position.z += (model.position.z - center.z);
-
+            
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
-            let cameraZ = Math.abs(maxDim / (2 * Math.tan(fov / 2))) * 1.3;
-            camera.position.set(0, size.y / 2, cameraZ);
+            let cameraZ = Math.abs(maxDim / (2 * Math.tan(fov / 2))) * 1.3; 
+
+            camera.position.set(0, size.y / 2, cameraZ); 
             const newTarget = new THREE.Vector3(0, 0, 0);
             camera.lookAt(newTarget);
             controls.target.copy(newTarget);
             controls.update();
 
-            // Ombres + collecte des matériaux de structure
             model.traverse((node) => {
                 if (node.isMesh) {
                     node.castShadow = true;
                     node.receiveShadow = true;
-
-                    if (isStructureMesh(node.name)) {
-                        // Cloner le matériau pour ne pas affecter d'autres instances
-                        node.material = node.material.clone();
-                        structureMaterials.push(node.material);
-                    }
                 }
             });
 
-            // Appliquer la couleur par défaut (blanc, index 0)
-            applyStructureColor(COLOR_PALETTE[0].hex);
-
-            // Afficher le color picker
-            buildColorPicker();
-
             loaderText.style.opacity = '0';
+            model.traverse(n => { if(n.isMesh) console.log(n.name, '→ parent:', n.parent?.name) });
 
         }, (xhr) => {
             if (xhr.lengthComputable) {
-                const pct = Math.round((xhr.loaded / xhr.total) * 100);
-                loaderText.innerText = `CHARGEMENT : ${pct}%`;
+                const percentComplete = Math.round((xhr.loaded / xhr.total) * 100);
+                loaderText.innerText = `CHARGEMENT : ${percentComplete}%`;
             }
         }, (error) => {
             console.error('Erreur chargement modèle:', error);
@@ -590,7 +467,6 @@
             loaderText.style.color = "red";
         });
 
-        /* --- RESIZE --- */
         window.addEventListener('resize', () => {
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
@@ -598,10 +474,15 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         });
 
-        /* --- AUTO-ROTATE --- */
         let idleTimer;
-        function startIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { controls.autoRotate = true; }, 5000); }
-        function stopAutoRotate() { controls.autoRotate = false; clearTimeout(idleTimer); }
+        function startIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => { controls.autoRotate = true; }, 5000);
+        }
+        function stopAutoRotate() {
+            controls.autoRotate = false;
+            clearTimeout(idleTimer);
+        }
 
         container.addEventListener('mousedown', stopAutoRotate);
         container.addEventListener('touchstart', stopAutoRotate);
@@ -610,7 +491,6 @@
         controls.addEventListener('start', stopAutoRotate);
         controls.addEventListener('end', startIdleTimer);
 
-        /* --- BOUCLE DE RENDU --- */
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
@@ -627,6 +507,10 @@
             const arBtn = document.getElementById('ar-btn');
             if (!arBtn) return;
 
+            // URL absolue du modèle (requise par Scene Viewer Android).
+            // iOS AR Quick Look : .usdz est le format natif d'Apple, fiable à 100%.
+            // Le .glb peut planter silencieusement selon le fichier (matériaux, taille...).
+            // Android Scene Viewer : .glb uniquement.
             let modelUrlIOS, modelUrlAndroid;
             try {
                 modelUrlIOS     = new URL('robot_complet.usdz', window.location.href).href;
@@ -638,47 +522,74 @@
                 modelUrlAndroid = 'robot_complet.glb';
             }
 
+            // Détection plateforme
             const isIOS     = (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
                                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
                                && !window.MSStream;
             const isAndroid = /Android/i.test(navigator.userAgent);
 
+            // ----- iOS : AR Quick Look -----
+            // Safari exige un tap direct sur <a rel="ar"> avec un <img> enfant.
+            // ORDRE CRITIQUE :
+            //   1. innerHTML = ... (contenu visuel)
+            //   2. insertBefore(img, firstChild) — l'img doit survivre, pas être effacée
             function setupIosAR() {
                 const anchor = document.createElement('a');
                 anchor.setAttribute('rel', 'ar');
                 anchor.setAttribute('href', modelUrlIOS);
                 anchor.id = 'ar-btn';
                 anchor.setAttribute('aria-label', arBtn.getAttribute('aria-label'));
+
+                // 1. Copie du contenu visuel en premier
                 anchor.innerHTML = arBtn.innerHTML;
+
+                // 2. Insertion de l'img APRÈS le innerHTML (sinon innerHTML += l'écrase)
+                //    Apple exige que cet <img> soit le premier enfant direct.
                 const img = document.createElement('img');
                 img.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
                 img.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
                 anchor.insertBefore(img, anchor.firstChild);
+
+                // Activation du style visible
                 anchor.classList.add('ar-ready');
+
+                // Substitution dans le DOM : <button> → <a rel="ar">
                 arBtn.parentNode.replaceChild(anchor, arBtn);
             }
 
+            // ----- Android : Google Scene Viewer -----
             function launchAndroidAR() {
                 const fallback = encodeURIComponent(window.location.href);
                 const file     = encodeURIComponent(modelUrlAndroid);
                 const title    = encodeURIComponent('Le Bras de Fer');
+
                 const intentUrl =
                     `intent://arvr.google.com/scene-viewer/1.0` +
-                    `?file=${file}&mode=ar_preferred&title=${title}&resizable=false` +
-                    `#Intent;scheme=https;package=com.google.android.googlequicksearchbox;` +
-                    `action=android.intent.action.VIEW;S.browser_fallback_url=${fallback};end;`;
+                    `?file=${file}` +
+                    `&mode=ar_preferred` +
+                    `&title=${title}` +
+                    `&resizable=false` +
+                    `#Intent;scheme=https;` +
+                    `package=com.google.android.googlequicksearchbox;` +
+                    `action=android.intent.action.VIEW;` +
+                    `S.browser_fallback_url=${fallback};end;`;
+
                 window.location.href = intentUrl;
             }
 
+            // ----- Branchement plateforme -----
             if (isIOS) {
                 setupIosAR();
             } else if (isAndroid) {
                 arBtn.classList.add('ar-ready');
                 arBtn.addEventListener('click', launchAndroidAR);
             }
+            // Desktop : bouton reste display:none (géré par CSS)
         })();
     </script>
+    <!-- =============================================
+         FIN SCRIPT AR
+         ============================================= -->
 
 </body>
 </html>
-
