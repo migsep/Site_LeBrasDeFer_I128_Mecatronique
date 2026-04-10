@@ -508,12 +508,18 @@
             if (!arBtn) return;
 
             // URL absolue du modèle (requise par Scene Viewer Android).
-            let modelUrl;
+            // iOS AR Quick Look : .usdz est le format natif d'Apple, fiable à 100%.
+            // Le .glb peut planter silencieusement selon le fichier (matériaux, taille...).
+            // Android Scene Viewer : .glb uniquement.
+            let modelUrlIOS, modelUrlAndroid;
             try {
-                modelUrl = new URL('robot_complet.glb', window.location.href).href;
-                if (modelUrl.startsWith('file://')) modelUrl = 'robot_complet.glb';
+                modelUrlIOS     = new URL('robot_complet.usdz', window.location.href).href;
+                modelUrlAndroid = new URL('robot_complet.glb',  window.location.href).href;
+                if (modelUrlIOS.startsWith('file://'))     modelUrlIOS     = 'robot_complet.usdz';
+                if (modelUrlAndroid.startsWith('file://')) modelUrlAndroid = 'robot_complet.glb';
             } catch (e) {
-                modelUrl = 'robot_complet.glb';
+                modelUrlIOS     = 'robot_complet.usdz';
+                modelUrlAndroid = 'robot_complet.glb';
             }
 
             // Détection plateforme
@@ -530,7 +536,7 @@
             function setupIosAR() {
                 const anchor = document.createElement('a');
                 anchor.setAttribute('rel', 'ar');
-                anchor.setAttribute('href', modelUrl);
+                anchor.setAttribute('href', modelUrlIOS);
                 anchor.id = 'ar-btn';
                 anchor.setAttribute('aria-label', arBtn.getAttribute('aria-label'));
 
@@ -554,7 +560,7 @@
             // ----- Android : Google Scene Viewer -----
             function launchAndroidAR() {
                 const fallback = encodeURIComponent(window.location.href);
-                const file     = encodeURIComponent(modelUrl);
+                const file     = encodeURIComponent(modelUrlAndroid);
                 const title    = encodeURIComponent('Le Bras de Fer');
 
                 const intentUrl =
