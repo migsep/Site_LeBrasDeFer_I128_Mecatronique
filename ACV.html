@@ -1889,18 +1889,25 @@
                 updateHeight(cur);
             }
 
-            // Update dots + height as user scrolls natively
-            let scrollTimer;
+            // Update dots in real-time, height on snap
             wrap.addEventListener('scroll', () => {
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => {
-                    const idx = Math.round(wrap.scrollLeft / wrap.offsetWidth);
-                    if (idx !== cur) {
-                        cur = idx;
-                        updateDots(cur);
-                        updateHeight(cur);
-                    }
-                }, 50);
+                const progress = wrap.scrollLeft / Math.max(wrap.offsetWidth, 1);
+                const left = Math.min(Math.floor(progress), count - 1);
+                const frac = progress - left;
+                const dotEls = dotsEl.querySelectorAll('.phase-mobile-dot');
+                dotEls.forEach((d, i) => {
+                    let op;
+                    if      (i === left)     op = 1 - frac * 0.75;
+                    else if (i === left + 1) op = 0.25 + frac * 0.75;
+                    else                     op = 0.25;
+                    d.style.background = `rgba(255,255,255,${op})`;
+                    d.classList.remove('active');
+                });
+                const newCur = Math.round(progress);
+                if (newCur !== cur) {
+                    cur = newCur;
+                    updateHeight(cur);
+                }
             }, { passive: true });
 
             const phaseItem = wrap.closest('.phase-item');
@@ -1909,7 +1916,11 @@
             requestAnimationFrame(() => {
                 updateHeight(0);
                 wrap.scrollLeft = 0;
-                updateDots(0);
+                // Set initial dot states via inline style
+                dotsEl.querySelectorAll('.phase-mobile-dot').forEach((d, i) => {
+                    d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
+                    d.classList.remove('active');
+                });
             });
         });
     }
@@ -1922,6 +1933,12 @@
             const track = wrap.querySelector('.carousel-track');
             const dotsEl = wrap.querySelector('.carousel-dots');
             if (!track || !dotsEl) return;
+
+            // Move dots OUTSIDE the scroll container so they don't scroll away
+            if (!wrap.dataset.dotsDetached) {
+                wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
+                wrap.dataset.dotsDetached = 'true';
+            }
 
             const items = Array.from(track.children);
             const count = items.length;
@@ -1946,19 +1963,34 @@
                 updateDots(cur);
             }
 
-            // Update dots as user scrolls natively
-            let scrollTimer;
+            // Update dots in real-time as user scrolls
             wrap.addEventListener('scroll', () => {
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => {
-                    const idx = Math.round(wrap.scrollLeft / wrap.offsetWidth);
-                    if (idx !== cur) { cur = idx; updateDots(cur); }
-                }, 50);
+                const progress = wrap.scrollLeft / Math.max(wrap.offsetWidth, 1);
+                const left = Math.min(Math.floor(progress), count - 1);
+                const frac = progress - left;
+                const dotEls = dotsEl.querySelectorAll('.carousel-dot');
+                dotEls.forEach((d, i) => {
+                    let op;
+                    if      (i === left)     op = 1 - frac * 0.75;
+                    else if (i === left + 1) op = 0.25 + frac * 0.75;
+                    else                     op = 0.25;
+                    d.style.background = `rgba(255,255,255,${op})`;
+                    d.classList.remove('active');
+                });
+                cur = Math.round(progress);
             }, { passive: true });
 
             window.addEventListener('resize', () => {
                 if (!isMobile()) wrap.scrollLeft = 0;
                 else { wrap.scrollLeft = cur * wrap.offsetWidth; }
+            });
+
+            // Set initial dot states
+            requestAnimationFrame(() => {
+                dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                    d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
+                    d.classList.remove('active');
+                });
             });
         });
     }
