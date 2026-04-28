@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACV - LE BRAS DE FER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* =============================================
+           DESIGN SYSTEM
+        ============================================= */
+        :root {
+            --neon: #ff7a00;
+            --neon-dim: rgba(255,122,0,0.12);
+            --neon-glow: rgba(255,122,0,0.35);
+            --bg: #000000;
+            --bg-card: rgba(255,255,255,0.03);
+            --bg-card-solid: #0d0d0d;
+            --border: rgba(255,255,255,0.08);
+            --border-neon: rgba(255,122,0,0.3);
+            --text: #f5f5f7;
+            --muted: #86868b;
+
+            /* Phase colors */
+            --c1: #ff7a00; /* Conception */
+            --c2: #ff5c00; /* Fabrication */
+            --c3: #e84393; /* Assemblage */
+            --c4: #00c6ff; /* Utilisation */
+            --c5: #7c3aed; /* Maintenance */
+            --c6: #22c55e; /* Fin de vie */
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Inter", sans-serif;
+            overflow-x: hidden;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
+
+        h1, h2, h3, h4, .tech-font { font-family: "Orbitron", sans-serif; }
+
+        /* =============================================
+           AMBIENT BACKGROUND
+        ============================================= */
+        .ambient {
+            position: fixed;
+            top: -20%; left: 50%;
+            transform: translateX(-50%);
+            width: 100vw; height: 80vh;
+            background: radial-gradient(ellipse 70% 60% at 50% 10%, rgba(255,122,0,0.09), transparent 65%);
+            z-index: -1; pointer-events: none;
+        }
+
+        /* =============================================
+           LAYOUT
+        ============================================= */
+        .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+        .section-gap { margin-bottom: 140px; }
+
+        .section-tag {
+            color: var(--neon);
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 3px;
+            display: block; margin-bottom: 14px;
+            font-family: "Inter";
+        }
+
+        /* =============================================
+           HERO
+        ============================================= */
+        .hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; position: relative;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.75rem; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--neon);
+            font-weight: 600; font-family: "Inter";
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 7vw, 6rem);
+            font-weight: 900; line-height: 1;
+            letter-spacing: -3px; color: var(--neon);
+            text-shadow: 0 0 40px rgba(255,122,0,0.5), 0 0 80px rgba(255,122,0,0.25);
+            margin-bottom: 24px;
+        }
+
+        .hero-sub {
+            font-size: 1.2rem; color: var(--muted);
+            max-width: 580px; font-weight: 300; line-height: 1.7;
+            margin-bottom: 60px;
+        }
+
+
+
+        /* Hero stat pills */
+        .hero-pills {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+        }
+        .pill {
+            border: 1px solid var(--border-neon);
+            background: var(--neon-dim);
+            border-radius: 40px; padding: 8px 20px;
+            font-size: 0.8rem; color: var(--text);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .pill-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: var(--neon);
+            box-shadow: 0 0 8px var(--neon);
+        }
+
+        /* =============================================
+           REVEAL ANIMATION
+        ============================================= */
+        .reveal {
+            opacity: 0; transform: translateY(36px);
+            transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-d1 { transition-delay: 0.08s; }
+        .reveal-d2 { transition-delay: 0.16s; }
+        .reveal-d3 { transition-delay: 0.24s; }
+        .reveal-d4 { transition-delay: 0.32s; }
+
+        /* =============================================
+           CARDS
+        ============================================= */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px; padding: 32px;
+            backdrop-filter: blur(20px);
+            position: relative; overflow: hidden;
+        }
+        .card-neon {
+            border-color: var(--border-neon);
+            box-shadow: 0 0 40px rgba(255,122,0,0.08);
+        }
+
+        /* =============================================
+           SECTION 1 — PRÉSENTATION PROJET
+        ============================================= */
+        .chapter-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900; line-height: 1.1;
+            margin-bottom: 12px;
+        }
+        .chapter-sub {
+            font-size: 1.1rem; color: var(--muted);
+            font-weight: 300; max-width: 640px; line-height: 1.75;
+            margin-bottom: 50px;
+        }
+
+        .projet-grid {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 20px;
+        }
+        .projet-text { font-size: 0.95rem; color: var(--muted); line-height: 1.85; }
+        .projet-text strong { color: var(--text); }
+        .projet-text p + p { margin-top: 16px; }
+
+        /* KPI strip */
+        .kpi-strip {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+        }
+        .kpi {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 18px; padding: 24px 18px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .kpi::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+        }
+        .kpi-val {
+            font-family: "Orbitron"; font-size: 2.2rem; font-weight: 900;
+            color: var(--text); line-height: 1;
+        }
+        .kpi-val span { font-size: 1rem; color: var(--neon); }
+        .kpi-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 8px; }
+
+        /* Sous-systèmes — Apple style */
+        .subsys-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 20px;
+        }
+        .subsys-item {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        /* Visual / image card */
+        .subsys-visual {
+            width: 100%;
+            aspect-ratio: 4/3;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+        /* Text below — outside the card */
+        .subsys-text {
+            padding: 0 4px;
+        }
+        .subsys-text p {
+            font-size: 0.9rem;
+            color: #888;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .subsys-text p .subsys-title {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* ── Visual 1 — Mécanique ── */
+        .sv-meca {
+            background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+        }
+        .sv-meca::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                repeating-linear-gradient(90deg, rgba(180,200,220,0.06) 0px, rgba(180,200,220,0.06) 1px, transparent 1px, transparent 40px),
+                repeating-linear-gradient(0deg,  rgba(180,200,220,0.06) 0px, rgba(180,200,220,0.06) 1px, transparent 1px, transparent 40px);
+        }
+        .sv-meca::after {
+            content: '';
+            position: absolute;
+            bottom: 10%; left: 50%; transform: translateX(-50%);
+            width: 60%; height: 55%;
+            background: radial-gradient(ellipse at 50% 90%, rgba(255,122,0,0.25), transparent 65%);
+        }
+        .sv-meca-arm {
+            position: absolute;
+            bottom: 18%; left: 50%; transform: translateX(-50%);
+            width: 56%; height: 60%;
+        }
+        .sv-meca-arm svg { width: 100%; height: 100%; }
+
+        /* ── Visual 2 — Actionneurs ── */
+        .sv-act {
+            background: radial-gradient(ellipse at 50% 60%, #1c0a00, #000 75%);
+        }
+        .sv-act::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 70% 50% at 50% 55%, rgba(255,100,0,0.18), transparent 70%);
+        }
+        .sv-act-inner {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Visual 3 — Capteurs ── */
+        .sv-capt { background: #000; }
+        .sv-capt::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 40% 70% at 35% 55%, rgba(255,40,40,0.35), transparent 60%),
+                radial-gradient(ellipse 40% 70% at 50% 45%, rgba(40,255,80,0.30), transparent 60%),
+                radial-gradient(ellipse 40% 70% at 65% 55%, rgba(40,120,255,0.35), transparent 60%);
+        }
+        .sv-capt-chip {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* ── Visual 4 — Commande ── */
+        .sv-cmd {
+            background: linear-gradient(135deg, #050e05, #071207);
+        }
+        .sv-cmd::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                repeating-linear-gradient(0deg,   transparent 0px, transparent 18px, rgba(34,197,94,0.07) 18px, rgba(34,197,94,0.07) 19px),
+                repeating-linear-gradient(90deg,  transparent 0px, transparent 18px, rgba(34,197,94,0.07) 18px, rgba(34,197,94,0.07) 19px);
+        }
+        .sv-cmd::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 70%; height: 70%;
+            background: radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.12), transparent 65%);
+        }
+        .sv-cmd-board {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* =============================================
+           SECTION 2 — MÉCANIQUE
+        ============================================= */
+        .meca-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+        .meca-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 26px;
+        }
+        .meca-card h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--neon); margin-bottom: 12px; }
+        .meca-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+        .meca-card strong { color: var(--text); }
+
+        /* Matériaux comparison */
+        .mat-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 0;
+        }
+        .mat-card {
+            border-radius: 20px; padding: 28px;
+            border: 1px solid var(--border); position: relative;
+        }
+        .mat-card-alu { background: linear-gradient(135deg, rgba(255,122,0,0.05), var(--bg-card)); border-color: var(--border-neon); }
+        .mat-card-pla { background: linear-gradient(135deg, rgba(0,198,255,0.04), var(--bg-card)); border-color: rgba(0,198,255,0.2); }
+        .mat-badge {
+            font-family: "Orbitron"; font-size: 0.6rem; letter-spacing: 2px;
+            padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 14px;
+        }
+        .mat-badge-alu { background: var(--neon-dim); border: 1px solid var(--border-neon); color: var(--neon); }
+        .mat-badge-pla { background: rgba(0,198,255,0.08); border: 1px solid rgba(0,198,255,0.25); color: #00c6ff; }
+        .mat-card h3 { font-size: 1.1rem; margin-bottom: 12px; }
+        .mat-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+        .mat-card strong { color: var(--text); }
+        .mat-stat { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+        .mat-stat-row { display: flex; justify-content: space-between; font-size: 0.82rem; border-top: 1px solid var(--border); padding-top: 6px; }
+        .mat-stat-row span:first-child { color: var(--muted); }
+        .mat-stat-row span:last-child { color: var(--text); font-weight: 500; }
+
+        /* Solid list */
+        .solide-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+        .solide-item {
+            display: flex; align-items: flex-start; gap: 14px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 16px 18px;
+        }
+        .solide-num {
+            font-family: "Orbitron"; font-size: 0.6rem; color: var(--neon);
+            background: var(--neon-dim); border: 1px solid var(--border-neon);
+            border-radius: 6px; padding: 4px 8px; white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .solide-item p { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
+        .solide-item strong { color: var(--text); }
+
+        /* =============================================
+           SECTION 3 — ACV PHASES
+        ============================================= */
+
+        /* Phase Nav Orbit */
+        .phase-nav {
+            position: sticky; top: 20px; z-index: 50;
+            display: flex; justify-content: center; margin-bottom: 60px;
+        }
+        .phase-nav-inner {
+            display: flex; gap: 8px;
+            background: rgba(10,10,10,0.85);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 50px; padding: 8px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+        }
+        .phase-btn {
+            font-family: "Orbitron"; font-size: 0.58rem; letter-spacing: 1px;
+            text-transform: uppercase; padding: 8px 14px; border-radius: 40px;
+            border: none; cursor: pointer; transition: all 0.25s ease;
+            background: transparent; color: var(--muted);
+            white-space: nowrap;
+        }
+        .phase-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+        .phase-btn.active { color: #000; font-weight: 700; }
+
+        /* Phase Cards */
+        .phase-item { margin-bottom: 32px; }
+
+        .phase-card {
+            border-radius: 28px; padding: 0;
+            overflow: hidden; border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .phase-header {
+            padding: 36px 40px 28px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer; user-select: none;
+        }
+        .phase-header:hover .phase-expand-icon { transform: scale(1.2); }
+
+        .phase-number {
+            font-family: "Orbitron"; font-size: 0.6rem; letter-spacing: 2px;
+            padding: 5px 14px; border-radius: 20px;
+            margin-bottom: 14px; display: inline-block;
+        }
+        .phase-header h3 { font-size: 1.6rem; font-weight: 900; margin-bottom: 8px; }
+        .phase-header p { font-size: 0.9rem; color: var(--muted); max-width: 420px; line-height: 1.6; }
+
+        .phase-expand-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid var(--border); display: flex; align-items: center;
+            justify-content: center; flex-shrink: 0; margin-top: 4px;
+            transition: transform 0.3s ease, background 0.2s;
+            background: rgba(255,255,255,0.04); font-size: 1.1rem;
+            color: var(--muted);
+        }
+
+        .phase-body {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 0; border-top: none;
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+        .phase-body.open { max-height: 800px; }
+
+        .phase-col {
+            padding: 28px 32px;
+            border-right: 1px solid var(--border);
+        }
+        .phase-col:last-child { border-right: none; }
+
+        .phase-col-label {
+            font-size: 0.62rem; text-transform: uppercase; letter-spacing: 2px;
+            font-family: "Orbitron"; margin-bottom: 16px; display: flex;
+            align-items: center; gap: 8px;
+        }
+        .phase-col-label-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .phase-col p, .phase-col ul { font-size: 0.85rem; color: var(--muted); line-height: 1.75; }
+        .phase-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .phase-col ul li {
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .phase-col ul li::before {
+            content: '—'; color: var(--neon); flex-shrink: 0; opacity: 0.5; margin-top: 2px;
+        }
+        .phase-col strong { color: var(--text); }
+
+        /* Phase-specific accent colors */
+        .p1 { --pc: var(--c1); }
+        .p2 { --pc: var(--c2); }
+        .p3 { --pc: var(--c3); }
+        .p4 { --pc: var(--c4); }
+        .p5 { --pc: var(--c5); }
+        .p6 { --pc: var(--c6); }
+
+        .phase-card { border-left: 3px solid var(--pc); }
+        .phase-number { background: color-mix(in srgb, var(--pc) 15%, transparent); border: 1px solid color-mix(in srgb, var(--pc) 35%, transparent); color: var(--pc); }
+        .phase-header h3 { color: var(--pc); }
+        .phase-btn.active { background: var(--pc); box-shadow: 0 0 16px color-mix(in srgb, var(--pc) 50%, transparent); }
+        .phase-col-label { color: var(--pc); }
+        .phase-col-label-dot { background: var(--pc); box-shadow: 0 0 8px var(--pc); }
+
+        /* =============================================
+           SECTION 4 — TABLEAU RÉCAPITULATIF
+        ============================================= */
+        .recap-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+        }
+        .recap-card {
+            border-radius: 22px; padding: 28px; border: 1px solid var(--border);
+            background: var(--bg-card); position: relative; overflow: hidden;
+        }
+        .recap-card::before {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+            background: var(--pc);
+        }
+
+        .recap-phase-badge {
+            font-family: "Orbitron"; font-size: 0.58rem; letter-spacing: 2px;
+            text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
+            display: inline-block; margin-bottom: 12px;
+            background: color-mix(in srgb, var(--pc) 15%, transparent);
+            border: 1px solid color-mix(in srgb, var(--pc) 35%, transparent);
+            color: var(--pc);
+        }
+        .recap-card h4 { font-size: 1rem; margin-bottom: 16px; }
+        .recap-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .recap-col h5 { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+        .recap-col p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+        .recap-col p strong { color: var(--text); }
+        .tag-green { color: #22c55e; }
+        .tag-red { color: #ff453a; }
+        .tag-amber { color: var(--neon); }
+
+        /* =============================================
+           CONCLUSION
+        ============================================= */
+        .conclusion-card {
+            border-radius: 28px; padding: 56px;
+            background: linear-gradient(135deg, rgba(255,122,0,0.04), var(--bg-card));
+            border: 1px solid var(--border-neon);
+            box-shadow: 0 0 60px rgba(255,122,0,0.06);
+            text-align: center;
+        }
+        .conclusion-card p {
+            font-size: 1.1rem; color: var(--muted); line-height: 1.85;
+            max-width: 780px; margin: 0 auto 16px;
+        }
+        .conclusion-card p strong { color: var(--text); }
+
+        /* =============================================
+           BACK BUTTON
+        ============================================= */
+        .btn-back {
+            display: inline-block; padding: 15px 40px; border-radius: 50px;
+            border: 1px solid var(--neon); color: var(--neon);
+            text-decoration: none; font-family: "Orbitron";
+            font-size: 0.8rem; letter-spacing: 1px;
+            transition: 0.3s; margin-top: 50px;
+        }
+        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
+
+        /* ── Image lightbox ── */
+        .mat-img {
+            width: 100%; border-radius: 12px; margin: 14px 0;
+            object-fit: cover; max-height: 180px;
+            cursor: zoom-in;
+            transition: opacity 0.2s;
+        }
+        .mat-img:hover { opacity: 0.88; }
+
+        #lightbox {
+            display: none;
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(12px);
+            align-items: center; justify-content: center;
+            cursor: zoom-out;
+        }
+        #lightbox.open { display: flex; }
+        #lightbox img {
+            max-width: 92vw; max-height: 88vh;
+            border-radius: 16px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+            animation: lbIn 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes lbIn {
+            from { opacity: 0; transform: scale(0.88); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .divider {
+            height: 1px; width: 100%;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            margin: 0 0 60px;
+        }
+
+        /* =============================================
+           RESPONSIVE
+        ============================================= */
+        @media (min-width: 769px) {
+            /* Hide mobile-only phase elements on desktop */
+            .phase-mobile-wrap,
+            .phase-mobile-dots,
+            .phase-scroll-nav { display: none !important; }
+        }
+        @media (max-width: 900px) {
+            .projet-grid, .mat-row { grid-template-columns: 1fr; }
+            .meca-grid, .subsys-grid, .kpi-strip { grid-template-columns: 1fr 1fr; }
+            .phase-body { grid-template-columns: 1fr; }
+            .phase-col { border-right: none; border-bottom: 1px solid var(--border); }
+            .recap-grid { grid-template-columns: 1fr; }
+            .recap-cols { grid-template-columns: 1fr; gap: 8px; }
+            .phase-nav-inner { flex-wrap: wrap; border-radius: 20px; justify-content: center; }
+            .conclusion-card { padding: 32px 20px; }
+        }
+        @media (max-width: 600px) {
+            .meca-grid, .kpi-strip { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2.8rem; }
+        }
+
+        /* =============================================
+           MOBILE PHASES — one card at a time
+        ============================================= */
+        @media (max-width: 768px) {
+            /* Hide sticky top nav on mobile */
+            .phase-nav { display: none; }
+
+            /* ── Horizontal scroll nav strip (mobile) ── */
+            .phase-scroll-nav {
+                position: sticky;
+                bottom: 20px;
+                z-index: 60;
+                margin-top: 16px;
+                /* fade edges */
+                -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+                mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+            }
+            .phase-scroll-inner {
+                display: flex;
+                gap: 8px;
+                overflow-x: auto;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 8px 20px;
+                background: rgba(10,10,10,0.88);
+                backdrop-filter: blur(40px);
+                border: 1px solid var(--border);
+                border-radius: 50px;
+                box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            }
+            .phase-scroll-inner::-webkit-scrollbar { display: none; }
+            .phase-scroll-btn {
+                font-family: "Orbitron";
+                font-size: 0.58rem;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                padding: 8px 16px;
+                border-radius: 40px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.25s ease;
+                background: transparent;
+                color: var(--muted);
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .phase-scroll-btn.active {
+                color: #000;
+                font-weight: 700;
+                background: var(--pc);
+                box-shadow: 0 0 16px color-mix(in srgb, var(--pc) 50%, transparent);
+            }
+
+            /* Hide all phase items, show only the active one */
+            .phase-item {
+                display: none;
+                margin-bottom: 0;
+            }
+            .phase-item.mobile-active {
+                display: block;
+            }
+            /* Entry animation */
+            @keyframes phaseCardIn {
+                from { opacity: 0; transform: translateY(28px) scale(0.97); }
+                to   { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            .phase-item.mobile-active .phase-card {
+                animation: phaseCardIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+            }
+
+            /* Disable accordion on mobile */
+            .phase-header { display: none; }
+            .phase-expand-icon { display: none; }
+            .phase-body { display: none !important; max-height: none !important; }
+
+            /* ── Inner swipe panels ── */
+            .phase-mobile-track {
+                display: flex;
+                will-change: transform;
+                transition: transform 0.38s cubic-bezier(0.25,1,0.5,1);
+            }
+            /* Fixed height so all cards are the same size */
+            .phase-mobile-panel {
+                flex: 0 0 auto;
+                min-width: 0;
+                padding: 24px 24px 20px;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            /* Wrap animates its height to match the active panel */
+            .phase-mobile-wrap {
+                overflow: hidden;
+                transition: height 0.38s cubic-bezier(0.25,1,0.5,1);
+            }
+            .phase-mobile-panel p,
+            .phase-mobile-panel ul {
+                font-size: 0.88rem;
+                color: var(--muted);
+                line-height: 1.75;
+            }
+            .phase-mobile-panel ul {
+                list-style: none;
+                display: flex; flex-direction: column; gap: 10px;
+                padding: 0;
+            }
+            .phase-mobile-panel ul li {
+                display: flex; align-items: flex-start; gap: 10px;
+            }
+            .phase-mobile-panel ul li::before {
+                content: '—'; color: var(--neon); flex-shrink: 0; opacity: 0.5; margin-top: 2px;
+            }
+            .phase-mobile-panel strong { color: var(--text); }
+
+            /* Panel label */
+            .phase-mobile-panel-label {
+                font-family: "Orbitron"; font-size: 0.58rem;
+                text-transform: uppercase; letter-spacing: 2px;
+                color: var(--pc); margin-bottom: 14px;
+                display: flex; align-items: center; gap: 8px;
+            }
+            .phase-mobile-panel-label-dot {
+                width: 7px; height: 7px; border-radius: 50%;
+                background: var(--pc); box-shadow: 0 0 6px var(--pc);
+                flex-shrink: 0;
+            }
+
+            /* Intro panel */
+            .phase-mobile-panel-intro .phase-number {
+                /* Badge fits its text only */
+                display: inline-block;
+                width: fit-content;
+                align-self: flex-start;
+                margin-bottom: 14px;
+            }
+            .phase-mobile-panel-intro h3 {
+                font-size: 2rem; font-weight: 900;
+                color: var(--pc); margin-bottom: 14px; line-height: 1.1;
+            }
+            .phase-mobile-panel-intro p {
+                font-size: 0.9rem; color: var(--muted); line-height: 1.65;
+            }
+
+            /* Dots for inner panels */
+            .phase-mobile-dots {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 8px;
+                padding: 14px 0 20px;
+                overflow: visible;
+            }
+            .phase-mobile-dot {
+                width: 8px; height: 8px; border-radius: 50%;
+                background: rgba(255,255,255,0.2);
+                border: none; padding: 0; cursor: pointer;
+                transition: background 0.25s;
+                flex-shrink: 0;
+            }
+            .phase-mobile-dot.active { background: #ffffff; }
+        }
+
+        /* =============================================
+           MOBILE CAROUSEL
+        ============================================= */
+        .carousel-wrap {
+            position: relative;
+        }
+
+        /* Desktop: carousel-wrap is a normal block — grid class on the element drives layout */
+        @media (min-width: 769px) {
+            .carousel-track { display: contents; }
+            .carousel-dots { display: none; }
+        }
+
+        /* Mobile: activate the carousel */
+        @media (max-width: 768px) {
+            /* Override any grid on the wrapper */
+            .carousel-wrap {
+                display: block !important;
+                overflow: hidden;
+                width: 100%;
+                touch-action: pan-y;
+            }
+            .carousel-track {
+                display: flex !important;
+                transition: transform 0.38s cubic-bezier(0.25, 1, 0.5, 1);
+                will-change: transform;
+            }
+            .carousel-track > * {
+                flex: 0 0 100% !important;
+                width: 100% !important;
+                min-width: 0;
+            }
+            /* Dots */
+            .carousel-dots {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 8px;
+                margin-top: 16px;
+                padding: 4px 0;
+                overflow: visible;
+            }
+            .carousel-dot {
+                width: 8px; height: 8px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.25);
+                transition: background 0.25s;
+                cursor: pointer;
+                border: none; padding: 0;
+                flex-shrink: 0;
+            }
+            .carousel-dot.active {
+                background: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<!-- =============================================
+     HERO
+============================================= -->
+<header class="hero reveal">
+    <p class="hero-eyebrow">Mécatronique · ICAM Grand Paris Sud · 2025–2026</p>
+    <h1 class="hero-title">ANALYSE DU<br>CYCLE DE VIE</h1>
+    <p class="hero-sub">
+        Étude complète du cycle de vie du Bras de Fer — de la conception à la fin de vie,
+        évaluation mécanique, écologique et opérationnelle.
+    </p>
+    </header>
+
+<div class="container">
+
+    <!-- =============================================
+         SECTION 1 — PRÉSENTATION PROJET
+    ============================================= -->
+    <div class="section-gap">
+        <div class="reveal">
+            <span class="section-tag">01 — Présentation du projet</span>
+            <h2 class="chapter-title">Le Bras de Fer.</h2>
+        </div>
+
+        <div class="projet-grid reveal">
+            <div class="card">
+                <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;">Fonction principale & Besoin</h4>
+                <div class="projet-text">
+                    <p>Le projet <strong>« Le Bras de Fer »</strong> est un bras robot à 5 axes conçu pour des entreprises de jouets dont les produits sont des cubes. Sa mission est de <strong>trier automatiquement ces cubes selon leur couleur</strong> (rouge, bleu, vert) et de constituer des assortiments de 3 cubes conformément aux consignes de l'opérateur.</p>
+                    <p>Bien qu'il dispose de 5 liaisons pivot motorisées, <strong>l'espace de travail ciblé se déploie selon les 3 axes de l'espace.</strong></p>
+                    <p>L'entreprise cherche à automatiser une tâche répétitive de tri et d'assemblage sur une chaîne de production. Le robot saisit un cube arrivant par convoyeur, identifie sa couleur, le dépose dans la zone de stockage correspondante, puis compose des assortiments dans une boîte amenée par un second convoyeur.</p>
+                    <p style="font-size:0.8rem;color:var(--muted);margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">⚠ Le projet ne comprend pas la fabrication des convoyeurs eux-mêmes.</p>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div class="card" style="flex:1">
+                    <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;">Rôle de la mécanique</h4>
+                    <p class="projet-text">La partie mécanique est <strong>l'ossature du système</strong>. Elle supporte et positionne les 6 servomoteurs, guide les mouvements dans les 3 dimensions, maintient le capteur de couleur face aux cubes et permet à la pince d'exercer la force de préhension nécessaire. Un défaut mécanique (flexion, jeu, désalignement) se traduit directement par une <strong>erreur de positionnement de l'effecteur</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sous-systèmes -->
+        <div class="reveal" style="margin-top:20px;">
+            <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:16px;font-family:'Orbitron';">SOUS-SYSTÈMES PRINCIPAUX</p>
+            <!-- Desktop: normal 2-col grid. Mobile: horizontal carousel -->
+            <div class="subsys-grid carousel-wrap" data-carousel>
+                <div class="carousel-track">
+                    <!-- Card 1 — Mécanique -->
+                    <div class="subsys-item">
+                        <div class="subsys-visual sv-meca">
+                            <div class="sv-meca-arm">
+                                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Base -->
+                                    <rect x="80" y="170" width="40" height="12" rx="4" fill="rgba(180,200,230,0.5)"/>
+                                    <rect x="90" y="158" width="20" height="14" rx="3" fill="rgba(160,185,215,0.45)"/>
+                                    <!-- Segment 1 -->
+                                    <rect x="94" y="105" width="12" height="55" rx="5" fill="rgba(200,215,235,0.55)" transform="rotate(-10 100 160)"/>
+                                    <!-- Joint A -->
+                                    <circle cx="100" cy="108" r="9" fill="rgba(255,122,0,0.7)" stroke="rgba(255,122,0,0.4)" stroke-width="2"/>
+                                    <!-- Segment 2 -->
+                                    <rect x="94" y="60" width="12" height="52" rx="5" fill="rgba(200,215,235,0.55)" transform="rotate(15 100 108)"/>
+                                    <!-- Joint B -->
+                                    <circle cx="108" cy="65" r="8" fill="rgba(255,122,0,0.7)" stroke="rgba(255,122,0,0.4)" stroke-width="2"/>
+                                    <!-- Segment 3 (forearm) -->
+                                    <rect x="104" y="28" width="10" height="40" rx="4" fill="rgba(200,215,235,0.50)" transform="rotate(-20 108 65)"/>
+                                    <!-- Joint C -->
+                                    <circle cx="97" cy="30" r="7" fill="rgba(255,122,0,0.6)" stroke="rgba(255,122,0,0.35)" stroke-width="2"/>
+                                    <!-- Gripper -->
+                                    <rect x="82" y="14" width="5" height="18" rx="2" fill="rgba(220,235,255,0.6)" transform="rotate(10 97 30)"/>
+                                    <rect x="108" y="14" width="5" height="18" rx="2" fill="rgba(220,235,255,0.6)" transform="rotate(-10 97 30)"/>
+                                    <!-- Glow highlight on arm -->
+                                    <line x1="100" y1="170" x2="108" y2="65" stroke="rgba(255,122,0,0.18)" stroke-width="14" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="subsys-text">
+                            <p><span class="subsys-title">Mécanique. </span>Structure en profilés aluminium 6061-T6 (20×20 mm) et pièces PLA imprimées en 3D. 5 axes rotatifs, pince en cours d'assemblage.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 — Actionneurs -->
+                    <div class="subsys-item">
+                        <div class="subsys-visual sv-act">
+                            <div class="sv-act-inner">
+                                <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Outer ring glow -->
+                                    <circle cx="90" cy="90" r="78" stroke="rgba(255,100,0,0.12)" stroke-width="1"/>
+                                    <circle cx="90" cy="90" r="68" stroke="rgba(255,100,0,0.18)" stroke-width="1"/>
+                                    <!-- Tick marks -->
+                                    <g stroke="rgba(255,120,0,0.35)" stroke-width="1.5" stroke-linecap="round">
+                                        <line x1="90" y1="16" x2="90" y2="26"/>
+                                        <line x1="90" y1="154" x2="90" y2="164"/>
+                                        <line x1="16" y1="90" x2="26" y2="90"/>
+                                        <line x1="154" y1="90" x2="164" y2="90"/>
+                                        <line x1="34.5" y1="34.5" x2="41.6" y2="41.6"/>
+                                        <line x1="138.4" y1="138.4" x2="145.5" y2="145.5"/>
+                                        <line x1="145.5" y1="34.5" x2="138.4" y2="41.6"/>
+                                        <line x1="41.6" y1="138.4" x2="34.5" y2="145.5"/>
+                                    </g>
+                                    <!-- Servo body -->
+                                    <rect x="56" y="62" width="68" height="56" rx="10" fill="rgba(40,40,40,0.9)" stroke="rgba(255,100,0,0.3)" stroke-width="1.5"/>
+                                    <!-- Servo label slots -->
+                                    <rect x="63" y="69" width="54" height="8" rx="3" fill="rgba(255,100,0,0.12)"/>
+                                    <rect x="63" y="81" width="38" height="5" rx="2" fill="rgba(255,255,255,0.06)"/>
+                                    <rect x="63" y="90" width="28" height="5" rx="2" fill="rgba(255,255,255,0.04)"/>
+                                    <!-- Servo horn -->
+                                    <circle cx="90" cy="90" r="14" fill="rgba(255,110,0,0.25)" stroke="rgba(255,110,0,0.55)" stroke-width="2"/>
+                                    <circle cx="90" cy="90" r="5" fill="rgba(255,130,0,0.8)"/>
+                                    <!-- Connector pins -->
+                                    <rect x="82" y="115" width="5" height="10" rx="1.5" fill="rgba(255,200,80,0.7)"/>
+                                    <rect x="90" y="115" width="5" height="10" rx="1.5" fill="rgba(255,255,255,0.4)"/>
+                                    <rect x="98" y="115" width="5" height="10" rx="1.5" fill="rgba(80,180,255,0.7)"/>
+                                    <!-- Arc of motion -->
+                                    <path d="M 40 90 A 50 50 0 0 1 140 90" stroke="rgba(255,100,0,0.22)" stroke-width="2" stroke-dasharray="4 4" fill="none"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="subsys-text">
+                            <p><span class="subsys-title">Actionneurs. </span>5 servomoteurs SCS15 pour les axes principaux, 1 servomoteur HS-422 pour la pince.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 — Capteurs / Perception -->
+                    <div class="subsys-item">
+                        <div class="subsys-visual sv-capt">
+                            <div class="sv-capt-chip">
+                                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- RGB beams from top -->
+                                    <defs>
+                                        <radialGradient id="rgb-r" cx="35%" cy="40%" r="55%">
+                                            <stop offset="0%" stop-color="rgba(255,40,40,0.7)"/>
+                                            <stop offset="100%" stop-color="transparent"/>
+                                        </radialGradient>
+                                        <radialGradient id="rgb-g" cx="50%" cy="35%" r="55%">
+                                            <stop offset="0%" stop-color="rgba(80,255,100,0.6)"/>
+                                            <stop offset="100%" stop-color="transparent"/>
+                                        </radialGradient>
+                                        <radialGradient id="rgb-b" cx="65%" cy="40%" r="55%">
+                                            <stop offset="0%" stop-color="rgba(60,120,255,0.7)"/>
+                                            <stop offset="100%" stop-color="transparent"/>
+                                        </radialGradient>
+                                    </defs>
+                                    <ellipse cx="70" cy="80" rx="55" ry="70" fill="url(#rgb-r)" opacity="0.8"/>
+                                    <ellipse cx="100" cy="75" rx="55" ry="70" fill="url(#rgb-g)" opacity="0.75"/>
+                                    <ellipse cx="130" cy="80" rx="55" ry="70" fill="url(#rgb-b)" opacity="0.8"/>
+                                    <!-- White centre overlap = white light -->
+                                    <ellipse cx="100" cy="90" rx="18" ry="22" fill="rgba(255,255,255,0.18)"/>
+                                    <!-- Sensor chip body -->
+                                    <rect x="74" y="120" width="52" height="42" rx="7" fill="rgba(20,20,20,0.95)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                                    <!-- Chip pins left -->
+                                    <rect x="62" y="126" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <rect x="62" y="133" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <rect x="62" y="140" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <rect x="62" y="147" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <!-- Chip pins right -->
+                                    <rect x="125" y="126" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <rect x="125" y="133" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <rect x="125" y="140" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <rect x="125" y="147" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
+                                    <!-- Lens centre -->
+                                    <circle cx="100" cy="141" r="10" fill="rgba(40,40,50,1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                    <circle cx="100" cy="141" r="5" fill="rgba(80,80,100,0.8)"/>
+                                    <circle cx="97" cy="138" r="1.5" fill="rgba(255,255,255,0.5)"/>
+                                    <!-- TCS label -->
+                                    <text x="100" y="155" text-anchor="middle" font-size="5" fill="rgba(255,255,255,0.3)" font-family="monospace">TCS34725</text>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="subsys-text">
+                            <p><span class="subsys-title">Capteurs / Perception. </span>Capteur de couleur TCS34725 intégré à l'effecteur pour l'identification des cubes.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 — Commande & Informatique -->
+                    <div class="subsys-item">
+                        <div class="subsys-visual sv-cmd">
+                            <div class="sv-cmd-board">
+                                <svg width="190" height="190" viewBox="0 0 190 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Arduino Mega body -->
+                                    <rect x="30" y="55" width="130" height="80" rx="6" fill="rgba(0,80,0,0.7)" stroke="rgba(34,197,94,0.35)" stroke-width="1.5"/>
+                                    <!-- USB connector -->
+                                    <rect x="24" y="70" width="10" height="18" rx="2" fill="rgba(100,100,100,0.6)" stroke="rgba(150,150,150,0.3)" stroke-width="1"/>
+                                    <!-- Power jack -->
+                                    <circle cx="24" cy="110" r="6" fill="rgba(60,60,60,0.7)" stroke="rgba(120,120,120,0.3)" stroke-width="1"/>
+                                    <!-- Pin headers top row -->
+                                    <g fill="rgba(220,220,200,0.55)">
+                                        <rect x="40" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="47" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="54" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="61" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="68" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="75" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="82" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="89" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="96" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="103" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="110" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="117" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="124" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="131" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="138" y="52" width="3" height="6" rx="0.5"/>
+                                        <rect x="145" y="52" width="3" height="6" rx="0.5"/>
+                                    </g>
+                                    <!-- MCU chip -->
+                                    <rect x="70" y="70" width="50" height="50" rx="4" fill="rgba(10,20,10,0.9)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5"/>
+                                    <!-- MCU pins -->
+                                    <g stroke="rgba(34,197,94,0.5)" stroke-width="1">
+                                        <line x1="75" y1="70" x2="75" y2="64"/><line x1="82" y1="70" x2="82" y2="64"/>
+                                        <line x1="89" y1="70" x2="89" y2="64"/><line x1="96" y1="70" x2="96" y2="64"/>
+                                        <line x1="103" y1="70" x2="103" y2="64"/><line x1="110" y1="70" x2="110" y2="64"/>
+                                        <line x1="75" y1="120" x2="75" y2="126"/><line x1="82" y1="120" x2="82" y2="126"/>
+                                        <line x1="89" y1="120" x2="89" y2="126"/><line x1="96" y1="120" x2="96" y2="126"/>
+                                        <line x1="103" y1="120" x2="103" y2="126"/><line x1="110" y1="120" x2="110" y2="126"/>
+                                    </g>
+                                    <!-- MCU label -->
+                                    <text x="95" y="94" text-anchor="middle" font-size="5" fill="rgba(34,197,94,0.5)" font-family="monospace">ATMEGA</text>
+                                    <text x="95" y="102" text-anchor="middle" font-size="5" fill="rgba(34,197,94,0.5)" font-family="monospace">2560</text>
+                                    <!-- Trace lines -->
+                                    <g stroke="rgba(34,197,94,0.2)" stroke-width="1" fill="none">
+                                        <path d="M 40 85 H 70"/>
+                                        <path d="M 40 95 H 58 V 85 H 70"/>
+                                        <path d="M 40 105 H 70"/>
+                                        <path d="M 120 85 H 150"/>
+                                        <path d="M 120 95 H 150"/>
+                                        <path d="M 120 105 H 142 V 115 H 150"/>
+                                    </g>
+                                    <!-- LED indicator -->
+                                    <circle cx="52" cy="125" r="4" fill="rgba(34,197,94,0.85)" filter="url(#glow)"/>
+                                    <circle cx="52" cy="125" r="6" fill="rgba(34,197,94,0.15)"/>
+                                    <!-- Raspberry Pi hint (small board top right) -->
+                                    <rect x="108" y="130" width="44" height="28" rx="4" fill="rgba(90,0,30,0.6)" stroke="rgba(200,50,80,0.3)" stroke-width="1"/>
+                                    <text x="130" y="148" text-anchor="middle" font-size="4.5" fill="rgba(255,100,120,0.5)" font-family="monospace">RPi 5</text>
+                                    <circle cx="118" cy="138" r="4" fill="rgba(200,50,80,0.3)" stroke="rgba(200,50,80,0.3)" stroke-width="1"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="subsys-text">
+                            <p><span class="subsys-title">Commande & Informatique. </span>Arduino MEGA 2560 (servomoteurs), Raspberry Pi 5 (traitement haut niveau, URDF/ROS), alimentation AC/DC 12V 10A.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+         SECTION 2 — MÉCANIQUE ACTUELLE
+    ============================================= -->
+    <div class="section-gap">
+        <div class="reveal">
+            <span class="section-tag">02 — Description de la partie mécanique</span>
+            <h2 class="chapter-title">Architecture &<br>Matériaux.</h2>
+            <p class="chapter-sub">Six solides articulés, deux matériaux complémentaires, une philosophie de conception modulaire.</p>
+        </div>
+
+        <!-- Solides articulés -->
+        <div class="reveal" style="margin-bottom:24px;">
+            <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:16px;font-family:'Orbitron';">DÉCOMPOSITION EN 6 SOLIDES</p>
+            <ul class="solide-list">
+                <li class="solide-item">
+                    <span class="solide-num">S0</span>
+                    <p><strong>Base fixe</strong> — Structure en profilés aluminium 6061-T6, ancrée sur le plan de travail. Un servomoteur SCS15 entraîne la base rotative via un système de courroie.</p>
+                </li>
+                <li class="solide-item">
+                    <span class="solide-num">S1</span>
+                    <p><strong>Base rotative</strong> — Pivot d'axe vertical sur la base fixe, entraîné par courroie depuis le SCS15 pour réduire la charge supportée. Relié au solide 2 par un autre SCS15 d'axe horizontal (pivot A).</p>
+                </li>
+                <li class="solide-item">
+                    <span class="solide-num">S2 & S3</span>
+                    <p><strong>Segments du bras</strong> — Deux profilés aluminium 20×20 mm de 15 cm chacun, reliés par les moteurs SCS15 en pivots B et C.</p>
+                </li>
+                <li class="solide-item">
+                    <span class="solide-num">S4</span>
+                    <p><strong>Poignet</strong> — Dernier moteur SCS15, pivot D, supportant la pince.</p>
+                </li>
+                <li class="solide-item">
+                    <span class="solide-num">S5</span>
+                    <p><strong>Pince (en cours)</strong> — Mors, rail linéaire et support imprimés en PLA, entraînés par le servomoteur HS-422.</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Matériaux -->
+        <div class="reveal" style="margin-top:20px;">
+            <div class="mat-row carousel-wrap" data-carousel>
+                <div class="carousel-track">
+                    <div class="mat-card mat-card-alu">
+                        <span class="mat-badge mat-badge-alu">Matériau principal</span>
+                        <h3>Aluminium 6061-T6</h3>
+                        <img src="cap2.png" alt="Profilés aluminium 6061-T6" class="mat-img" onclick="openLightbox(this)">
+                        <p>Utilisé pour les <strong>segments rectilignes</strong> (bras 2, bras 3) et la base fixe. Profilés V-slot 20×20 mm avec fente 6 mm. Recyclable et réutilisable.</p>
+                        <div class="mat-stat">
+                            <div class="mat-stat-row"><span>Limite élastique</span><span>259 MPa</span></div>
+                            <div class="mat-stat-row"><span>Densité</span><span>2 700 kg/m³</span></div>
+                            <div class="mat-stat-row"><span>Masse linéique</span><span>0,456 kg/m</span></div>
+                            <div class="mat-stat-row"><span>Poids / 15 cm</span><span>~67 g</span></div>
+                            <div class="mat-stat-row"><span>Recyclabilité</span><span style="color:#22c55e;">35 % — Cycle infini</span></div>
+                        </div>
+                    </div>
+                    <div class="mat-card mat-card-pla">
+                        <span class="mat-badge mat-badge-pla">Impression 3D</span>
+                        <h3>PLA (Polylactic Acid)</h3>
+                        <img src="cap1.png" alt="Pièces PLA impression 3D" class="mat-img" onclick="openLightbox(this)">
+                        <p>Utilisé pour toutes les <strong>pièces de forme complexe</strong> (corps de pivot, supports, pièces de pince). Impression FDM, section 20×20 mm plein à 100 % pour les calculs.</p>
+                        <div class="mat-stat">
+                            <div class="mat-stat-row"><span>Limite élastique</span><span>~60 MPa</span></div>
+                            <div class="mat-stat-row"><span>Densité</span><span>1 290 kg/m³</span></div>
+                            <div class="mat-stat-row"><span>Contrainte max calculée</span><span>31,6 MPa</span></div>
+                            <div class="mat-stat-row"><span>Tg (transition vitreuse)</span><span style="color:#ff453a;">~60°C</span></div>
+                            <div class="mat-stat-row"><span>Recyclabilité à l'ICAM</span><span style="color:#ff453a;">Non recyclé</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+        </div>
+
+        <!-- Détails complémentaires -->
+        <div class="reveal" style="margin-top:16px;">
+            <div class="meca-grid carousel-wrap" data-carousel>
+                <div class="carousel-track">
+                    <div class="meca-card">
+                        <h4>Liaisons & Guidages</h4>
+                        <p>Toutes les liaisons entre solides sont des <strong>liaisons pivot</strong> (rotations simples), réalisées par les moteurs SCS15. Fixation sur profilés alu par vis M6. Assemblage via rainures en T et équerres.</p>
+                    </div>
+                    <div class="meca-card">
+                        <h4>Procédé de fabrication</h4>
+                        <p>Pièces PLA par <strong>impression FDM</strong>. Profilés aluminium découpés à 15 cm puis taraudés M6. Aucun usinage complexe — compatible avec les ressources disponibles à l'ICAM.</p>
+                    </div>
+                    <div class="meca-card">
+                        <h4>Intégration système</h4>
+                        <p>Les rainures des profilés alu servent de <strong>chemin de câblage naturel</strong>. Capteur TCS34725 fixé à l'extrémité du bras. Arduino et Raspberry Pi sur un panneau électrique distinct de la base.</p>
+                    </div>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-gap" id="phases-container">
+        <div class="reveal">
+            <span class="section-tag">03 — Analyse du cycle de vie</span>
+            <h2 class="chapter-title">Les 6 phases<br>du cycle de vie.</h2>
+            <p class="chapter-sub">Pour chaque phase : choix & justifications, avantages, limites & risques, et pistes d'amélioration.</p>
+        </div>
+
+        <!-- Sticky phase navigation -->
+        <div class="phase-nav reveal">
+            <div class="phase-nav-inner" id="phaseNav">
+                <button class="phase-btn p1 active" onclick="goToPhase(0)" data-phase="0">Conception</button>
+                <button class="phase-btn p2" onclick="goToPhase(1)" data-phase="1">Fabrication</button>
+                <button class="phase-btn p3" onclick="goToPhase(2)" data-phase="2">Assemblage</button>
+                <button class="phase-btn p4" onclick="goToPhase(3)" data-phase="3">Utilisation</button>
+                <button class="phase-btn p5" onclick="goToPhase(4)" data-phase="4">Maintenance</button>
+                <button class="phase-btn p6" onclick="goToPhase(5)" data-phase="5">Fin de vie</button>
+            </div>
+        </div>
+
+        <!-- Phase 1 — Conception -->
+        <div class="phase-item reveal mobile-active" id="phase-0">
+            <div class="phase-card p1" data-open="true">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div>
+                        <span class="phase-number">Phase 3.1</span>
+                        <h3>Conception</h3>
+                        <p>Sélection des matériaux par méthode Granta EduPack, analyse cinématique complète, dimensionnement des sections.</p>
+                    </div>
+                    <div class="phase-expand-icon">▾</div>
+                </div>
+                <div class="phase-body open">
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
+                        <p>Combinaison <strong>PLA / aluminium</strong> issue d'une étude comparative (Granta EduPack). Critères retenus : limite élastique > 35 MPa, masse volumique < 2 000 kg/m³, facilité de mise en œuvre et impact environnemental.</p>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Avantages</div>
+                        <ul>
+                            <li>Structure légère (segments 15 cm en alu : ~67 g chacun), suffisamment rigide</li>
+                            <li>Étude cinématique complète (5 axes, couples moteurs, flexion) validant le dimensionnement</li>
+                            <li>Marge de sécurité en flexion confortable pour les sections 2 et 3</li>
+                        </ul>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Limites & Améliorations</div>
+                        <p style="margin-bottom:12px;"><span class="tag-red">⚠</span> Calculs réalisés avec section PLA plein à 100 % de remplissage, ce qui <strong>surestime la rigidité réelle</strong>.</p>
+                        <p><span class="tag-amber">→</span> Réduire de 5 cm les sections 2 et 3. Adopter une hypothèse de remplissage à ~60–80 % pour les calculs.</p>
+                    </div>
+                </div>
+                <!-- MOBILE PANELS -->
+                <div class="phase-mobile-wrap">
+                    <div class="phase-mobile-track">
+                        <div class="phase-mobile-panel phase-mobile-panel-intro">
+                            <span class="phase-number">Phase 3.1</span>
+                            <h3>Conception</h3>
+                            <p>Sélection des matériaux par méthode Granta EduPack, analyse cinématique complète, dimensionnement des sections.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Ce qui a été choisi</div>
+                            <p>Combinaison <strong>PLA / aluminium</strong> issue d'une étude comparative (Granta EduPack). Critères retenus : limite élastique > 35 MPa, masse volumique < 2 000 kg/m³, facilité de mise en œuvre et impact environnemental. Aluminium pour les segments rectilignes, PLA pour les pièces complexes.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Avantages</div>
+                            <ul>
+                                <li>Structure légère (segments 15 cm en alu : ~67 g chacun), suffisamment rigide</li>
+                                <li>Étude cinématique complète (5 axes, couples moteurs, flexion) validant le dimensionnement</li>
+                                <li>Marge de sécurité en flexion confortable pour les sections 2 et 3</li>
+                                <li>Facilement obtenable avec les moyens de l'ICAM</li>
+                            </ul>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Limites & Améliorations</div>
+                            <p style="margin-bottom:14px;"><span class="tag-red">⚠</span> Calculs réalisés avec section PLA plein à 100 % de remplissage, ce qui <strong>surestime la rigidité réelle</strong> (anisotropie des couches, porosité).</p>
+                            <p><span class="tag-amber">→</span> Réduire de 5 cm les sections 2 et 3 pour réduire le bras de levier. Adopter une hypothèse de remplissage à ~60–80 % pour les calculs.</p>
+                        </div>
+                    </div>
+                    <div class="phase-mobile-dots"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 — Fabrication -->
+        <div class="phase-item reveal" id="phase-1">
+            <div class="phase-card p2" data-open="false">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div>
+                        <span class="phase-number">Phase 3.2</span>
+                        <h3>Fabrication</h3>
+                        <p>Impression 3D FDM pour le PLA, découpe et taraudage pour les profilés alu — deux procédés accessibles à l'ICAM.</p>
+                    </div>
+                    <div class="phase-expand-icon">▾</div>
+                </div>
+                <div class="phase-body">
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
+                        <p>La fabrication repose sur l'impression 3D pour le PLA et sur la découpe + taraudage pour les profilés alu. Cette approche minimise les coûts et les délais tout en permettant des <strong>itérations rapides</strong> de conception.</p>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Avantages</div>
+                        <ul>
+                            <li>Cycle de conception-fabrication très court : modification CAO imprimée en quelques heures</li>
+                            <li>Profilés alu nécessitant seulement coupe et taraudage M6</li>
+                            <li>Toutes les opérations réalisables avec les outils ICAM</li>
+                        </ul>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Limites & Améliorations</div>
+                        <p style="margin-bottom:12px;"><span class="tag-red">⚠</span> L'<strong>orientation d'impression influe fortement</strong> sur la résistance. Tolérances dimensionnelles de ±0,2 à 0,5 mm pouvant rendre l'ajustement entre pièces délicat.</p>
+                        <p><span class="tag-amber">→</span> Définir une charte d'orientation d'impression pour chaque pièce. Tester les ajustements sur des pièces de test avant impression définitive.</p>
+                    </div>
+                </div>
+                <!-- MOBILE PANELS -->
+                <div class="phase-mobile-wrap">
+                    <div class="phase-mobile-track">
+                        <div class="phase-mobile-panel phase-mobile-panel-intro">
+                            <span class="phase-number">Phase 3.2</span>
+                            <h3>Fabrication</h3>
+                            <p>Impression 3D FDM pour le PLA, découpe et taraudage pour les profilés alu — deux procédés accessibles à l'ICAM.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Ce qui a été choisi</div>
+                            <p>La fabrication repose sur l'impression 3D pour le PLA et sur la découpe + taraudage pour les profilés alu. Cette approche minimise les coûts et les délais tout en permettant des <strong>itérations rapides</strong> de conception.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Avantages</div>
+                            <ul>
+                                <li>Cycle de conception-fabrication très court : modification CAO imprimée en quelques heures</li>
+                                <li>Profilés alu nécessitant seulement coupe et taraudage M6</li>
+                                <li>Toutes les opérations réalisables avec les outils ICAM</li>
+                            </ul>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Limites & Améliorations</div>
+                            <p style="margin-bottom:14px;"><span class="tag-red">⚠</span> L'<strong>orientation d'impression influe fortement</strong> sur la résistance. Tolérances dimensionnelles de ±0,2 à 0,5 mm pouvant rendre l'ajustement délicat.</p>
+                            <p><span class="tag-amber">→</span> Définir une charte d'orientation d'impression. Tester les ajustements sur des pièces de test avant impression définitive.</p>
+                        </div>
+                    </div>
+                    <div class="phase-mobile-dots"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 — Assemblage -->
+        <div class="phase-item reveal" id="phase-2">
+            <div class="phase-card p3" data-open="false">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div>
+                        <span class="phase-number">Phase 3.3</span>
+                        <h3>Assemblage & Intégration</h3>
+                        <p>Vis M6 robustes et démontables, rainures en T des profilés V-slot pour positionnement libre sans perçage préalable.</p>
+                    </div>
+                    <div class="phase-expand-icon">▾</div>
+                </div>
+                <div class="phase-body">
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
+                        <p>Assemblage via <strong>vis M6</strong> (robuste, démontable). Les rainures en T des profilés V-slot permettent un positionnement libre des équerres et des supports <strong>sans perçage préalable</strong>.</p>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Avantages</div>
+                        <ul>
+                            <li>Modularité des profilés V-slot facilitant le repositionnement sans usinage supplémentaire</li>
+                            <li>Système entièrement démontable pour réglages et corrections en cours de projet</li>
+                            <li>Accès facilité aux composants électroniques (séparation structure/électronique)</li>
+                        </ul>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Limites & Améliorations</div>
+                        <p style="margin-bottom:12px;"><span class="tag-red">⚠</span> Cohabitation de 5 SCS15 + HS-422 + Raspberry Pi 5 + Arduino : <strong>volume de câblage important</strong>. Accès aux vis M6 sous les servos une fois montés potentiellement difficile.</p>
+                        <p><span class="tag-amber">→</span> Numéroter les câbles, utiliser des attaches-câbles fixés dans les rainures alu. Prévoir un câblage organisé entre structure mécanique et panneau électrique.</p>
+                    </div>
+                </div>
+                <!-- MOBILE PANELS -->
+                <div class="phase-mobile-wrap">
+                    <div class="phase-mobile-track">
+                        <div class="phase-mobile-panel phase-mobile-panel-intro">
+                            <span class="phase-number">Phase 3.3</span>
+                            <h3>Assemblage & Intégration</h3>
+                            <p>Vis M6 robustes et démontables, rainures en T des profilés V-slot pour positionnement libre sans perçage préalable.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Ce qui a été choisi</div>
+                            <p>Assemblage via <strong>vis M6</strong> (robuste, démontable). Les rainures en T des profilés V-slot permettent un positionnement libre des équerres et des supports <strong>sans perçage préalable</strong>.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Avantages</div>
+                            <ul>
+                                <li>Modularité des profilés V-slot facilitant le repositionnement sans usinage supplémentaire</li>
+                                <li>Système entièrement démontable pour réglages et corrections en cours de projet</li>
+                                <li>Accès facilité aux composants électroniques (séparation structure/électronique)</li>
+                            </ul>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Limites & Améliorations</div>
+                            <p style="margin-bottom:14px;"><span class="tag-red">⚠</span> Cohabitation de 5 SCS15 + HS-422 + Raspberry Pi 5 + Arduino : <strong>volume de câblage important</strong>. Accès aux vis M6 sous les servos difficile une fois montés.</p>
+                            <p><span class="tag-amber">→</span> Numéroter les câbles, utiliser des attaches-câbles fixés dans les rainures alu. Organiser le câblage entre structure mécanique et panneau électrique.</p>
+                        </div>
+                    </div>
+                    <div class="phase-mobile-dots"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4 — Utilisation -->
+        <div class="phase-item reveal" id="phase-3">
+            <div class="phase-card p4" data-open="false">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div>
+                        <span class="phase-number">Phase 3.4</span>
+                        <h3>Utilisation</h3>
+                        <p>Manipulation de cubes en bois légers, contrainte max. 31,6 MPa pour le PLA et 54,4 MPa pour l'alu — en dessous des limites élastiques.</p>
+                    </div>
+                    <div class="phase-expand-icon">▾</div>
+                </div>
+                <div class="phase-body">
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
+                        <p>Bras dimensionné pour manipuler des cubes en bois légers (pince + charge ≈ <strong>1 kg total</strong>). L'étude en flexion confirme une contrainte maximale de <strong>31,6 MPa pour le PLA</strong> et <strong>54,4 MPa pour l'aluminium</strong> — dans les deux cas inférieures aux limites élastiques.</p>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Avantages</div>
+                        <ul>
+                            <li>Marge de sécurité mécanique confortable pour l'usage prévu</li>
+                            <li>Capteur TCS34725 assurant une détection fiable des couleurs</li>
+                            <li>Courroie sécurisant le moteur SCS15 de la base (rotation verticale)</li>
+                            <li>Modèle URDF en développement permettant une simulation préalable des trajectoires</li>
+                        </ul>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Limites & Améliorations</div>
+                        <p style="margin-bottom:12px;"><span class="tag-red">⚠</span> PLA sensible à la chaleur (<strong>Tg ~60°C</strong>) — risque de ramollissement en atelier chaud. Vibrations aux pivots B et C lors de mouvements rapides. Pince non encore assemblée.</p>
+                        <p><span class="tag-amber">→</span> Ajouter ventilations ou écrans thermiques entre servos et pièces PLA. Implémenter des profils de vitesse rampe dans le code. Tester la répétabilité une fois la pince assemblée.</p>
+                    </div>
+                </div>
+                <!-- MOBILE PANELS -->
+                <div class="phase-mobile-wrap">
+                    <div class="phase-mobile-track">
+                        <div class="phase-mobile-panel phase-mobile-panel-intro">
+                            <span class="phase-number">Phase 3.4</span>
+                            <h3>Utilisation</h3>
+                            <p>Manipulation de cubes en bois légers, contrainte max. 31,6 MPa pour le PLA et 54,4 MPa pour l'alu — en dessous des limites élastiques.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Ce qui a été choisi</div>
+                            <p>Bras dimensionné pour manipuler des cubes en bois légers (pince + charge ≈ <strong>1 kg total</strong>). Contrainte maximale de <strong>31,6 MPa pour le PLA</strong> et <strong>54,4 MPa pour l'aluminium</strong> — inférieures aux limites élastiques.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Avantages</div>
+                            <ul>
+                                <li>Marge de sécurité mécanique confortable pour l'usage prévu</li>
+                                <li>Capteur TCS34725 assurant une détection fiable des couleurs</li>
+                                <li>Courroie sécurisant le moteur SCS15 de la base</li>
+                                <li>Modèle URDF en développement pour simulation des trajectoires</li>
+                            </ul>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Limites & Améliorations</div>
+                            <p style="margin-bottom:14px;"><span class="tag-red">⚠</span> PLA sensible à la chaleur (<strong>Tg ~60°C</strong>). Vibrations aux pivots B et C lors de mouvements rapides. Pince non encore assemblée.</p>
+                            <p><span class="tag-amber">→</span> Ajouter des écrans thermiques entre servos et pièces PLA. Implémenter des profils de vitesse rampe. Tester la répétabilité une fois la pince assemblée.</p>
+                        </div>
+                    </div>
+                    <div class="phase-mobile-dots"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 5 — Maintenance -->
+        <div class="phase-item reveal" id="phase-4">
+            <div class="phase-card p5" data-open="false">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div>
+                        <span class="phase-number">Phase 3.5</span>
+                        <h3>Maintenance</h3>
+                        <p>Structure modulaire conçue pour permettre le remplacement des composants individuellement sans démonter l'ensemble du bras.</p>
+                    </div>
+                    <div class="phase-expand-icon">▾</div>
+                </div>
+                <div class="phase-body">
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
+                        <p>Structure modulaire (<strong>profilés V-slot + vis M6 + pièces PLA distinctes</strong>) conçue pour faciliter le remplacement des composants individuellement sans démonter l'ensemble du bras.</p>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Avantages</div>
+                        <ul>
+                            <li>Segment alu ou pièce PLA cassée remplaçable sans toucher aux autres axes</li>
+                            <li>Servomoteurs SCS15 avec connecteurs standardisés facilitant leur échange</li>
+                            <li>Documentation technique existante facilitant les interventions futures</li>
+                        </ul>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Limites & Améliorations</div>
+                        <p style="margin-bottom:12px;"><span class="tag-red">⚠</span> Pièces PLA non standard : <strong>réimpression nécessaire</strong> si casse (plusieurs heures). Sans fin de course ni capteurs d'effort, un servo bloqué peut griller sans alerte.</p>
+                        <p><span class="tag-amber">→</span> Constituer un stock de pièces PLA de rechange. Ajouter une surveillance logicielle du courant par servo. Documenter précisément le schéma de câblage avec numérotation des connecteurs.</p>
+                    </div>
+                </div>
+                <!-- MOBILE PANELS -->
+                <div class="phase-mobile-wrap">
+                    <div class="phase-mobile-track">
+                        <div class="phase-mobile-panel phase-mobile-panel-intro">
+                            <span class="phase-number">Phase 3.5</span>
+                            <h3>Maintenance</h3>
+                            <p>Structure modulaire conçue pour permettre le remplacement des composants individuellement sans démonter l'ensemble du bras.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Ce qui a été choisi</div>
+                            <p>Structure modulaire (<strong>profilés V-slot + vis M6 + pièces PLA distinctes</strong>) conçue pour faciliter le remplacement des composants individuellement sans démonter l'ensemble du bras.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Avantages</div>
+                            <ul>
+                                <li>Segment alu ou pièce PLA cassée remplaçable sans toucher aux autres axes</li>
+                                <li>Servomoteurs SCS15 avec connecteurs standardisés facilitant leur échange</li>
+                                <li>Documentation technique existante facilitant les interventions futures</li>
+                            </ul>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Limites & Améliorations</div>
+                            <p style="margin-bottom:14px;"><span class="tag-red">⚠</span> Pièces PLA non standard : <strong>réimpression nécessaire</strong> si casse. Sans fin de course ni capteurs d'effort, un servo bloqué peut griller sans alerte.</p>
+                            <p><span class="tag-amber">→</span> Constituer un stock de pièces PLA de rechange. Ajouter une surveillance logicielle du courant par servo. Documenter le schéma de câblage avec numérotation des connecteurs.</p>
+                        </div>
+                    </div>
+                    <div class="phase-mobile-dots"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 6 — Fin de vie -->
+        <div class="phase-item reveal" id="phase-5">
+            <div class="phase-card p6" data-open="false">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div>
+                        <span class="phase-number">Phase 3.6</span>
+                        <h3>Fin de Vie</h3>
+                        <p>Anticipée lors de la sélection des matériaux : l'aluminium 6061-T6 retenu pour sa recyclabilité et sa réutilisabilité pour de futurs projets ICAM.</p>
+                    </div>
+                    <div class="phase-expand-icon">▾</div>
+                </div>
+                <div class="phase-body">
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
+                        <p>La fin de vie a été partiellement anticipée : aluminium 6061-T6 retenu pour sa <strong>recyclabilité et réutilisabilité</strong> d'une année sur l'autre. Le composite époxy/fibre de verre identifié comme solution idéale, non retenu en raison de son coût et de sa difficulté de recyclage.</p>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Avantages</div>
+                        <ul>
+                            <li>Profilés alu réutilisables pour d'autres projets pédagogiques (pas de modification irréversible, sauf taraudages)</li>
+                            <li>Servomoteurs SCS15 et HS-422 réutilisables</li>
+                            <li>Raspberry Pi 5 et Arduino MEGA 2560 conservant toute leur valeur après le projet</li>
+                        </ul>
+                    </div>
+                    <div class="phase-col">
+                        <div class="phase-col-label"><div class="phase-col-label-dot"></div>Limites & Améliorations</div>
+                        <p style="margin-bottom:12px;"><span class="tag-red">⚠</span> <strong>PLA non recyclé à l'ICAM</strong> et finira à la poubelle. La séparation des matériaux lors du démontage implique un dévisage complet (vis M6) qui peut être long.</p>
+                        <p><span class="tag-amber">→</span> Marquer les pièces alu pour faciliter tri et réutilisation. Remplacer le PLA par du <strong>PETG</strong> ou un composite époxy/fibre de verre pour améliorer durabilité et recyclabilité en version de production.</p>
+                    </div>
+                </div>
+                <!-- MOBILE PANELS -->
+                <div class="phase-mobile-wrap">
+                    <div class="phase-mobile-track">
+                        <div class="phase-mobile-panel phase-mobile-panel-intro">
+                            <span class="phase-number">Phase 3.6</span>
+                            <h3>Fin de Vie</h3>
+                            <p>Anticipée lors de la sélection des matériaux : l'aluminium 6061-T6 retenu pour sa recyclabilité et sa réutilisabilité pour de futurs projets ICAM.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Ce qui a été choisi</div>
+                            <p>Aluminium 6061-T6 retenu pour sa <strong>recyclabilité et réutilisabilité</strong>. Le composite époxy/fibre de verre identifié comme solution idéale, non retenu en raison de son coût et de sa difficulté de recyclage.</p>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Avantages</div>
+                            <ul>
+                                <li>Profilés alu réutilisables pour d'autres projets pédagogiques</li>
+                                <li>Servomoteurs SCS15 et HS-422 réutilisables</li>
+                                <li>Raspberry Pi 5 et Arduino MEGA 2560 conservant toute leur valeur après le projet</li>
+                            </ul>
+                        </div>
+                        <div class="phase-mobile-panel">
+                            <div class="phase-mobile-panel-label"><div class="phase-mobile-panel-label-dot"></div>Limites & Améliorations</div>
+                            <p style="margin-bottom:14px;"><span class="tag-red">⚠</span> <strong>PLA non recyclé à l'ICAM</strong> et finira à la poubelle. Séparation des matériaux impliquant un dévisage complet et long.</p>
+                            <p><span class="tag-amber">→</span> Marquer les pièces alu pour faciliter tri et réutilisation. Remplacer le PLA par du <strong>PETG</strong> ou un composite époxy/fibre de verre en version de production.</p>
+                        </div>
+                    </div>
+                    <div class="phase-mobile-dots"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile horizontal scroll nav -->
+        <div class="phase-scroll-nav" id="phaseScrollNav">
+            <div class="phase-scroll-inner" id="phaseScrollInner">
+                <button class="phase-scroll-btn p1 active" data-phase-scroll="0" onclick="goToPhase(0)">Conception</button>
+                <button class="phase-scroll-btn p2"        data-phase-scroll="1" onclick="goToPhase(1)">Fabrication</button>
+                <button class="phase-scroll-btn p3"        data-phase-scroll="2" onclick="goToPhase(2)">Assemblage</button>
+                <button class="phase-scroll-btn p4"        data-phase-scroll="3" onclick="goToPhase(3)">Utilisation</button>
+                <button class="phase-scroll-btn p5"        data-phase-scroll="4" onclick="goToPhase(4)">Maintenance</button>
+                <button class="phase-scroll-btn p6"        data-phase-scroll="5" onclick="goToPhase(5)">Fin de vie</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+         SECTION 4 — TABLEAU RÉCAPITULATIF
+    ============================================= -->
+    <div class="section-gap">
+        <div class="reveal">
+            <span class="section-tag">04 — Tableau récapitulatif</span>
+            <h2 class="chapter-title">Synthèse<br>des résultats.</h2>
+            <p class="chapter-sub">Points forts, points faibles et améliorations proposées pour chacune des six phases.</p>
+        </div>
+
+        <div class="recap-grid">
+
+            <div class="recap-card p1 reveal">
+                <span class="recap-phase-badge">Conception</span>
+                <h4>Sélection & Dimensionnement</h4>
+                <div class="recap-cols">
+                    <div class="recap-col">
+                        <h5>✅ Points forts</h5>
+                        <p>Solution mixte PLA/alu bien justifiée ; analyse Granta EduPack rigoureuse ; 5 axes offrant une grande dextérité.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>⚠ Points faibles</h5>
+                        <p>Hypothèse de section pleine PLA à 100 % non représentative de la réalité imprimée.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>→ Améliorations</h5>
+                        <p>Réduire le remplissage PLA à ~60–80 % en hypothèse de calcul.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recap-card p2 reveal reveal-d1">
+                <span class="recap-phase-badge">Fabrication</span>
+                <h4>Procédés & Outillage</h4>
+                <div class="recap-cols">
+                    <div class="recap-col">
+                        <h5>✅ Points forts</h5>
+                        <p>Impression 3D accessible, rapide et économique ; profilés alu 20×20 facilement découpés et taraudés.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>⚠ Points faibles</h5>
+                        <p>Taraudage manuel pouvant être long ; anisotropie du PLA réduisant la résistance selon l'orientation.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>→ Améliorations</h5>
+                        <p>Orienter les pièces PLA pour que les couches soient perpendiculaires aux efforts principaux.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recap-card p3 reveal">
+                <span class="recap-phase-badge">Assemblage & Intégration</span>
+                <h4>Fixations & Câblage</h4>
+                <div class="recap-cols">
+                    <div class="recap-col">
+                        <h5>✅ Points forts</h5>
+                        <p>Vis M6 robustes ; rainures des profilés alu facilitant le positionnement de l'électronique.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>⚠ Points faibles</h5>
+                        <p>Accès aux vis M6 limité une fois les servos en place ; câblage de 5 SCS15 + Raspberry Pi pouvant être complexe.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>→ Améliorations</h5>
+                        <p>Prévoir un câblage organisé, entre la structure mécanique et le panneau électrique.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recap-card p4 reveal reveal-d1">
+                <span class="recap-phase-badge">Utilisation</span>
+                <h4>Performance & Fiabilité</h4>
+                <div class="recap-cols">
+                    <div class="recap-col">
+                        <h5>✅ Points forts</h5>
+                        <p>Contrainte de flexion bien en dessous de la limite élastique (31,6 MPa vs ~60 MPa PLA) ; capteur couleur TCS34725 intégré.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>⚠ Points faibles</h5>
+                        <p>PLA sensible à la chaleur (Tg ~60°C) et à l'humidité en usage continu intensif.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>→ Améliorations</h5>
+                        <p>Faire attention aux conditions d'utilisation (température ambiante, dissipation thermique des servos).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recap-card p5 reveal">
+                <span class="recap-phase-badge">Maintenance</span>
+                <h4>Démontabilité & Réparation</h4>
+                <div class="recap-cols">
+                    <div class="recap-col">
+                        <h5>✅ Points forts</h5>
+                        <p>Modularité des profilés alu : remplacement d'une section rapide ; servos accessibles individuellement.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>⚠ Points faibles</h5>
+                        <p>Pièces PLA non standardisées : réimpression nécessaire si casse (délai de plusieurs heures).</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>→ Améliorations</h5>
+                        <p>Constituer un stock de pièces PLA de rechange imprimées à l'avance.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recap-card p6 reveal reveal-d1">
+                <span class="recap-phase-badge">Fin de vie</span>
+                <h4>Recyclabilité & Réutilisation</h4>
+                <div class="recap-cols">
+                    <div class="recap-col">
+                        <h5>✅ Points forts</h5>
+                        <p>Profilés alu 6061-T6 recyclables et réutilisables pour futurs projets ; servos et cartes électroniques réutilisables.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>⚠ Points faibles</h5>
+                        <p>PLA non recyclé à l'ICAM ; séparation PLA/alu nécessite un démontage complet avec dévisage long.</p>
+                    </div>
+                    <div class="recap-col">
+                        <h5>→ Améliorations</h5>
+                        <p>Remplacer le PLA par du PETG ou un composite époxy/fibre de verre pour améliorer la durabilité et la recyclabilité.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =============================================
+         SECTION 5 — CONCLUSION
+    ============================================= -->
+    <div class="section-gap">
+        <div class="reveal">
+            <span class="section-tag">05 — Conclusion</span>
+            <h2 class="chapter-title">Une conception<br>cohérente.</h2>
+        </div>
+
+        <div class="conclusion-card reveal">
+            <span class="section-tag" style="margin-bottom:24px;">BILAN FINAL</span>
+            <p>L'analyse du cycle de vie du Bras de Fer met en évidence une conception globalement cohérente avec l'ensemble des phases de vie du système. Les choix de matériaux (<strong>profilés aluminium 6061-T6</strong> pour les segments rectilignes et <strong>PLA</strong> pour les pièces complexes) sont justifiés par une étude comparative rigoureuse et répondent aux contraintes mécaniques calculées avec des marges de sécurité satisfaisantes.</p>
+            <p>Les principales forces du projet résident dans sa <strong>modularité, sa facilité de fabrication</strong> avec les ressources de l'ICAM, et la <strong>réutilisabilité des composants</strong> alu et électroniques. La documentation technique produite constitue un atout pour la maintenance et les évolutions futures.</p>
+            <p>Les points de vigilance identifiés sont la <strong>gestion thermique du PLA</strong> au contact des servos, la structuration du câblage, l'absence de fin de course et la fragilité potentielle des pièces PLA à cause de l'anisotropie des couches d'impression. Ces risques restent gérables à l'échelle d'un prototype pédagogique.</p>
+            <p>La prise en compte de la fin de vie pourrait être améliorée en substituant le PLA par un matériau plus durable et recyclable (<strong>PETG, composite époxy/verre</strong>) dans une version de production. Globalement, la conception actuelle est cohérente avec le cycle de vie d'un <strong>prototype de bras robotique pédagogique</strong>.</p>
+
+            <div style="margin-top:40px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+                <div class="pill"><div class="pill-dot" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></div>Alu recyclable — ♾ cycle infini</div>
+                <div class="pill"><div class="pill-dot" style="background:#ff453a;box-shadow:0 0 8px #ff453a;"></div>PLA non recyclé à l'ICAM</div>
+                <div class="pill"><div class="pill-dot"></div>6 phases analysées</div>
+                <div class="pill"><div class="pill-dot"></div>Marges de sécurité satisfaisantes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BACK BUTTON -->
+    <div style="text-align:center;margin-bottom:100px;" class="reveal">
+        <div class="divider"></div>
+        <a href="Details_Du_Projet.html" class="btn-back">← Retour à la Mosaïque</a>
+    </div>
+
+</div>
+
+<script>
+    /* ─── REVEAL ─── */
+    const ro = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); ro.unobserve(e.target); } });
+    }, { threshold: 0.07 });
+    document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+    setTimeout(() => document.querySelector('.hero')?.classList.add('active'), 120);
+
+    /* ─── HELPERS ─── */
+    const isMobile = () => window.innerWidth <= 768;
+
+    /* ─── DESKTOP: accordion ─── */
+    function togglePhase(header) {
+        if (isMobile()) return;
+        const card = header.closest('.phase-card');
+        const body = card.querySelector('.phase-body');
+        const icon = header.querySelector('.phase-expand-icon');
+        const isOpen = card.dataset.open === 'true';
+        if (isOpen) { body.classList.remove('open'); icon.style.transform = 'rotate(0deg)'; card.dataset.open = 'false'; }
+        else         { body.classList.add('open');    icon.style.transform = 'rotate(180deg)'; card.dataset.open = 'true'; }
+    }
+    document.querySelector('#phase-0 .phase-expand-icon').style.transform = 'rotate(180deg)';
+
+    /* ─── NAV BUTTON HANDLER (mobile + desktop) ─── */
+    let currentMobilePhase = 0;
+
+    function goToPhase(index) {
+        if (isMobile()) {
+            switchMobilePhase(index);
+        } else {
+            const target = document.getElementById('phase-' + index);
+            if (target) {
+                window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+                const card = target.querySelector('.phase-card');
+                const body = target.querySelector('.phase-body');
+                const icon = target.querySelector('.phase-expand-icon');
+                if (card.dataset.open !== 'true') {
+                    body.classList.add('open');
+                    icon.style.transform = 'rotate(180deg)';
+                    card.dataset.open = 'true';
+                }
+            }
+        }
+        updateNavBtn(index);
+    }
+
+    function updateNavBtn(index) {
+        // Desktop top nav
+        document.querySelectorAll('.phase-btn').forEach((b, i) => b.classList.toggle('active', i === index));
+        // Mobile scroll nav
+        const scrollBtns = document.querySelectorAll('.phase-scroll-btn');
+        scrollBtns.forEach((b, i) => b.classList.toggle('active', i === index));
+        // Scroll active button into view centered
+        if (isMobile() && scrollBtns[index]) {
+            const strip = document.getElementById('phaseScrollInner');
+            const btn = scrollBtns[index];
+            const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
+            strip.scrollTo({ left: btnCenter - strip.offsetWidth / 2, behavior: 'smooth' });
+        }
+    }
+
+    /* ─── DESKTOP: auto-update nav on scroll ─── */
+    const phaseEls = [0,1,2,3,4,5].map(i => document.getElementById('phase-' + i));
+    const navObs = new IntersectionObserver((entries) => {
+        if (isMobile()) return;
+        entries.forEach(e => { if (e.isIntersecting) { const i = phaseEls.indexOf(e.target); if (i !== -1) updateNavBtn(i); } });
+    }, { rootMargin: '-40% 0px -40% 0px' });
+    phaseEls.forEach(el => { if (el) navObs.observe(el); });
+
+    /* ─── MOBILE: switch phase with slide animation ─── */
+    function switchMobilePhase(index) {
+        if (!isMobile() || index === currentMobilePhase) return;
+
+        const items = document.querySelectorAll('.phase-item');
+        const prev = items[currentMobilePhase];
+        const next = items[index];
+        if (!prev || !next) return;
+
+        const dir = index > currentMobilePhase ? 1 : -1;
+
+        // Lock the container height so nothing below moves during the transition
+        const container = document.getElementById('phases-container');
+        if (container) container.style.minHeight = container.offsetHeight + 'px';
+
+        // Exit: slide + fade + slight scale down
+        prev.style.transition = 'opacity 0.18s ease, transform 0.22s cubic-bezier(0.4,0,1,1)';
+        prev.style.opacity = '0';
+        prev.style.transform = `translateX(${dir * -48}px) scale(0.97)`;
+
+        setTimeout(() => {
+            prev.classList.remove('mobile-active');
+            prev.style.cssText = '';
+            const prevState = panelStates.get(prev);
+            if (prevState) prevState(0);
+
+            // Prepare next: start offset + slightly scaled down
+            next.style.cssText = `opacity:0;transform:translateX(${dir * 48}px) scale(0.97)`;
+            next.classList.add('mobile-active');
+
+            const nextState = panelStates.get(next);
+            if (nextState) nextState(0);
+
+            // Enter: spring into place
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                next.style.transition = 'opacity 0.28s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1)';
+                next.style.opacity = '1';
+                next.style.transform = 'translateX(0) scale(1)';
+                setTimeout(() => {
+                    next.style.cssText = '';
+                    // Release the container height lock after animation completes
+                    if (container) container.style.minHeight = '';
+                }, 370);
+            }));
+
+            currentMobilePhase = index;
+        }, 200);
+    }
+
+    /* ─── MOBILE: inner panel swipe ─── */
+    // Map from phase-item el → goTo(idx) function
+    const panelStates = new Map();
+
+    function initInnerPanels() {
+        document.querySelectorAll('.phase-mobile-wrap').forEach(wrap => {
+            const track = wrap.querySelector('.phase-mobile-track');
+            const dotsEl = wrap.querySelector('.phase-mobile-dots');
+            if (!track || !dotsEl) return;
+
+            // Move dots OUTSIDE the wrap so they aren't clipped by overflow:hidden
+            // Only do this once, guarded by a flag
+            if (!wrap.dataset.dotsDetached) {
+                wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
+                wrap.dataset.dotsDetached = 'true';
+            }
+
+            const panels = Array.from(track.children);
+            const count = panels.length;
+            let cur = 0;
+            let startX = 0, startY = 0, dragging = false, dx = 0;
+
+            // Set explicit width on each panel = wrap width (mobile only)
+            function sizePanels() {
+                if (!isMobile()) return;
+                const w = wrap.offsetWidth;
+                panels.forEach(p => { p.style.width = w + 'px'; });
+            }
+            sizePanels();
+            window.addEventListener('resize', sizePanels);
+
+            // Build dots
+            dotsEl.innerHTML = '';
+            panels.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'phase-mobile-dot' + (i === 0 ? ' active' : '');
+                btn.addEventListener('click', () => goTo(i));
+                dotsEl.appendChild(btn);
+            });
+
+            function goTo(idx) {
+                cur = Math.max(0, Math.min(count - 1, idx));
+                if (isMobile()) {
+                    sizePanels(); // re-measure in case the phase was hidden at init
+                    track.style.transform = `translateX(-${cur * 100}%)`;
+                    wrap.style.height = panels[cur].scrollHeight + 'px';
+                }
+                dotsEl.querySelectorAll('.phase-mobile-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+            }
+
+            // Store reset fn on parent phase-item
+            const phaseItem = wrap.closest('.phase-item');
+            if (phaseItem) panelStates.set(phaseItem, goTo);
+
+            // Touch swipe
+            track.addEventListener('touchstart', e => {
+                if (!isMobile()) return;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                dragging = true; dx = 0;
+            }, { passive: true });
+
+            track.addEventListener('touchmove', e => {
+                if (!dragging || !isMobile()) return;
+                dx = e.touches[0].clientX - startX;
+                const dy = e.touches[0].clientY - startY;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    track.style.transform = `translateX(calc(-${cur * 100}% + ${dx}px))`;
+                }
+            }, { passive: true });
+
+            track.addEventListener('touchend', () => {
+                if (!isMobile()) return;
+                dragging = false;
+                if (dx < -50)     goTo(cur + 1);
+                else if (dx > 50) goTo(cur - 1);
+                else              goTo(cur);
+            });
+
+            requestAnimationFrame(() => goTo(0));
+        });
+    }
+
+    initInnerPanels();
+
+    /* ─── CAROUSELS (sections 01 & 02) ─── */
+    function initCarousels() {
+        document.querySelectorAll('[data-carousel]').forEach(wrap => {
+            const track = wrap.querySelector('.carousel-track');
+            const dotsEl = wrap.querySelector('.carousel-dots');
+            if (!track || !dotsEl) return;
+
+            const items = Array.from(track.children);
+            const count = items.length;
+            let cur = 0, startX = 0, dragging = false, dx = 0;
+
+            dotsEl.innerHTML = '';
+            items.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                btn.addEventListener('click', () => goTo(i));
+                dotsEl.appendChild(btn);
+            });
+
+            function goTo(idx) {
+                cur = Math.max(0, Math.min(count - 1, idx));
+                if (isMobile()) track.style.transform = `translateX(-${cur * 100}%)`;
+                dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+            }
+
+            track.addEventListener('touchstart', e => { if (!isMobile()) return; startX = e.touches[0].clientX; dragging = true; dx = 0; }, { passive: true });
+            track.addEventListener('touchmove', e => { if (!dragging || !isMobile()) return; dx = e.touches[0].clientX - startX; }, { passive: true });
+            track.addEventListener('touchend', () => { if (!isMobile()) return; dragging = false; if (dx < -50) goTo(cur + 1); else if (dx > 50) goTo(cur - 1); });
+            window.addEventListener('resize', () => { if (!isMobile()) track.style.transform = ''; else goTo(cur); });
+
+            goTo(0);
+        });
+    }
+
+    initCarousels();
+</script>
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+    function openLightbox(img) {
+        document.getElementById('lightboxImg').src = img.src;
+        document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+
+</body>
+</html>
