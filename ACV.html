@@ -668,7 +668,6 @@
             .phase-mobile-track {
                 display: flex;
                 will-change: transform;
-                transition: transform 0.38s cubic-bezier(0.25,1,0.5,1);
             }
             /* Fixed height so all cards are the same size */
             .phase-mobile-panel {
@@ -776,7 +775,6 @@
             }
             .carousel-track {
                 display: flex !important;
-                transition: transform 0.38s cubic-bezier(0.25, 1, 0.5, 1);
                 will-change: transform;
             }
             .carousel-track > * {
@@ -1834,8 +1832,65 @@
         }, 200);
     }
 
+    /* ─── SHARED SWIPE ENGINE (Apple-like) ─── */
+    function createSwiper(wrap, track, count, onChange) {
+        let cur = 0;
+        let startX = 0, startY = 0;
+        let lastX = 0, lastTime = 0, velocity = 0;
+        let active = false, isHorizontal = null;
+
+        function moveTo(idx, animate) {
+            cur = Math.max(0, Math.min(count - 1, idx));
+            const pw = wrap.offsetWidth;
+            track.style.transition = animate
+                ? 'transform 0.42s cubic-bezier(0.25,1,0.5,1)'
+                : 'none';
+            track.style.transform = `translateX(${-cur * pw}px)`;
+            onChange(cur);
+        }
+
+        track.addEventListener('touchstart', e => {
+            if (!isMobile()) return;
+            startX = lastX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            lastTime = Date.now();
+            velocity = 0; active = true; isHorizontal = null;
+            track.style.transition = 'none'; // kill animation immediately
+        }, { passive: true });
+
+        track.addEventListener('touchmove', e => {
+            if (!active || !isMobile()) return;
+            const x = e.touches[0].clientX, y = e.touches[0].clientY;
+            const dxTotal = x - startX, dyTotal = y - startY;
+            // Lock axis on first movement > 5px
+            if (isHorizontal === null && (Math.abs(dxTotal) > 5 || Math.abs(dyTotal) > 5))
+                isHorizontal = Math.abs(dxTotal) >= Math.abs(dyTotal);
+            if (!isHorizontal) return;
+            // Velocity
+            const now = Date.now(), dt = now - lastTime;
+            if (dt > 0) velocity = (x - lastX) / dt;
+            lastX = x; lastTime = now;
+            // Rubber band resistance at edges
+            let offset = dxTotal;
+            if ((cur === 0 && dxTotal > 0) || (cur === count - 1 && dxTotal < 0))
+                offset = dxTotal * 0.2;
+            track.style.transform = `translateX(${-cur * wrap.offsetWidth + offset}px)`;
+        }, { passive: true });
+
+        track.addEventListener('touchend', () => {
+            if (!active || !isMobile()) return;
+            active = false;
+            if (!isHorizontal) return;
+            const dx = lastX - startX;
+            if      (velocity < -0.3 || dx < -30) moveTo(cur + 1, true);
+            else if (velocity >  0.3 || dx >  30) moveTo(cur - 1, true);
+            else                                   moveTo(cur,     true);
+        });
+
+        return { moveTo, getCur: () => cur };
+    }
+
     /* ─── MOBILE: inner panel swipe ─── */
-    // Map from phase-item el → goTo(idx) function
     const panelStates = new Map();
 
     function initInnerPanels() {
@@ -1844,8 +1899,6 @@
             const dotsEl = wrap.querySelector('.phase-mobile-dots');
             if (!track || !dotsEl) return;
 
-            // Move dots OUTSIDE the wrap so they aren't clipped by overflow:hidden
-            // Only do this once, guarded by a flag
             if (!wrap.dataset.dotsDetached) {
                 wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
                 wrap.dataset.dotsDetached = 'true';
@@ -1853,10 +1906,7 @@
 
             const panels = Array.from(track.children);
             const count = panels.length;
-            let cur = 0;
-            let startX = 0, startY = 0, dragging = false, dx = 0;
 
-            // Set explicit width on each panel = wrap width (mobile only)
             function sizePanels() {
                 if (!isMobile()) return;
                 const w = wrap.offsetWidth;
@@ -1865,57 +1915,29 @@
             sizePanels();
             window.addEventListener('resize', sizePanels);
 
-            // Build dots
+            // Dots
             dotsEl.innerHTML = '';
             panels.forEach((_, i) => {
                 const btn = document.createElement('button');
                 btn.className = 'phase-mobile-dot' + (i === 0 ? ' active' : '');
-                btn.addEventListener('click', () => goTo(i));
+                btn.addEventListener('click', () => swiper.moveTo(i, true));
                 dotsEl.appendChild(btn);
             });
 
-            function goTo(idx) {
-                cur = Math.max(0, Math.min(count - 1, idx));
-                if (isMobile()) {
-                    sizePanels();
-                    const pw = wrap.offsetWidth;
-                    track.style.transform = `translateX(${-cur * pw}px)`;
-                    wrap.style.height = panels[cur].scrollHeight + 'px';
-                }
-                dotsEl.querySelectorAll('.phase-mobile-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+            function onChange(idx) {
+                sizePanels();
+                wrap.style.transition = 'height 0.38s cubic-bezier(0.25,1,0.5,1)';
+                wrap.style.height = panels[idx].scrollHeight + 'px';
+                dotsEl.querySelectorAll('.phase-mobile-dot')
+                    .forEach((d, i) => d.classList.toggle('active', i === idx));
             }
 
-            // Store reset fn on parent phase-item
+            const swiper = createSwiper(wrap, track, count, onChange);
+
             const phaseItem = wrap.closest('.phase-item');
-            if (phaseItem) panelStates.set(phaseItem, goTo);
+            if (phaseItem) panelStates.set(phaseItem, (idx) => swiper.moveTo(idx, true));
 
-            // Touch swipe
-            track.addEventListener('touchstart', e => {
-                if (!isMobile()) return;
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                dragging = true; dx = 0;
-            }, { passive: true });
-
-            track.addEventListener('touchmove', e => {
-                if (!dragging || !isMobile()) return;
-                dx = e.touches[0].clientX - startX;
-                const dy = e.touches[0].clientY - startY;
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    const pw = wrap.offsetWidth;
-                    track.style.transform = `translateX(${-cur * pw + dx}px)`;
-                }
-            }, { passive: true });
-
-            track.addEventListener('touchend', () => {
-                if (!isMobile()) return;
-                dragging = false;
-                if (dx < -30)     goTo(cur + 1);
-                else if (dx > 30) goTo(cur - 1);
-                else              goTo(cur);
-            });
-
-            requestAnimationFrame(() => goTo(0));
+            requestAnimationFrame(() => swiper.moveTo(0, false));
         });
     }
 
@@ -1930,45 +1952,28 @@
 
             const items = Array.from(track.children);
             const count = items.length;
-            let cur = 0, startX = 0, dragging = false, dx = 0;
 
             dotsEl.innerHTML = '';
             items.forEach((_, i) => {
                 const btn = document.createElement('button');
                 btn.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-                btn.addEventListener('click', () => goTo(i));
+                btn.addEventListener('click', () => swiper.moveTo(i, true));
                 dotsEl.appendChild(btn);
             });
 
-            function goTo(idx) {
-                cur = Math.max(0, Math.min(count - 1, idx));
-                if (isMobile()) {
-                    const pw = wrap.offsetWidth;
-                    track.style.transform = `translateX(${-cur * pw}px)`;
-                }
-                dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+            function onChange(idx) {
+                dotsEl.querySelectorAll('.carousel-dot')
+                    .forEach((d, i) => d.classList.toggle('active', i === idx));
             }
 
-            track.addEventListener('touchstart', e => {
-                if (!isMobile()) return;
-                startX = e.touches[0].clientX; dragging = true; dx = 0;
-            }, { passive: true });
-            track.addEventListener('touchmove', e => {
-                if (!dragging || !isMobile()) return;
-                dx = e.touches[0].clientX - startX;
-                const pw = wrap.offsetWidth;
-                track.style.transform = `translateX(${-cur * pw + dx}px)`;
-            }, { passive: true });
-            track.addEventListener('touchend', () => {
-                if (!isMobile()) return;
-                dragging = false;
-                if (dx < -30) goTo(cur + 1);
-                else if (dx > 30) goTo(cur - 1);
-                else goTo(cur);
-            });
-            window.addEventListener('resize', () => { if (!isMobile()) track.style.transform = ''; else goTo(cur); });
+            const swiper = createSwiper(wrap, track, count, onChange);
 
-            goTo(0);
+            window.addEventListener('resize', () => {
+                if (!isMobile()) track.style.transform = '';
+                else swiper.moveTo(swiper.getCur(), false);
+            });
+
+            swiper.moveTo(0, false);
         });
     }
 
