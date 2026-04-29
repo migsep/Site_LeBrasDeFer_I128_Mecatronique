@@ -25,7 +25,7 @@
             --muted: #86868b;
 
             /* Phase colors */
-            --c1: #ff7a00; /* Conception */
+            --c1: #f5c400; /* Conception */
             --c2: #ff5c00; /* Fabrication */
             --c3: #e84393; /* Assemblage */
             --c4: #00c6ff; /* Utilisation */
@@ -34,13 +34,12 @@
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; overflow-x: hidden; }
+        html { scroll-behavior: smooth; }
 
         body {
             background: var(--bg);
             color: var(--text);
             font-family: "Inter", sans-serif;
-            overflow-x: hidden;
             font-size: 16px;
             line-height: 1.6;
         }
@@ -70,7 +69,7 @@
         /* =============================================
            LAYOUT
         ============================================= */
-        .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+        .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; overflow: visible; }
         .section-gap { margin-bottom: 140px; }
 
         @media (max-width: 768px) {
@@ -93,7 +92,7 @@
             min-height: 100vh;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
-            text-align: center; position: relative;
+             position: relative;
         }
 
         .hero-eyebrow {
@@ -192,7 +191,7 @@
         }
         .kpi {
             background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 18px; padding: 24px 18px; text-align: center;
+            border-radius: 18px; padding: 24px 18px; 
             position: relative; overflow: hidden;
         }
         .kpi::before {
@@ -506,7 +505,7 @@
         }
         .recap-card h4 { font-size: 1rem; margin-bottom: 16px; }
         .recap-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .recap-col h5 { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+        .recap-col h5 { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
         .recap-col p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
         .recap-col p strong { color: var(--text); }
         .tag-green { color: #22c55e; }
@@ -521,7 +520,7 @@
             background: linear-gradient(135deg, rgba(255,122,0,0.04), var(--bg-card));
             border: 1px solid var(--border-neon);
             box-shadow: 0 0 60px rgba(255,122,0,0.06);
-            text-align: center;
+            
         }
         .conclusion-card p {
             font-size: 1.1rem; color: var(--muted); line-height: 1.85;
@@ -540,6 +539,205 @@
             transition: 0.3s; margin-top: 50px;
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
+
+        /* ─── CYCLE RÉCAPITULATIF ─── */
+        .cycle-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .cycle-container {
+            position: relative;
+            width: min(500px, 90vw);
+            height: min(500px, 90vw);
+        }
+        .cycle-svg {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            z-index: 1;
+        }
+        .cycle-node {
+            position: absolute;
+            width: clamp(52px, 11vw, 72px);
+            height: clamp(52px, 11vw, 72px);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            display: flex; align-items: center; justify-content: center;
+            font-family: "Orbitron"; font-size: clamp(1rem, 2.5vw, 1.4rem); font-weight: 900;
+            color: #fff;
+            border: none; cursor: pointer;
+            background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--nc) 80%, white), var(--nc) 60%, color-mix(in srgb, var(--nc) 60%, black));
+            box-shadow:
+                inset 0 6px 10px rgba(255,255,255,0.5),
+                inset 0 -6px 12px rgba(0,0,0,0.4),
+                0 0 20px var(--ns);
+            transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s;
+        }
+        .cycle-node:hover, .cycle-node.active {
+            transform: translate(-50%, -50%) scale(1.18);
+            box-shadow:
+                inset 0 6px 10px rgba(255,255,255,0.6),
+                inset 0 -6px 12px rgba(0,0,0,0.4),
+                0 0 35px var(--nc), 0 0 60px var(--ns);
+        }
+        /* Center content — desktop */
+        .cycle-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 78%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .cycle-hint {
+            color: rgba(255,255,255,0.18);
+            font-size: 0.72rem;
+            font-family: "Orbitron";
+            letter-spacing: 1px;
+            line-height: 1.6;
+            
+        }
+        .cycle-center-card {
+            background: #0d0d0d;
+            border: 1.5px solid var(--cc, rgba(255,255,255,0.15));
+            border-radius: 50%;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20%;
+            box-shadow: 0 0 30px var(--ccg, rgba(255,255,255,0.05));
+            animation: ccIn 0.4s cubic-bezier(0.16,1,0.3,1);
+            overflow: hidden;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        @keyframes ccIn {
+            from { opacity: 0; transform: scale(0.88); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .cycle-center-badge {
+            font-family: "Orbitron"; font-size: 0.68rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            padding: 2px 8px; border-radius: 20px;
+            display: inline-block; margin-bottom: 7px;
+        }
+        .cycle-center-title {
+            font-size: 1rem; font-weight: 700;
+            margin: 0 0 9px; line-height: 1.2;
+        }
+        .cycle-col { margin-bottom: 5px; }
+        .cycle-col-label {
+            font-size: 0.52rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: rgba(255,255,255,0.35);
+            display: block; margin-bottom: 2px;
+        }
+        .cycle-col-text { font-size: 0.84rem; color: var(--muted); line-height: 1.5; margin: 0; }
+        .cycle-col-text.green { color: #22c55e; }
+        .cycle-col-text.red   { color: #ff453a; }
+        .cycle-col-text.amber { color: var(--neon); }
+
+        /* Mobile modal */
+        .cycle-modal-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 9000;
+            align-items: center; justify-content: center;
+        }
+        .cycle-modal-overlay.open { display: flex; }
+
+        /* The expanding bubble */
+        .cycle-bubble-expand {
+            position: fixed;
+            border-radius: 50%;
+            z-index: 9001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition:
+                top    0.45s cubic-bezier(0.16,1,0.3,1),
+                left   0.45s cubic-bezier(0.16,1,0.3,1),
+                width  0.45s cubic-bezier(0.16,1,0.3,1),
+                height 0.45s cubic-bezier(0.16,1,0.3,1),
+                transform 0.45s cubic-bezier(0.16,1,0.3,1),
+                border-radius 0.3s ease;
+            pointer-events: none;
+            box-shadow: inset 0 8px 16px rgba(255,255,255,0.3), inset 0 -8px 20px rgba(0,0,0,0.4);
+        }
+        .cycle-bubble-expand.expanded {
+            pointer-events: auto;
+            cursor: pointer;
+            background: #0d0d0d !important;
+            border: 1.5px solid var(--bubble-color, rgba(255,255,255,0.2));
+            box-shadow: 0 0 40px var(--bubble-glow, rgba(255,255,255,0.1)) !important;
+        }
+        .cycle-bubble-expand.squarify {
+            border-radius: 24px !important;
+        }
+
+        /* Dark overlay behind */
+        .cycle-bg-overlay {
+            position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            transition: background 0.4s ease, backdrop-filter 0.4s ease;
+            pointer-events: none;
+        }
+        .cycle-bg-overlay.visible {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            pointer-events: auto;
+        }
+
+        /* Content inside bubble */
+        .cycle-bubble-content {
+            padding: 28px 24px 36px;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s;
+            overflow-y: auto;
+            max-height: 100%;
+            width: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: var(--bubble-color, rgba(255,255,255,0.3)) transparent;
+        }
+        .cycle-bubble-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        .cycle-bubble-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .cycle-bubble-content::-webkit-scrollbar-thumb {
+            background: var(--bubble-color, rgba(255,255,255,0.3));
+            border-radius: 2px;
+        }
+        .cycle-bubble-content.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .cycle-bubble-content .cycle-modal-col {
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .cycle-bubble-content .cycle-modal-col:last-child { border-bottom: none; }
+        .cycle-bubble-close {
+            position: absolute;
+            top: 16px; right: 16px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none; color: #fff;
+            font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
 
         /* ─── Projet cards mobile: no card styling + GSAP animation ─── */
         @media (max-width: 768px) {
@@ -630,7 +828,75 @@
             #card-conclusion p strong { color: var(--text); }
         }
 
-        /* ── Image lightbox ── */
+        /* ─── Section 04 — Mobile compact recap ─── */
+        @media (max-width: 768px) {
+            .recap-grid { display: none !important; }
+            .recap-mobile { display: flex; flex-direction: column; gap: 0; }
+
+            .recap-row {
+                border-bottom: 1px solid var(--border);
+                overflow: hidden;
+            }
+            .recap-row:first-child { border-top: 1px solid var(--border); }
+
+            .recap-row-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 16px 4px;
+                cursor: pointer;
+                user-select: none;
+            }
+            .recap-row-dot {
+                width: 10px; height: 10px;
+                border-radius: 50%;
+                flex-shrink: 0;
+                box-shadow: 0 0 8px var(--pc);
+                background: var(--pc);
+            }
+            .recap-row-name {
+                font-family: "Orbitron";
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--text);
+                flex: 1;
+            }
+            .recap-row-arrow {
+                font-size: 1rem;
+                color: var(--muted);
+                transition: transform 0.3s ease;
+                line-height: 1;
+            }
+            .recap-row.open .recap-row-arrow { transform: rotate(90deg); color: var(--pc); }
+
+            .recap-row-body {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+            }
+            .recap-row.open .recap-row-body { max-height: 400px; }
+
+            .recap-col-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 4px;
+                border-top: 1px solid rgba(255,255,255,0.04);
+                font-size: 0.85rem;
+                line-height: 1.55;
+            }
+            .recap-col-item:first-child { border-top: none; padding-top: 4px; }
+            .recap-col-last { padding-bottom: 18px; }
+            .recap-col-icon { flex-shrink: 0; width: 20px;  font-size: 0.9rem; margin-top: 1px; }
+            .recap-col-text-green { color: #22c55e; }
+            .recap-col-text-amber { color: var(--neon); }
+            .recap-col-text-red   { color: #ff453a; }
+            .recap-col-text       { color: var(--muted); }
+            .recap-col-text strong { color: var(--text); font-weight: 500; }
+        }
+        @media (min-width: 769px) { .recap-mobile { display: none; } }
         .mat-img {
             width: 100%; border-radius: 12px; margin: 14px 0;
             object-fit: cover; max-height: 180px;
@@ -1269,7 +1535,7 @@
         </div>
     </div>
 
-    <div class="section-gap" id="phases-container">
+    <div class="section-gap" id="phases-container" style="overflow: visible;">
         <div class="reveal">
             <span class="section-tag">03 — Analyse du cycle de vie</span>
             <h2 class="chapter-title">Les 6 phases<br>du cycle de vie.</h2>
@@ -1290,7 +1556,7 @@
 
         <!-- Phase 1 — Conception -->
         <div class="phase-item reveal mobile-active" id="phase-0">
-            <div class="phase-card p1" data-open="true">
+            <div class="phase-card p1" data-open="false">
                 <div class="phase-header" onclick="togglePhase(this)">
                     <div>
                         <span class="phase-number">Phase 3.1</span>
@@ -1299,7 +1565,7 @@
                     </div>
                     <div class="phase-expand-icon">▾</div>
                 </div>
-                <div class="phase-body open">
+                <div class="phase-body">
                     <div class="phase-col">
                         <div class="phase-col-label"><div class="phase-col-label-dot"></div>Ce qui a été choisi</div>
                         <p>Combinaison <strong>PLA / aluminium</strong> issue d'une étude comparative (Granta EduPack). Critères retenus : limite élastique > 35 MPa, masse volumique < 2 000 kg/m³, facilité de mise en œuvre et impact environnemental.</p>
@@ -1671,133 +1937,56 @@
     </div>
 
     <!-- =============================================
-         SECTION 4 — TABLEAU RÉCAPITULATIF
+         SECTION 4 — CYCLE RÉCAPITULATIF
     ============================================= -->
     <div class="section-gap">
         <div class="reveal">
             <span class="section-tag">04 — Tableau récapitulatif</span>
             <h2 class="chapter-title">Synthèse<br>des résultats.</h2>
-            <p class="chapter-sub">Points forts, points faibles et améliorations proposées pour chacune des six phases.</p>
+            <p class="chapter-sub">Cliquez sur une phase pour afficher son bilan.</p>
         </div>
 
-        <div class="recap-grid">
+        <div class="cycle-wrapper reveal" id="cycleWrapper">
+            <!-- SVG ring + nodes -->
+            <div class="cycle-container" id="cycleContainer">
+                <svg class="cycle-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="cglow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur stdDeviation="5" result="blur"/>
+                            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                        </filter>
+                    </defs>
+                    <circle cx="250" cy="250" r="195" fill="rgba(0,0,0,0.6)"/>
+                    <circle cx="250" cy="250" r="200" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
+                    <!-- arrows -->
+                    <g transform="translate(350,76.8) rotate(30)"><polyline points="-10,-12 8,0 -10,12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" filter="url(#cglow)"/></g>
+                    <g transform="translate(450,250) rotate(90)"><polyline points="-10,-12 8,0 -10,12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" filter="url(#cglow)"/></g>
+                    <g transform="translate(350,423.2) rotate(150)"><polyline points="-10,-12 8,0 -10,12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" filter="url(#cglow)"/></g>
+                    <g transform="translate(150,423.2) rotate(210)"><polyline points="-10,-12 8,0 -10,12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" filter="url(#cglow)"/></g>
+                    <g transform="translate(50,250) rotate(270)"><polyline points="-10,-12 8,0 -10,12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" filter="url(#cglow)"/></g>
+                    <g transform="translate(150,76.8) rotate(330)"><polyline points="-10,-12 8,0 -10,12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" filter="url(#cglow)"/></g>
+                </svg>
 
-            <div class="recap-card p1 reveal">
-                <span class="recap-phase-badge">Conception</span>
-                <h4>Sélection & Dimensionnement</h4>
-                <div class="recap-cols">
-                    <div class="recap-col">
-                        <h5>✅ Points forts</h5>
-                        <p>Solution mixte PLA/alu bien justifiée ; analyse Granta EduPack rigoureuse ; 5 axes offrant une grande dextérité.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>⚠ Points faibles</h5>
-                        <p>Hypothèse de section pleine PLA à 100 % non représentative de la réalité imprimée.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>→ Améliorations</h5>
-                        <p>Réduire le remplissage PLA à ~60–80 % en hypothèse de calcul.</p>
-                    </div>
-                </div>
+                <!-- Center content (desktop) -->
+                <div class="cycle-center" id="cycleCenter"></div>
+
+                <!-- Nodes -->
+                <button class="cycle-node" data-phase="1" style="top:0%;left:50%;--nc:#f5c400;--ns:rgba(245,196,0,0.6)" onclick="selectPhase(1)">1</button>
+                <button class="cycle-node" data-phase="2" style="top:25%;left:93.3%;--nc:#ff5c00;--ns:rgba(255,92,0,0.6)" onclick="selectPhase(2)">2</button>
+                <button class="cycle-node" data-phase="3" style="top:75%;left:93.3%;--nc:#e84393;--ns:rgba(232,67,147,0.6)" onclick="selectPhase(3)">3</button>
+                <button class="cycle-node" data-phase="4" style="top:100%;left:50%;--nc:#00c6ff;--ns:rgba(0,198,255,0.6)" onclick="selectPhase(4)">4</button>
+                <button class="cycle-node" data-phase="5" style="top:75%;left:6.7%;--nc:#7c3aed;--ns:rgba(124,58,237,0.6)" onclick="selectPhase(5)">5</button>
+                <button class="cycle-node" data-phase="6" style="top:25%;left:6.7%;--nc:#22c55e;--ns:rgba(34,197,94,0.6)" onclick="selectPhase(6)">6</button>
             </div>
+        </div>
 
-            <div class="recap-card p2 reveal reveal-d1">
-                <span class="recap-phase-badge">Fabrication</span>
-                <h4>Procédés & Outillage</h4>
-                <div class="recap-cols">
-                    <div class="recap-col">
-                        <h5>✅ Points forts</h5>
-                        <p>Impression 3D accessible, rapide et économique ; profilés alu 20×20 facilement découpés et taraudés.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>⚠ Points faibles</h5>
-                        <p>Taraudage manuel pouvant être long ; anisotropie du PLA réduisant la résistance selon l'orientation.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>→ Améliorations</h5>
-                        <p>Orienter les pièces PLA pour que les couches soient perpendiculaires aux efforts principaux.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="recap-card p3 reveal">
-                <span class="recap-phase-badge">Assemblage & Intégration</span>
-                <h4>Fixations & Câblage</h4>
-                <div class="recap-cols">
-                    <div class="recap-col">
-                        <h5>✅ Points forts</h5>
-                        <p>Vis M6 robustes ; rainures des profilés alu facilitant le positionnement de l'électronique.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>⚠ Points faibles</h5>
-                        <p>Accès aux vis M6 limité une fois les servos en place ; câblage de 5 SCS15 + Raspberry Pi pouvant être complexe.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>→ Améliorations</h5>
-                        <p>Prévoir un câblage organisé, entre la structure mécanique et le panneau électrique.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="recap-card p4 reveal reveal-d1">
-                <span class="recap-phase-badge">Utilisation</span>
-                <h4>Performance & Fiabilité</h4>
-                <div class="recap-cols">
-                    <div class="recap-col">
-                        <h5>✅ Points forts</h5>
-                        <p>Contrainte de flexion bien en dessous de la limite élastique (31,6 MPa vs ~60 MPa PLA) ; capteur couleur TCS34725 intégré.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>⚠ Points faibles</h5>
-                        <p>PLA sensible à la chaleur (Tg ~60°C) et à l'humidité en usage continu intensif.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>→ Améliorations</h5>
-                        <p>Faire attention aux conditions d'utilisation (température ambiante, dissipation thermique des servos).</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="recap-card p5 reveal">
-                <span class="recap-phase-badge">Maintenance</span>
-                <h4>Démontabilité & Réparation</h4>
-                <div class="recap-cols">
-                    <div class="recap-col">
-                        <h5>✅ Points forts</h5>
-                        <p>Modularité des profilés alu : remplacement d'une section rapide ; servos accessibles individuellement.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>⚠ Points faibles</h5>
-                        <p>Pièces PLA non standardisées : réimpression nécessaire si casse (délai de plusieurs heures).</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>→ Améliorations</h5>
-                        <p>Constituer un stock de pièces PLA de rechange imprimées à l'avance.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="recap-card p6 reveal reveal-d1">
-                <span class="recap-phase-badge">Fin de vie</span>
-                <h4>Recyclabilité & Réutilisation</h4>
-                <div class="recap-cols">
-                    <div class="recap-col">
-                        <h5>✅ Points forts</h5>
-                        <p>Profilés alu 6061-T6 recyclables et réutilisables pour futurs projets ; servos et cartes électroniques réutilisables.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>⚠ Points faibles</h5>
-                        <p>PLA non recyclé à l'ICAM ; séparation PLA/alu nécessite un démontage complet avec dévisage long.</p>
-                    </div>
-                    <div class="recap-col">
-                        <h5>→ Améliorations</h5>
-                        <p>Remplacer le PLA par du PETG ou un composite époxy/fibre de verre pour améliorer la durabilité et la recyclabilité.</p>
-                    </div>
-                </div>
-            </div>
-
+        <!-- Mobile bubble expand overlay -->
+        <div class="cycle-bg-overlay" id="cycleBgOverlay" onclick="closeModal()"></div>
+        <div class="cycle-bubble-expand" id="cycleBubble" onclick="closeModal()">
+            <div class="cycle-bubble-content" id="cycleBubbleContent"></div>
         </div>
     </div>
+
 
     <!-- =============================================
          SECTION 5 — CONCLUSION
@@ -1847,7 +2036,7 @@
         if (isOpen) { body.classList.remove('open'); icon.style.transform = 'rotate(0deg)'; card.dataset.open = 'false'; }
         else         { body.classList.add('open');    icon.style.transform = 'rotate(180deg)'; card.dataset.open = 'true'; }
     }
-    document.querySelector('#phase-0 .phase-expand-icon').style.transform = 'rotate(180deg)';
+
 
     /* ─── NAV BUTTON HANDLER (mobile + desktop) ─── */
     let currentMobilePhase = 0;
@@ -1887,13 +2076,28 @@
         }
     }
 
-    /* ─── DESKTOP: auto-update nav on scroll ─── */
+    /* ─── DESKTOP: sync nav with phase cards based on viewport midpoint ─── */
     const phaseEls = [0,1,2,3,4,5].map(i => document.getElementById('phase-' + i));
-    const navObs = new IntersectionObserver((entries) => {
+
+    function syncPhaseNav() {
         if (isMobile()) return;
-        entries.forEach(e => { if (e.isIntersecting) { const i = phaseEls.indexOf(e.target); if (i !== -1) updateNavBtn(i); } });
-    }, { rootMargin: '-40% 0px -40% 0px' });
-    phaseEls.forEach(el => { if (el) navObs.observe(el); });
+        const midY = window.innerHeight / 2;
+        let activeIdx = -1;
+
+        phaseEls.forEach((el, i) => {
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            // Card is in the upper half: its top is above midpoint AND its bottom is above 0
+            if (rect.top <= midY && rect.bottom > 0) {
+                activeIdx = i;
+            }
+        });
+
+        if (activeIdx !== -1) updateNavBtn(activeIdx);
+    }
+
+    window.addEventListener('scroll', syncPhaseNav, { passive: true });
+    syncPhaseNav(); // init
 
     /* ─── MOBILE: switch phase with slide animation ─── */
     function switchMobilePhase(index) {
@@ -2138,7 +2342,7 @@
 
     initSubsysParallax();
 
-    /* ─── GSAP: Section 01 — scroll-driven ─── */
+    /* ─── GSAP: Section 01 — mobile, fast & premium ─── */
     function initProjetCardsGSAP() {
         if (!isMobile()) return;
         if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
@@ -2151,21 +2355,12 @@
             document.getElementById('card-mecanique')
         ].filter(Boolean);
 
-        cards.forEach(card => {
+        cards.forEach((card, ci) => {
             const h4 = card.querySelector('h4');
             if (!h4) return;
 
-            // Split title into chars
-            const titleText = h4.textContent;
-            h4.innerHTML = '';
+            // Keep h4 as-is (no split), just animate the whole title
             h4.className = 'gsap-titre';
-            const chars = [...titleText].map(ch => {
-                const s = document.createElement('span');
-                s.className = 'gsap-char';
-                s.textContent = ch === ' ' ? '\u00A0' : ch;
-                h4.appendChild(s);
-                return s;
-            });
 
             // Underline
             const underline = document.createElement('div');
@@ -2185,27 +2380,37 @@
             const paraInners = card.querySelectorAll('.gsap-para-inner');
             const strongs    = card.querySelectorAll('strong');
 
-            // Timeline déclenché à l'entrée dans le viewport
             const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: card,
-                    start: 'top 78%',
-                    once: true
-                }
+                scrollTrigger: { trigger: card, start: 'top 78%', once: true },
+                delay: ci * 0.1
             });
 
-            tl.from(chars, { opacity: 0, y: 8, stagger: 0.038, duration: 0.6, ease: 'power2.out' });
+            // Title: fast clip from bottom
+            tl.fromTo(h4,
+                { y: 32, opacity: 0, filter: 'blur(4px)' },
+                { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power4.out' }
+            );
+
+            // Underline snaps in
             tl.fromTo(underline,
                 { scaleX: 0, opacity: 0 },
-                { scaleX: 1, opacity: 1, duration: 0.5, ease: 'power3.inOut' },
-                '-=0.2'
+                { scaleX: 1, opacity: 1, duration: 0.35, ease: 'power3.inOut' },
+                '-=0.1'
             );
-            tl.from(paraInners, { y: 26, opacity: 0, stagger: 0.18, duration: 0.65, ease: 'power3.out' }, '-=0.15');
+
+            // Paragraphs snap up fast with stagger
+            tl.fromTo(paraInners,
+                { y: 22, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.38, stagger: 0.08, ease: 'power3.out' },
+                '-=0.1'
+            );
+
+            // Bold words flash orange
             if (strongs.length) {
                 tl.fromTo(strongs,
                     { color: '#ff7a00' },
-                    { color: '#f5f5f7', stagger: 0.08, duration: 0.45, ease: 'power2.out' },
-                    '-=0.35'
+                    { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
+                    '-=0.25'
                 );
             }
         });
@@ -2213,7 +2418,7 @@
 
     window.addEventListener('load', initProjetCardsGSAP);
 
-    /* ─── GSAP: Section 05 — scroll-driven ─── */
+    /* ─── GSAP: Section 05 — mobile, fast blur+scale cascade ─── */
     function initConclusionGSAP() {
         if (!isMobile()) return;
         if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
@@ -2226,7 +2431,7 @@
         const label = card.querySelector('.section-tag');
         const paras = [...card.querySelectorAll('p')];
 
-        /* ── Split paragraphs into word spans ── */
+        /* Split paragraphs into word spans */
         paras.forEach(p => {
             const html = p.innerHTML;
             const wrapped = html
@@ -2241,7 +2446,7 @@
             p.innerHTML = wrapped;
         });
 
-        /* ── Treat label like a title: split into chars + underline ── */
+        /* Treat label like title with split chars + underline */
         if (label) {
             const labelText = label.textContent;
             label.innerHTML = '';
@@ -2258,40 +2463,354 @@
             label.after(underline);
             underline.style.marginBottom = '20px';
 
-            // Timeline déclenché à l'entrée dans le viewport
             const tl = gsap.timeline({
                 scrollTrigger: { trigger: card, start: 'top 75%', once: true }
             });
 
-            tl.from(chars, { opacity: 0, y: 8, stagger: 0.038, duration: 0.6, ease: 'power2.out' });
+            // Title snaps in with blur
+            tl.fromTo(label,
+                { y: 24, opacity: 0, filter: 'blur(6px)' },
+                { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.4, ease: 'power4.out' }
+            );
             tl.fromTo(underline,
                 { scaleX: 0, opacity: 0 },
-                { scaleX: 1, opacity: 1, duration: 0.5, ease: 'power3.inOut' },
-                '-=0.2'
+                { scaleX: 1, opacity: 1, duration: 0.3, ease: 'power3.inOut' },
+                '-=0.05'
             );
 
+            // Words blast in fast with scale + blur
             paras.forEach((p, i) => {
                 const words   = p.querySelectorAll('.gsap-word');
                 const strongs = p.querySelectorAll('strong');
-                tl.from(words, {
-                    opacity: 0, x: -14, rotateX: 35,
-                    transformOrigin: 'left center',
-                    stagger: { each: 0.016, from: 'start' },
-                    duration: 0.5,
-                    ease: 'power2.out'
-                }, i === 0 ? '-=0.1' : '-=0.35');
+
+                tl.fromTo(words,
+                    { opacity: 0, y: 14, scale: 0.9, filter: 'blur(3px)' },
+                    {
+                        opacity: 1, y: 0, scale: 1, filter: 'blur(0px)',
+                        transformOrigin: 'left center',
+                        stagger: { each: 0.012, from: 'start' },
+                        duration: 0.35,
+                        ease: 'power3.out'
+                    },
+                    i === 0 ? '-=0.05' : '-=0.25'
+                );
+
                 if (strongs.length) {
                     tl.fromTo(strongs,
                         { color: '#ff7a00' },
-                        { color: '#f5f5f7', stagger: 0.08, duration: 0.4, ease: 'power2.out' },
-                        '<50%'
+                        { color: '#f5f5f7', stagger: 0.04, duration: 0.25, ease: 'power2.out' },
+                        '<40%'
                     );
                 }
             });
         }
     }
 
+    /* ─── CYCLE RÉCAPITULATIF ─── */
+    const cycleData = {
+        1: {
+            name: 'Conception', title: 'Sélection & Dimensionnement',
+            color: '#f5c400',
+            fort:  'Solution PLA/alu bien justifiée ; analyse Granta EduPack rigoureuse ; 5 axes offrant une grande dextérité.',
+            faible:'Hypothèse de section pleine PLA à 100 % non représentative de la réalité imprimée.',
+            amelio:'Réduire le remplissage PLA à ~60–80 % en hypothèse de calcul.'
+        },
+        2: {
+            name: 'Fabrication', title: 'Procédés & Outillage',
+            color: '#ff5c00',
+            fort:  'Impression 3D accessible, rapide et économique ; profilés alu 20×20 facilement découpés et taraudés.',
+            faible:'Anisotropie du PLA ; tolérances ±0,2 à 0,5 mm pouvant rendre l\'ajustement délicat.',
+            amelio:'Définir une charte d\'orientation d\'impression pour chaque pièce.'
+        },
+        3: {
+            name: 'Assemblage', title: 'Fixations & Câblage',
+            color: '#e84393',
+            fort:  'Vis M6 robustes ; rainures V-slot facilitant le positionnement sans usinage supplémentaire.',
+            faible:'Câblage de 5 SCS15 + Raspberry Pi complexe ; accès aux vis M6 difficile une fois les servos montés.',
+            amelio:'Prévoir un câblage organisé entre structure mécanique et panneau électrique.'
+        },
+        4: {
+            name: 'Utilisation', title: 'Performance & Fiabilité',
+            color: '#00c6ff',
+            fort:  'Contrainte 31,6 MPa < limite élastique du PLA ; capteur TCS34725 intégré pour détection des couleurs.',
+            faible:'PLA sensible à la chaleur (Tg ~60°C) et à l\'humidité en usage continu intensif.',
+            amelio:'Surveiller les conditions d\'utilisation (température, dissipation thermique des servos).'
+        },
+        5: {
+            name: 'Maintenance', title: 'Démontabilité & Réparation',
+            color: '#7c3aed',
+            fort:  'Composants remplaçables individuellement ; servos SCS15 avec connecteurs standardisés.',
+            faible:'Pièces PLA non standardisées : réimpression nécessaire si casse (plusieurs heures).',
+            amelio:'Constituer un stock de pièces PLA de rechange ; surveillance logicielle du courant des servos.'
+        },
+        6: {
+            name: 'Fin de vie', title: 'Recyclabilité & Réutilisation',
+            color: '#22c55e',
+            fort:  'Profilés alu 6061-T6 recyclables et réutilisables pour futurs projets ; servos et cartes réutilisables.',
+            faible:'PLA non recyclé à l\'ICAM ; séparation PLA/alu nécessite un démontage complet.',
+            amelio:'Remplacer le PLA par du PETG ou un composite époxy/fibre de verre en version production.'
+        }
+    };
+
+    let activePhase = null;
+
+    function selectPhase(n) {
+        const d = cycleData[n];
+        if (!d) return;
+
+        // Update active node
+        document.querySelectorAll('.cycle-node').forEach(node => {
+            node.classList.toggle('active', parseInt(node.dataset.phase) === n);
+        });
+        activePhase = n;
+
+        if (isMobile()) {
+            const node = document.querySelector(`.cycle-node[data-phase="${n}"]`);
+            const bubble = document.getElementById('cycleBubble');
+            const content = document.getElementById('cycleBubbleContent');
+            const overlay = document.getElementById('cycleBgOverlay');
+
+            // Get node position on screen
+            const rect = node.getBoundingClientRect();
+            const nodeSize = rect.width;
+
+            // Start: position bubble at the node (as a small colored circle)
+            bubble.style.display = '';
+            bubble.style.transition = 'none';
+            bubble.style.transform = 'translate(0, 0)';
+            bubble.style.background = `radial-gradient(circle at 35% 35%, color-mix(in srgb, ${d.color} 80%, white), ${d.color} 60%, color-mix(in srgb, ${d.color} 60%, black))`;
+            bubble.style.setProperty('--bubble-color', d.color);
+            bubble.style.setProperty('--bubble-glow', d.color + '44');
+            content.style.setProperty('--bubble-color', d.color);
+            bubble.style.width  = nodeSize + 'px';
+            bubble.style.height = nodeSize + 'px';
+            bubble.style.top    = rect.top + 'px';
+            bubble.style.left   = rect.left + 'px';
+            bubble.style.borderRadius = '50%';
+            content.classList.remove('visible');
+            content.innerHTML = '';
+
+            // Trigger layout
+            bubble.offsetWidth;
+
+            // Target: expand to centered rectangular card
+            const targetW = Math.min(window.innerWidth * 0.88, 420);
+            const targetH = Math.min(window.innerHeight * 0.55, 480);
+            bubble.style.transition = '';
+
+            requestAnimationFrame(() => {
+                bubble.classList.add('expanded');
+                bubble.style.width  = targetW + 'px';
+                bubble.style.height = targetH + 'px';
+                bubble.style.top    = '50%';
+                bubble.style.left   = '50%';
+                bubble.style.transform = 'translate(-50%, -50%)';
+                overlay.classList.add('visible');
+
+                // After expand finishes, square the corners
+                setTimeout(() => {
+                    bubble.classList.add('squarify');
+                }, 420);
+            });
+
+            // Show content after bubble expands
+            setTimeout(() => {
+                content.innerHTML = `
+                    <span class="cycle-modal-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color};font-family:Orbitron;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;">${d.name}</span>
+                    <h3 class="cycle-modal-title" style="font-size:1.2rem;font-weight:900;margin:0 0 18px;color:${d.color}">${d.title}</h3>
+                    <div class="cycle-modal-col">
+                        <span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">✅ Points forts</span>
+                        <p class="cycle-modal-col-text green" style="font-size:0.88rem;line-height:1.65;color:#22c55e;margin:0">${d.fort}</p>
+                    </div>
+                    <div class="cycle-modal-col">
+                        <span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">⚠️ Points faibles</span>
+                        <p class="cycle-modal-col-text red" style="font-size:0.88rem;line-height:1.65;color:#ff453a;margin:0">${d.faible}</p>
+                    </div>
+                    <div class="cycle-modal-col">
+                        <span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">→ Améliorations</span>
+                        <p class="cycle-modal-col-text amber" style="font-size:0.88rem;line-height:1.65;color:var(--neon);margin:0">${d.amelio}</p>
+                    </div>
+                `;
+                content.classList.add('visible');
+            }, 380);
+        } else {
+            // Desktop: animated card in center of cycle
+            const center = document.getElementById('cycleCenter');
+            center.innerHTML = `
+                <div class="cycle-center-card" style="--cc:${d.color};--ccg:${d.color}33">
+                    <span class="cycle-center-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color}">${d.name}</span>
+                    <div class="cycle-center-title" style="color:${d.color}">${d.title}</div>
+                    <div class="cycle-col">
+                        <span class="cycle-col-label">✅ Points forts</span>
+                        <p class="cycle-col-text green">${d.fort}</p>
+                    </div>
+                    <div class="cycle-col">
+                        <span class="cycle-col-label">⚠️ Points faibles</span>
+                        <p class="cycle-col-text red">${d.faible}</p>
+                    </div>
+                    <div class="cycle-col">
+                        <span class="cycle-col-label">→ Améliorations</span>
+                        <p class="cycle-col-text amber">${d.amelio}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function closeModal() {
+        const overlay = document.getElementById('cycleBgOverlay');
+
+        if (isMobile()) {
+            const bubble  = document.getElementById('cycleBubble');
+            const content = document.getElementById('cycleBubbleContent');
+            content.classList.remove('visible');
+            overlay.classList.remove('visible');
+            const node = activePhase ? document.querySelector(`.cycle-node[data-phase="${activePhase}"]`) : null;
+            if (node) {
+                const rect = node.getBoundingClientRect();
+                const nodeSize = rect.width;
+                bubble.classList.remove('expanded');
+                bubble.classList.remove('squarify');
+                bubble.style.transform = 'translate(0,0)';
+                bubble.style.width  = nodeSize + 'px';
+                bubble.style.height = nodeSize + 'px';
+                bubble.style.top    = rect.top + 'px';
+                bubble.style.left   = rect.left + 'px';
+                bubble.style.borderRadius = '50%';
+                setTimeout(() => { bubble.style.display = 'none'; }, 500);
+            }
+        } else {
+            // Desktop: clear center card
+            const center = document.getElementById('cycleCenter');
+            if (center) center.innerHTML = '';
+        }
+
+        document.querySelectorAll('.cycle-node').forEach(n => n.classList.remove('active'));
+        activePhase = null;
+    }
+
     window.addEventListener('load', initConclusionGSAP);
+
+    /* ─── GSAP DESKTOP — Sections 01, 02, 05 ─── */
+    function initDesktopGSAP() {
+        if (isMobile()) return;
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+            setTimeout(initDesktopGSAP, 200); return;
+        }
+        gsap.registerPlugin(ScrollTrigger);
+
+        /* ── Section 01: cards slide from sides ── */
+        const cardFonction  = document.getElementById('card-fonction');
+        const cardMecanique = document.getElementById('card-mecanique');
+
+        if (cardFonction) {
+            gsap.from(cardFonction, {
+                scrollTrigger: { trigger: cardFonction, start: 'top 65%', once: true },
+                x: -60, opacity: 0, duration: 0.9, ease: 'power3.out'
+            });
+            // Stagger inner paragraphs
+            gsap.from(cardFonction.querySelectorAll('p'), {
+                scrollTrigger: { trigger: cardFonction, start: 'top 60%', once: true },
+                y: 20, opacity: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out', delay: 0.3
+            });
+        }
+        if (cardMecanique) {
+            gsap.from(cardMecanique, {
+                scrollTrigger: { trigger: cardMecanique, start: 'top 65%', once: true },
+                x: 60, opacity: 0, duration: 0.9, ease: 'power3.out'
+            });
+            gsap.from(cardMecanique.querySelectorAll('p'), {
+                scrollTrigger: { trigger: cardMecanique, start: 'top 60%', once: true },
+                y: 20, opacity: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out', delay: 0.3
+            });
+        }
+
+        /* ── Section 02: mat cards mirror + image zoom, meca cards cascade ── */
+        const matWrap = document.querySelector('.mat-row.carousel-wrap');
+        if (matWrap) {
+            const [cardAlu, cardPla] = matWrap.querySelectorAll('.mat-card');
+
+            if (cardAlu) {
+                gsap.from(cardAlu, {
+                    scrollTrigger: { trigger: cardAlu, start: 'top 68%', once: true },
+                    x: -70, opacity: 0, duration: 1, ease: 'power3.out'
+                });
+                const imgAlu = cardAlu.querySelector('img');
+                if (imgAlu) gsap.from(imgAlu, {
+                    scrollTrigger: { trigger: cardAlu, start: 'top 65%', once: true },
+                    scale: 1.08, duration: 1.1, ease: 'power2.out', delay: 0.2
+                });
+            }
+            if (cardPla) {
+                gsap.from(cardPla, {
+                    scrollTrigger: { trigger: cardPla, start: 'top 68%', once: true },
+                    x: 70, opacity: 0, duration: 1, ease: 'power3.out'
+                });
+                const imgPla = cardPla.querySelector('img');
+                if (imgPla) gsap.from(imgPla, {
+                    scrollTrigger: { trigger: cardPla, start: 'top 65%', once: true },
+                    scale: 1.08, duration: 1.1, ease: 'power2.out', delay: 0.2
+                });
+            }
+        }
+
+        // Meca cards (3 at bottom) cascade left→right
+        const mecaWrap = document.querySelector('.meca-grid.carousel-wrap');
+        if (mecaWrap) {
+            gsap.from(mecaWrap.querySelectorAll('.meca-card'), {
+                scrollTrigger: { trigger: mecaWrap, start: 'top 82%', once: true },
+                y: 40, opacity: 0, duration: 0.7, stagger: 0.15, ease: 'power3.out'
+            });
+        }
+
+        // Solide list items
+        const solideList = document.querySelector('.solide-list');
+        if (solideList) {
+            gsap.from(solideList.querySelectorAll('.solide-item'), {
+                scrollTrigger: { trigger: solideList, start: 'top 68%', once: true },
+                x: -30, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out'
+            });
+        }
+
+        // Subsys Apple cards
+        const subsysItems = document.querySelectorAll('.subsys-item');
+        if (subsysItems.length) {
+            gsap.from(subsysItems, {
+                scrollTrigger: { trigger: subsysItems[0], start: 'top 68%', once: true },
+                y: 30, opacity: 0, duration: 0.65, stagger: 0.15, ease: 'power3.out'
+            });
+        }
+
+        /* ── Section 05: conclusion clip-path reveal ── */
+        const conclusionCard = document.getElementById('card-conclusion');
+        if (conclusionCard) {
+            // Clip-path reveal from center
+            gsap.fromTo(conclusionCard,
+                { clipPath: 'inset(0% 50% 0% 50% round 28px)', opacity: 0 },
+                {
+                    clipPath: 'inset(0% 0% 0% 0% round 28px)',
+                    opacity: 1,
+                    duration: 1.1,
+                    ease: 'power3.inOut',
+                    scrollTrigger: { trigger: conclusionCard, start: 'top 65%', once: true }
+                }
+            );
+
+            // Paragraphs cascade after reveal
+            gsap.from(conclusionCard.querySelectorAll('p'), {
+                scrollTrigger: { trigger: conclusionCard, start: 'top 58%', once: true },
+                y: 25, opacity: 0, duration: 0.7, stagger: 0.18, ease: 'power2.out', delay: 0.6
+            });
+        }
+    }
+
+    window.addEventListener('load', initDesktopGSAP);
+
+    /* ─── Section 04 mobile: accordion rows ─── */
+    function toggleRecapRow(row) {
+        const isOpen = row.classList.contains('open');
+        row.classList.toggle('open', !isOpen);
+    }
 </script>
 <!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()">
