@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACV - LE BRAS DE FER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 
     <style>
         /* =============================================
@@ -32,7 +34,7 @@
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
 
         body {
             background: var(--bg);
@@ -46,6 +48,10 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
+
+        @media (max-width: 768px) {
+            ::-webkit-scrollbar { width: 0; }
+        }
 
         h1, h2, h3, h4, .tech-font { font-family: "Orbitron", sans-serif; }
 
@@ -66,6 +72,11 @@
         ============================================= */
         .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
         .section-gap { margin-bottom: 140px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+            .section-gap { margin-bottom: 80px; }
+        }
 
         .section-tag {
             color: var(--neon);
@@ -530,6 +541,95 @@
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
 
+        /* ─── Projet cards mobile: no card styling + GSAP animation ─── */
+        @media (max-width: 768px) {
+            .projet-grid {
+                display: flex !important;
+                flex-direction: column;
+                gap: 48px;
+            }
+            #card-fonction,
+            #card-mecanique {
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                backdrop-filter: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            .gsap-titre {
+                font-family: "Orbitron";
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: var(--neon);
+                margin-bottom: 6px;
+                min-height: 1.2em;
+            }
+            .gsap-char { display: inline-block; }
+            .gsap-cursor {
+                display: inline-block;
+                width: 2px;
+                height: 0.85em;
+                background: var(--neon);
+                margin-left: 2px;
+                vertical-align: middle;
+                box-shadow: 0 0 8px var(--neon);
+            }
+            .gsap-underline {
+                height: 1px;
+                background: linear-gradient(90deg, var(--neon), transparent);
+                margin-bottom: 20px;
+                transform-origin: left center;
+                box-shadow: 0 0 8px rgba(255,122,0,0.4);
+            }
+            .gsap-para-wrap {
+                overflow: hidden;
+                margin-bottom: 14px;
+            }
+            .gsap-para-inner {
+                display: block;
+                font-size: 0.95rem;
+                color: var(--muted);
+                line-height: 1.85;
+            }
+            .gsap-para-inner strong { color: var(--text); }
+        }
+
+        /* ─── Conclusion card mobile ─── */
+        @media (max-width: 768px) {
+            #card-conclusion {
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                text-align: left;
+            }
+            /* Section-tag becomes a gsap-titre lookalike */
+            #card-conclusion .section-tag {
+                font-family: "Orbitron" !important;
+                font-size: 0.7rem !important;
+                text-transform: uppercase !important;
+                letter-spacing: 2px !important;
+                color: var(--neon) !important;
+                margin-bottom: 6px !important;
+                display: block;
+            }
+            .gsap-word {
+                display: inline-block;
+                will-change: transform, opacity;
+            }
+            /* Harmonize paragraph text between 01 and 05 */
+            #card-conclusion p {
+                font-size: 0.95rem;
+                color: var(--muted);
+                line-height: 1.85;
+                margin-bottom: 14px;
+            }
+            #card-conclusion p strong { color: var(--text); }
+        }
+
         /* ── Image lightbox ── */
         .mat-img {
             width: 100%; border-radius: 12px; margin: 14px 0;
@@ -757,9 +857,13 @@
             .phase-mobile-dot.active { background: #ffffff; }
         }
 
-        /* =============================================
-           MOBILE CAROUSEL
-        ============================================= */
+        @media (max-width: 768px) {
+            .subsys-visual {
+                aspect-ratio: 3/4;
+                will-change: transform;
+                overflow: hidden;
+            }
+        }
         .carousel-wrap {
             position: relative;
         }
@@ -770,32 +874,37 @@
             .carousel-dots { display: none; }
         }
 
-        /* Mobile: activate the carousel — native CSS scroll snap */
+        /* Mobile: carousel — full viewport width, Apple style */
         @media (max-width: 768px) {
-            /* Wrap becomes the scroll container */
             .carousel-wrap {
                 display: block !important;
                 overflow-x: auto !important;
-                overflow-y: hidden;
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
                 overscroll-behavior-x: contain;
-                width: 100%;
+                margin-left: -16px !important;
+                margin-right: -16px !important;
+                width: 100vw !important;
             }
             .carousel-wrap::-webkit-scrollbar { display: none; }
             .carousel-track {
                 display: flex !important;
-                pointer-events: none; /* prevent children stealing touch */
+                gap: 12px;
+                padding-left: 24px;
             }
             .carousel-track > * {
-                flex: 0 0 100% !important;
-                width: 100% !important;
-                scroll-snap-align: start;
-                pointer-events: auto;
+                flex: 0 0 auto;
+                scroll-snap-align: center;
+                box-sizing: border-box;
                 min-width: 0;
             }
-            /* Dots */
+            .carousel-spacer {
+                flex: 0 0 24px !important;
+                width: 24px !important;
+                pointer-events: none;
+                scroll-snap-align: none !important;
+            }
             .carousel-dots {
                 display: flex;
                 justify-content: center;
@@ -803,13 +912,11 @@
                 gap: 8px;
                 margin-top: 16px;
                 padding: 4px 0;
-                overflow: visible;
             }
             .carousel-dot {
                 width: 8px; height: 8px;
                 border-radius: 50%;
                 background: rgba(255,255,255,0.25);
-                transition: background 0.25s;
                 cursor: pointer;
                 border: none; padding: 0;
                 flex-shrink: 0;
@@ -846,7 +953,7 @@
         </div>
 
         <div class="projet-grid reveal">
-            <div class="card">
+            <div class="card" id="card-fonction">
                 <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;">Fonction principale & Besoin</h4>
                 <div class="projet-text">
                     <p>Le projet <strong>« Le Bras de Fer »</strong> est un bras robot à 5 axes conçu pour des entreprises de jouets dont les produits sont des cubes. Sa mission est de <strong>trier automatiquement ces cubes selon leur couleur</strong> (rouge, bleu, vert) et de constituer des assortiments de 3 cubes conformément aux consignes de l'opérateur.</p>
@@ -856,7 +963,7 @@
                 </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:14px;">
-                <div class="card" style="flex:1">
+                <div class="card" id="card-mecanique" style="flex:1">
                     <h4 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;">Rôle de la mécanique</h4>
                     <p class="projet-text">La partie mécanique est <strong>l'ossature du système</strong>. Elle supporte et positionne les 6 servomoteurs, guide les mouvements dans les 3 dimensions, maintient le capteur de couleur face aux cubes et permet à la pince d'exercer la force de préhension nécessaire. Un défaut mécanique (flexion, jeu, désalignement) se traduit directement par une <strong>erreur de positionnement de l'effecteur</strong>.</p>
                 </div>
@@ -1701,19 +1808,13 @@
             <h2 class="chapter-title">Une conception<br>cohérente.</h2>
         </div>
 
-        <div class="conclusion-card reveal">
+        <div class="conclusion-card reveal" id="card-conclusion">
             <span class="section-tag" style="margin-bottom:24px;">BILAN FINAL</span>
             <p>L'analyse du cycle de vie du Bras de Fer met en évidence une conception globalement cohérente avec l'ensemble des phases de vie du système. Les choix de matériaux (<strong>profilés aluminium 6061-T6</strong> pour les segments rectilignes et <strong>PLA</strong> pour les pièces complexes) sont justifiés par une étude comparative rigoureuse et répondent aux contraintes mécaniques calculées avec des marges de sécurité satisfaisantes.</p>
             <p>Les principales forces du projet résident dans sa <strong>modularité, sa facilité de fabrication</strong> avec les ressources de l'ICAM, et la <strong>réutilisabilité des composants</strong> alu et électroniques. La documentation technique produite constitue un atout pour la maintenance et les évolutions futures.</p>
             <p>Les points de vigilance identifiés sont la <strong>gestion thermique du PLA</strong> au contact des servos, la structuration du câblage, l'absence de fin de course et la fragilité potentielle des pièces PLA à cause de l'anisotropie des couches d'impression. Ces risques restent gérables à l'échelle d'un prototype pédagogique.</p>
             <p>La prise en compte de la fin de vie pourrait être améliorée en substituant le PLA par un matériau plus durable et recyclable (<strong>PETG, composite époxy/verre</strong>) dans une version de production. Globalement, la conception actuelle est cohérente avec le cycle de vie d'un <strong>prototype de bras robotique pédagogique</strong>.</p>
 
-            <div style="margin-top:40px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
-                <div class="pill"><div class="pill-dot" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></div>Alu recyclable — ♾ cycle infini</div>
-                <div class="pill"><div class="pill-dot" style="background:#ff453a;box-shadow:0 0 8px #ff453a;"></div>PLA non recyclé à l'ICAM</div>
-                <div class="pill"><div class="pill-dot"></div>6 phases analysées</div>
-                <div class="pill"><div class="pill-dot"></div>Marges de sécurité satisfaisantes</div>
-            </div>
         </div>
     </div>
 
@@ -1927,49 +2028,66 @@
 
     initInnerPanels();
 
-    /* ─── CAROUSELS sections 01 & 02 (CSS scroll snap) ─── */
+    /* ─── CAROUSELS sections 01 & 02 (flex + JS sizing + spacer) ─── */
     function initCarousels() {
         document.querySelectorAll('[data-carousel]').forEach(wrap => {
             const track = wrap.querySelector('.carousel-track');
             const dotsEl = wrap.querySelector('.carousel-dots');
             if (!track || !dotsEl) return;
 
-            // Move dots OUTSIDE the scroll container so they don't scroll away
             if (!wrap.dataset.dotsDetached) {
                 wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
                 wrap.dataset.dotsDetached = 'true';
             }
 
-            const items = Array.from(track.children);
+            // Remove any existing spacer
+            const old = track.querySelector('.carousel-spacer');
+            if (old) old.remove();
+
+            // Add trailing spacer (real DOM element — Safari ignores padding-right/margin-right on scroll containers)
+            const spacer = document.createElement('div');
+            spacer.className = 'carousel-spacer';
+            spacer.setAttribute('aria-hidden', 'true');
+            track.appendChild(spacer);
+
+            const items = Array.from(track.children).filter(el => !el.classList.contains('carousel-spacer'));
             const count = items.length;
             let cur = 0;
 
+            const itemW = () => window.innerWidth - 48;
+            const step  = () => itemW() + 12; // itemWidth + gap
+
+            function sizeItems() {
+                if (!isMobile()) {
+                    items.forEach(it => it.style.width = '');
+                    return;
+                }
+                items.forEach(it => it.style.width = itemW() + 'px');
+            }
+            sizeItems();
+            window.addEventListener('resize', sizeItems);
+            window.addEventListener('load', sizeItems);
+
+            // Dots
             dotsEl.innerHTML = '';
             items.forEach((_, i) => {
                 const btn = document.createElement('button');
-                btn.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                btn.className = 'carousel-dot';
                 btn.addEventListener('click', () => goTo(i));
                 dotsEl.appendChild(btn);
             });
 
-            function updateDots(idx) {
-                dotsEl.querySelectorAll('.carousel-dot')
-                    .forEach((d, i) => d.classList.toggle('active', i === idx));
-            }
-
             function goTo(idx) {
                 cur = Math.max(0, Math.min(count - 1, idx));
-                wrap.scrollTo({ left: cur * wrap.offsetWidth, behavior: 'smooth' });
-                updateDots(cur);
+                wrap.scrollTo({ left: cur * step(), behavior: 'smooth' });
             }
 
-            // Update dots in real-time as user scrolls
             wrap.addEventListener('scroll', () => {
-                const progress = wrap.scrollLeft / Math.max(wrap.offsetWidth, 1);
+                const s = Math.max(step(), 1);
+                const progress = wrap.scrollLeft / s;
                 const left = Math.min(Math.floor(progress), count - 1);
                 const frac = progress - left;
-                const dotEls = dotsEl.querySelectorAll('.carousel-dot');
-                dotEls.forEach((d, i) => {
+                dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
                     let op;
                     if      (i === left)     op = 1 - frac * 0.75;
                     else if (i === left + 1) op = 0.25 + frac * 0.75;
@@ -1980,22 +2098,200 @@
                 cur = Math.round(progress);
             }, { passive: true });
 
-            window.addEventListener('resize', () => {
-                if (!isMobile()) wrap.scrollLeft = 0;
-                else { wrap.scrollLeft = cur * wrap.offsetWidth; }
-            });
-
-            // Set initial dot states
             requestAnimationFrame(() => {
+                sizeItems();
                 dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
                     d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
-                    d.classList.remove('active');
                 });
             });
         });
     }
 
     initCarousels();
+
+    /* ─── PARALLAX on subsys carousel ─── */
+    function initSubsysParallax() {
+        const subsysWrap = document.querySelector('.subsys-grid.carousel-wrap');
+        if (!subsysWrap) return;
+
+        const texts = Array.from(subsysWrap.querySelectorAll('.subsys-text'));
+        if (!texts.length) return;
+
+        const FACTOR = 0.70; // text moves at 70% extra speed
+
+        subsysWrap.addEventListener('scroll', () => {
+            if (!isMobile()) {
+                texts.forEach(t => t.style.transform = '');
+                return;
+            }
+            const s = subsysWrap.scrollLeft;
+            const iw = window.innerWidth - 48;
+            const stepW = iw + 12;
+
+            texts.forEach((text, i) => {
+                const snapPos = i * stepW;
+                const delta = (s - snapPos) * FACTOR;
+                text.style.transform = `translateX(${-delta}px)`;
+            });
+        }, { passive: true });
+    }
+
+    initSubsysParallax();
+
+    /* ─── GSAP: Section 01 — scroll-driven ─── */
+    function initProjetCardsGSAP() {
+        if (!isMobile()) return;
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+            setTimeout(initProjetCardsGSAP, 200); return;
+        }
+        gsap.registerPlugin(ScrollTrigger);
+
+        const cards = [
+            document.getElementById('card-fonction'),
+            document.getElementById('card-mecanique')
+        ].filter(Boolean);
+
+        cards.forEach(card => {
+            const h4 = card.querySelector('h4');
+            if (!h4) return;
+
+            // Split title into chars
+            const titleText = h4.textContent;
+            h4.innerHTML = '';
+            h4.className = 'gsap-titre';
+            const chars = [...titleText].map(ch => {
+                const s = document.createElement('span');
+                s.className = 'gsap-char';
+                s.textContent = ch === ' ' ? '\u00A0' : ch;
+                h4.appendChild(s);
+                return s;
+            });
+
+            // Underline
+            const underline = document.createElement('div');
+            underline.className = 'gsap-underline';
+            h4.after(underline);
+
+            // Wrap paragraphs
+            const paras = [...card.querySelectorAll('p')];
+            paras.forEach(p => {
+                const wrap = document.createElement('div');
+                wrap.className = 'gsap-para-wrap';
+                p.replaceWith(wrap);
+                p.className = (p.className ? p.className + ' ' : '') + 'gsap-para-inner';
+                wrap.appendChild(p);
+            });
+
+            const paraInners = card.querySelectorAll('.gsap-para-inner');
+            const strongs    = card.querySelectorAll('strong');
+
+            // Timeline déclenché à l'entrée dans le viewport
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 78%',
+                    once: true
+                }
+            });
+
+            tl.from(chars, { opacity: 0, y: 8, stagger: 0.038, duration: 0.6, ease: 'power2.out' });
+            tl.fromTo(underline,
+                { scaleX: 0, opacity: 0 },
+                { scaleX: 1, opacity: 1, duration: 0.5, ease: 'power3.inOut' },
+                '-=0.2'
+            );
+            tl.from(paraInners, { y: 26, opacity: 0, stagger: 0.18, duration: 0.65, ease: 'power3.out' }, '-=0.15');
+            if (strongs.length) {
+                tl.fromTo(strongs,
+                    { color: '#ff7a00' },
+                    { color: '#f5f5f7', stagger: 0.08, duration: 0.45, ease: 'power2.out' },
+                    '-=0.35'
+                );
+            }
+        });
+    }
+
+    window.addEventListener('load', initProjetCardsGSAP);
+
+    /* ─── GSAP: Section 05 — scroll-driven ─── */
+    function initConclusionGSAP() {
+        if (!isMobile()) return;
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+            setTimeout(initConclusionGSAP, 200); return;
+        }
+
+        const card = document.getElementById('card-conclusion');
+        if (!card) return;
+
+        const label = card.querySelector('.section-tag');
+        const paras = [...card.querySelectorAll('p')];
+
+        /* ── Split paragraphs into word spans ── */
+        paras.forEach(p => {
+            const html = p.innerHTML;
+            const wrapped = html
+                .replace(/(<strong>)([\s\S]*?)(<\/strong>)/g, (_, open, content, close) =>
+                    open + content.split(/(\s+)/).map(w =>
+                        w.trim() ? `<span class="gsap-word">${w}</span>` : w
+                    ).join('') + close
+                )
+                .replace(/(?<![>])([^\s<>]+)(?![^<]*>)/g, w =>
+                    w.trim() ? `<span class="gsap-word">${w}</span>` : w
+                );
+            p.innerHTML = wrapped;
+        });
+
+        /* ── Treat label like a title: split into chars + underline ── */
+        if (label) {
+            const labelText = label.textContent;
+            label.innerHTML = '';
+            const chars = [...labelText].map(ch => {
+                const s = document.createElement('span');
+                s.className = 'gsap-char';
+                s.textContent = ch === ' ' ? '\u00A0' : ch;
+                label.appendChild(s);
+                return s;
+            });
+
+            const underline = document.createElement('div');
+            underline.className = 'gsap-underline';
+            label.after(underline);
+            underline.style.marginBottom = '20px';
+
+            // Timeline déclenché à l'entrée dans le viewport
+            const tl = gsap.timeline({
+                scrollTrigger: { trigger: card, start: 'top 75%', once: true }
+            });
+
+            tl.from(chars, { opacity: 0, y: 8, stagger: 0.038, duration: 0.6, ease: 'power2.out' });
+            tl.fromTo(underline,
+                { scaleX: 0, opacity: 0 },
+                { scaleX: 1, opacity: 1, duration: 0.5, ease: 'power3.inOut' },
+                '-=0.2'
+            );
+
+            paras.forEach((p, i) => {
+                const words   = p.querySelectorAll('.gsap-word');
+                const strongs = p.querySelectorAll('strong');
+                tl.from(words, {
+                    opacity: 0, x: -14, rotateX: 35,
+                    transformOrigin: 'left center',
+                    stagger: { each: 0.016, from: 'start' },
+                    duration: 0.5,
+                    ease: 'power2.out'
+                }, i === 0 ? '-=0.1' : '-=0.35');
+                if (strongs.length) {
+                    tl.fromTo(strongs,
+                        { color: '#ff7a00' },
+                        { color: '#f5f5f7', stagger: 0.08, duration: 0.4, ease: 'power2.out' },
+                        '<50%'
+                    );
+                }
+            });
+        }
+    }
+
+    window.addEventListener('load', initConclusionGSAP);
 </script>
 <!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()">
