@@ -437,9 +437,9 @@
             display: grid; grid-template-columns: repeat(3, 1fr);
             gap: 0; border-top: none;
             max-height: 0; overflow: hidden;
-            transition: max-height 0.6s cubic-bezier(0.16,1,0.3,1);
+            transition: max-height 0.55s cubic-bezier(0.16,1,0.3,1);
         }
-        .phase-body.open { max-height: 800px; }
+        .phase-body.open { max-height: 1000px; }
 
         .phase-col {
             padding: 28px 32px;
@@ -538,8 +538,24 @@
             font-size: 0.8rem; letter-spacing: 1px;
             transition: 0.3s; margin-top: 50px;
         }
-        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
-
+        #card-conclusion .section-tag {
+            font-family: "Orbitron";
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon);
+            margin-bottom: 18px;
+        }
+        /* ─── Section 05: harmonize text with section 01 ─── */
+        #card-conclusion p {
+            font-size: 0.95rem;
+            color: var(--muted);
+            line-height: 1.85;
+            margin-bottom: 14px;
+        }
+        #card-conclusion p strong { color: var(--text); }
+        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); } 
         /* ─── CYCLE RÉCAPITULATIF ─── */
         .cycle-wrapper {
             display: flex;
@@ -654,7 +670,7 @@
         .cycle-bubble-expand {
             position: fixed;
             border-radius: 50%;
-            z-index: 9001;
+            z-index: 2; /* below nodes (z-index:3) so it shrinks behind them */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -665,11 +681,13 @@
                 width  0.45s cubic-bezier(0.16,1,0.3,1),
                 height 0.45s cubic-bezier(0.16,1,0.3,1),
                 transform 0.45s cubic-bezier(0.16,1,0.3,1),
+                opacity 0.35s ease,
                 border-radius 0.3s ease;
             pointer-events: none;
             box-shadow: inset 0 8px 16px rgba(255,255,255,0.3), inset 0 -8px 20px rgba(0,0,0,0.4);
         }
         .cycle-bubble-expand.expanded {
+            z-index: 9001;
             pointer-events: auto;
             cursor: pointer;
             background: #0d0d0d !important;
@@ -748,6 +766,7 @@
             .gsap-titre {
                 font-family: "Orbitron";
                 font-size: 0.7rem;
+                font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 2px;
                 color: var(--neon);
@@ -2022,9 +2041,39 @@
         const card = header.closest('.phase-card');
         const body = card.querySelector('.phase-body');
         const icon = header.querySelector('.phase-expand-icon');
+        const cols = body.querySelectorAll('.phase-col');
         const isOpen = card.dataset.open === 'true';
-        if (isOpen) { body.classList.remove('open'); icon.style.transform = 'rotate(0deg)'; card.dataset.open = 'false'; }
-        else         { body.classList.add('open');    icon.style.transform = 'rotate(180deg)'; card.dataset.open = 'true'; }
+
+        if (isOpen) {
+            // Close: fade + slide up columns, then collapse
+            if (typeof gsap !== 'undefined') {
+                gsap.to(cols, {
+                    y: -10, opacity: 0, duration: 0.2,
+                    stagger: 0.04, ease: 'power2.in',
+                    onComplete: () => {
+                        body.classList.remove('open');
+                        gsap.set(cols, { clearProps: 'all' });
+                    }
+                });
+            } else {
+                body.classList.remove('open');
+            }
+            icon.style.transform = 'rotate(0deg)';
+            card.dataset.open = 'false';
+        } else {
+            // Open: expand then animate columns in
+            body.classList.add('open');
+            icon.style.transform = 'rotate(180deg)';
+            card.dataset.open = 'true';
+            if (typeof gsap !== 'undefined') {
+                gsap.set(cols, { y: 16, opacity: 0 });
+                gsap.to(cols, {
+                    y: 0, opacity: 1, duration: 0.45,
+                    stagger: 0.08, ease: 'power3.out',
+                    delay: 0.1
+                });
+            }
+        }
     }
 
 
@@ -2045,6 +2094,11 @@
                     body.classList.add('open');
                     icon.style.transform = 'rotate(180deg)';
                     card.dataset.open = 'true';
+                    if (typeof gsap !== 'undefined') {
+                        const cols = body.querySelectorAll('.phase-col');
+                        gsap.set(cols, { y: 16, opacity: 0 });
+                        gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out', delay: 0.15 });
+                    }
                 }
             }
         }
@@ -2411,7 +2465,7 @@
 
     window.addEventListener('load', initProjetCardsGSAP);
 
-    /* ─── GSAP: Section 05 — mobile, same as section 01 ─── */
+    /* ─── GSAP: Section 05 — mobile, identical to section 01 ─── */
     function initConclusionGSAP() {
         if (!isMobile()) return;
         if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
@@ -2422,71 +2476,55 @@
         if (!card) return;
 
         const label = card.querySelector('.section-tag');
-        const paras = [...card.querySelectorAll('p')];
+        if (!label) return;
 
-        /* Split paragraphs into word spans */
+        // Animate label like h4 in section 01
+        label.className = 'gsap-titre';
+
+        // Underline
+        const underline = document.createElement('div');
+        underline.className = 'gsap-underline';
+        label.after(underline);
+        underline.style.marginBottom = '20px';
+
+        // Wrap paragraphs
+        const paras = [...card.querySelectorAll('p')];
         paras.forEach(p => {
-            const html = p.innerHTML;
-            const wrapped = html
-                .replace(/(<strong>)([\s\S]*?)(<\/strong>)/g, (_, open, content, close) =>
-                    open + content.split(/(\s+)/).map(w =>
-                        w.trim() ? `<span class="gsap-word">${w}</span>` : w
-                    ).join('') + close
-                )
-                .replace(/(?<![>])([^\s<>]+)(?![^<]*>)/g, w =>
-                    w.trim() ? `<span class="gsap-word">${w}</span>` : w
-                );
-            p.innerHTML = wrapped;
+            if (p.closest('.gsap-para-wrap')) return;
+            const wrap = document.createElement('div');
+            wrap.className = 'gsap-para-wrap';
+            p.replaceWith(wrap);
+            p.className = (p.className ? p.className + ' ' : '') + 'gsap-para-inner';
+            wrap.appendChild(p);
         });
 
-        if (label) {
-            // Keep label as-is, just animate it like h4 in section 01
-            label.className = 'gsap-titre';
+        const paraInners = card.querySelectorAll('.gsap-para-inner');
+        const strongs    = card.querySelectorAll('strong');
 
-            const underline = document.createElement('div');
-            underline.className = 'gsap-underline';
-            label.after(underline);
-            underline.style.marginBottom = '20px';
+        const tl = gsap.timeline({
+            scrollTrigger: { trigger: card, start: 'top 75%', once: true }
+        });
 
-            // Wrap paragraphs same as section 01
-            paras.forEach(p => {
-                if (p.closest('.gsap-para-wrap')) return;
-                const wrap = document.createElement('div');
-                wrap.className = 'gsap-para-wrap';
-                p.replaceWith(wrap);
-                p.className = (p.className ? p.className + ' ' : '') + 'gsap-para-inner';
-                wrap.appendChild(p);
-            });
-
-            const paraInners = card.querySelectorAll('.gsap-para-inner');
-            const strongs    = card.querySelectorAll('strong');
-
-            const tl = gsap.timeline({
-                scrollTrigger: { trigger: card, start: 'top 75%', once: true }
-            });
-
-            // Title: same as section 01
-            tl.fromTo(label,
-                { y: 32, opacity: 0, filter: 'blur(4px)' },
-                { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power4.out' }
+        tl.fromTo(label,
+            { y: 32, opacity: 0, filter: 'blur(4px)' },
+            { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power4.out' }
+        );
+        tl.fromTo(underline,
+            { scaleX: 0, opacity: 0 },
+            { scaleX: 1, opacity: 1, duration: 0.35, ease: 'power3.inOut' },
+            '-=0.1'
+        );
+        tl.fromTo(paraInners,
+            { y: 22, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.38, stagger: 0.08, ease: 'power3.out' },
+            '-=0.1'
+        );
+        if (strongs.length) {
+            tl.fromTo(strongs,
+                { color: '#ff7a00' },
+                { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
+                '-=0.25'
             );
-            tl.fromTo(underline,
-                { scaleX: 0, opacity: 0 },
-                { scaleX: 1, opacity: 1, duration: 0.35, ease: 'power3.inOut' },
-                '-=0.1'
-            );
-            tl.fromTo(paraInners,
-                { y: 22, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.38, stagger: 0.08, ease: 'power3.out' },
-                '-=0.1'
-            );
-            if (strongs.length) {
-                tl.fromTo(strongs,
-                    { color: '#ff7a00' },
-                    { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
-                    '-=0.25'
-                );
-            }
         }
     }
 
@@ -2555,75 +2593,78 @@
             const content = document.getElementById('cycleBubbleContent');
             const overlay = document.getElementById('cycleBgOverlay');
 
-            // Get node position on screen
             const rect = node.getBoundingClientRect();
             const nodeSize = rect.width;
-            activeNodeRect = { top: rect.top, left: rect.left, size: nodeSize }; // save for close
+            const nodeCenterX = rect.left + nodeSize / 2;
+            const nodeCenterY = rect.top  + nodeSize / 2;
+            activeNodeRect = { top: rect.top, left: rect.left, size: nodeSize };
 
-            // Fade out the original node smoothly
-            node.style.transition = 'opacity 0.25s ease';
-            node.style.opacity = '0';
-            node.style.pointerEvents = 'none';
-
-            // Start: position bubble at the node
+            // Start: card appears at node position, dark bg, colored border — no bubble style
             bubble.style.display = '';
             bubble.style.transition = 'none';
-            bubble.style.transform = 'translate(0, 0)';
-            bubble.style.background = `radial-gradient(circle at 35% 35%, color-mix(in srgb, ${d.color} 80%, white), ${d.color} 60%, color-mix(in srgb, ${d.color} 60%, black))`;
+            bubble.style.transform = 'none';
+            bubble.style.background = '#0d0d0d';
+            bubble.style.border = `1.5px solid ${d.color}`;
+            bubble.style.boxShadow = `0 0 20px ${d.color}44`;
             bubble.style.setProperty('--bubble-color', d.color);
-            bubble.style.setProperty('--bubble-glow', d.color + '44');
             content.style.setProperty('--bubble-color', d.color);
             bubble.style.width  = nodeSize + 'px';
             bubble.style.height = nodeSize + 'px';
-            bubble.style.top    = rect.top + 'px';
-            bubble.style.left   = rect.left + 'px';
             bubble.style.borderRadius = '50%';
+            bubble.style.top  = rect.top  + 'px';
+            bubble.style.left = rect.left + 'px';
+            bubble.style.opacity = '0';
+            bubble.style.zIndex = '9001';
             content.classList.remove('visible');
             content.innerHTML = '';
 
-            // Trigger layout
             bubble.offsetWidth;
 
-            // Target: expand to centered rectangular card
             const targetW = Math.min(window.innerWidth * 0.88, 420);
-            const targetH = Math.min(window.innerHeight * 0.88, 750);
-            bubble.style.transition = '';
 
+            // Step 1: circle grows to center
             requestAnimationFrame(() => {
-                bubble.classList.add('expanded');
-                bubble.style.width  = targetW + 'px';
-                bubble.style.height = targetH + 'px';
-                bubble.style.top    = '50%';
-                bubble.style.left   = '50%';
-                bubble.style.transform = 'translate(-50%, -50%)';
-                overlay.classList.add('visible');
-
-                // After expand finishes, square the corners
-                setTimeout(() => {
-                    bubble.classList.add('squarify');
-                }, 420);
+                requestAnimationFrame(() => {
+                    bubble.style.transition = `
+                        top    0.25s cubic-bezier(0.16,1,0.3,1),
+                        left   0.25s cubic-bezier(0.16,1,0.3,1),
+                        width  0.25s cubic-bezier(0.16,1,0.3,1),
+                        height 0.25s cubic-bezier(0.16,1,0.3,1),
+                        opacity 0.2s ease
+                    `;
+                    bubble.style.opacity      = '1';
+                    bubble.style.width        = targetW + 'px';
+                    bubble.style.height       = targetW + 'px';
+                    bubble.style.top  = `${(window.innerHeight - targetW) / 2}px`;
+                    bubble.style.left = `${(window.innerWidth  - targetW) / 2}px`;
+                    overlay.classList.add('visible');
+                });
             });
 
-            // Show content after bubble expands
+            // Step 2: becomes rectangular + content appears
             setTimeout(() => {
                 content.innerHTML = `
                     <span class="cycle-modal-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color};font-family:Orbitron;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;">${d.name}</span>
                     <h3 class="cycle-modal-title" style="font-size:1.2rem;font-weight:900;margin:0 0 18px;color:${d.color}">${d.title}</h3>
-                    <div class="cycle-modal-col">
-                        <span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">✅ Points forts</span>
-                        <p class="cycle-modal-col-text green" style="font-size:0.88rem;line-height:1.65;color:#22c55e;margin:0">${d.fort}</p>
-                    </div>
-                    <div class="cycle-modal-col">
-                        <span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">⚠️ Points faibles</span>
-                        <p class="cycle-modal-col-text red" style="font-size:0.88rem;line-height:1.65;color:#ff453a;margin:0">${d.faible}</p>
-                    </div>
-                    <div class="cycle-modal-col">
-                        <span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">→ Améliorations</span>
-                        <p class="cycle-modal-col-text amber" style="font-size:0.88rem;line-height:1.65;color:var(--neon);margin:0">${d.amelio}</p>
-                    </div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">✅ Points forts</span><p class="cycle-modal-col-text green" style="font-size:0.88rem;line-height:1.65;color:#22c55e;margin:0">${d.fort}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">⚠️ Points faibles</span><p class="cycle-modal-col-text red" style="font-size:0.88rem;line-height:1.65;color:#ff453a;margin:0">${d.faible}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">→ Améliorations</span><p class="cycle-modal-col-text amber" style="font-size:0.88rem;line-height:1.65;color:var(--neon);margin:0">${d.amelio}</p></div>
                 `;
                 content.classList.add('visible');
-            }, 380);
+
+                // Measure and animate to natural height
+                requestAnimationFrame(() => {
+                    const naturalH = Math.min(content.scrollHeight + 2, window.innerHeight * 0.88);
+                    bubble.style.transition = `
+                        height 0.4s cubic-bezier(0.16,1,0.3,1),
+                        top    0.4s cubic-bezier(0.16,1,0.3,1),
+                        border-radius 0.4s cubic-bezier(0.16,1,0.3,1)
+                    `;
+                    bubble.style.height       = naturalH + 'px';
+                    bubble.style.top          = `${(window.innerHeight - naturalH) / 2}px`;
+                    bubble.style.borderRadius = '24px';
+                });
+            }, 250);
         } else {
             // Desktop: animated card in center of cycle
             const center = document.getElementById('cycleCenter');
@@ -2655,7 +2696,7 @@
             const bubble  = document.getElementById('cycleBubble');
             const content = document.getElementById('cycleBubbleContent');
 
-            // Hide content first
+            // Hide content
             content.classList.remove('visible');
             overlay.classList.remove('visible');
 
@@ -2663,32 +2704,41 @@
             if (node && activeNodeRect) {
                 const { top, left, size: nodeSize } = activeNodeRect;
 
-                // Remove squarify first — corners round back
-                bubble.classList.remove('squarify');
+                // Step 1: becomes circular
+                bubble.style.transition = 'border-radius 0.3s ease';
+                bubble.style.borderRadius = '50%';
 
+                // Step 2: shrinks back to node
                 setTimeout(() => {
-                    // Shrink back to stored node position
-                    bubble.classList.remove('expanded');
-                    bubble.style.transform = 'translate(0,0)';
-                    bubble.style.width  = nodeSize + 'px';
-                    bubble.style.height = nodeSize + 'px';
-                    bubble.style.top    = top + 'px';
-                    bubble.style.left   = left + 'px';
-                    bubble.style.borderRadius = '50%';
-
-                    // Fade node in only after bubble has fully arrived (transition ~450ms)
+                    bubble.style.transition = 'none';
+                    bubble.offsetWidth;
+                    requestAnimationFrame(() => {
+                        bubble.style.transition = `
+                            top    0.45s cubic-bezier(0.4,0,1,1),
+                            left   0.45s cubic-bezier(0.4,0,1,1),
+                            width  0.45s cubic-bezier(0.4,0,1,1),
+                            height 0.45s cubic-bezier(0.4,0,1,1),
+                            opacity 0.3s ease
+                        `;
+                        requestAnimationFrame(() => {
+                            bubble.style.width   = nodeSize + 'px';
+                            bubble.style.height  = nodeSize + 'px';
+                            bubble.style.top     = top  + 'px';
+                            bubble.style.left    = left + 'px';
+                            bubble.style.opacity = '0';
+                        });
+                    });
                     setTimeout(() => {
-                        node.style.transition = 'opacity 0.3s ease';
-                        node.style.opacity = '1';
-                        node.style.pointerEvents = '';
-                        // Hide bubble after node is visible
-                        setTimeout(() => { bubble.style.display = 'none'; }, 320);
-                    }, 450);
-                }, 200);
+                        bubble.style.display    = 'none';
+                        bubble.style.opacity    = '1';
+                        bubble.style.transition = '';
+                        bubble.style.zIndex     = '';
+                    }, 500);
+                }, 300);
+
                 activeNodeRect = null;
             }
         } else {
-            // Desktop: clear center card
             const center = document.getElementById('cycleCenter');
             if (center) center.innerHTML = '';
         }
