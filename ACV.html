@@ -34,7 +34,7 @@
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; max-width: 100%; overflow-x: clip; }
 
         body {
             background: var(--bg);
@@ -42,6 +42,8 @@
             font-family: "Inter", sans-serif;
             font-size: 16px;
             line-height: 1.6;
+            max-width: 100%;
+            overflow-x: clip;
         }
 
         ::-webkit-scrollbar { width: 4px; }
@@ -75,6 +77,11 @@
         @media (max-width: 768px) {
             .container { padding: 0 16px; }
             .section-gap { margin-bottom: 80px; }
+            .hero { text-align: center; align-items: center; padding: 0 16px; }
+            .hero-title { font-size: clamp(2.2rem, 12vw, 3.5rem); }
+            .hero-sub { max-width: 100%; }
+            .hero-pills { justify-content: center; }
+            #section01-header { margin-bottom: 48px; }
         }
 
         .section-tag {
@@ -138,8 +145,8 @@
            REVEAL ANIMATION
         ============================================= */
         .reveal {
-            opacity: 0; transform: translateY(36px);
-            transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+            opacity: 0; transform: translateY(40px);
+            transition: all 1s ease;
         }
         .reveal.active { opacity: 1; transform: translateY(0); }
         .reveal-d1 { transition-delay: 0.08s; }
@@ -555,7 +562,8 @@
             margin-bottom: 14px;
         }
         #card-conclusion p strong { color: var(--text); }
-        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); } 
+        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
+
         /* ─── CYCLE RÉCAPITULATIF ─── */
         .cycle-wrapper {
             display: flex;
@@ -1018,6 +1026,9 @@
             }
 
             /* Hide all phase items, show only the active one */
+            .phase-items-wrapper {
+                position: relative;
+            }
             .phase-item {
                 display: none;
                 margin-bottom: 0;
@@ -1222,7 +1233,7 @@
          SECTION 1 — PRÉSENTATION PROJET
     ============================================= -->
     <div class="section-gap">
-        <div class="reveal">
+        <div class="reveal" id="section01-header">
             <span class="section-tag">01 — Présentation du projet</span>
             <h2 class="chapter-title">Le Bras de Fer.</h2>
         </div>
@@ -1247,7 +1258,7 @@
 
         <!-- Sous-systèmes -->
         <div class="reveal" style="margin-top:20px;">
-            <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:16px;font-family:'Orbitron';">SOUS-SYSTÈMES PRINCIPAUX</p>
+            <h4 id="subsys-title" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">SOUS-SYSTÈMES PRINCIPAUX</h4>
             <!-- Desktop: normal 2-col grid. Mobile: horizontal carousel -->
             <div class="subsys-grid carousel-wrap" data-carousel>
                 <div class="carousel-track">
@@ -1462,7 +1473,7 @@
 
         <!-- Solides articulés -->
         <div class="reveal" style="margin-bottom:24px;">
-            <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:16px;font-family:'Orbitron';">DÉCOMPOSITION EN 6 SOLIDES</p>
+            <h4 id="title-solides" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">DÉCOMPOSITION EN 6 SOLIDES</h4>
             <ul class="solide-list">
                 <li class="solide-item">
                     <span class="solide-num">S0</span>
@@ -1489,6 +1500,7 @@
 
         <!-- Matériaux -->
         <div class="reveal" style="margin-top:20px;">
+            <h4 id="title-materiaux" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">MATÉRIAUX CHOISIS</h4>
             <div class="mat-row carousel-wrap" data-carousel>
                 <div class="carousel-track">
                     <div class="mat-card mat-card-alu">
@@ -1524,6 +1536,7 @@
 
         <!-- Détails complémentaires -->
         <div class="reveal" style="margin-top:16px;">
+            <h4 id="title-infos" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">INFOS COMPLÉMENTAIRES</h4>
             <div class="meca-grid carousel-wrap" data-carousel>
                 <div class="carousel-track">
                     <div class="meca-card">
@@ -1563,7 +1576,8 @@
             </div>
         </div>
 
-        <!-- Phase 1 — Conception -->
+        <!-- Phase items wrapper — fixed height on mobile to prevent layout shift -->
+        <div id="phase-items-wrapper">
         <div class="phase-item reveal mobile-active" id="phase-0">
             <div class="phase-card p1" data-open="false">
                 <div class="phase-header" onclick="togglePhase(this)">
@@ -1932,6 +1946,8 @@
             </div>
         </div>
 
+        </div><!-- /phase-items-wrapper -->
+
         <!-- Mobile horizontal scroll nav -->
         <div class="phase-scroll-nav" id="phaseScrollNav">
             <div class="phase-scroll-inner" id="phaseScrollInner">
@@ -2028,7 +2044,7 @@
     /* ─── REVEAL ─── */
     const ro = new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); ro.unobserve(e.target); } });
-    }, { threshold: 0.07 });
+    }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
     setTimeout(() => document.querySelector('.hero')?.classList.add('active'), 120);
 
@@ -2045,33 +2061,16 @@
         const isOpen = card.dataset.open === 'true';
 
         if (isOpen) {
-            // Close: fade + slide up columns, then collapse
-            if (typeof gsap !== 'undefined') {
-                gsap.to(cols, {
-                    y: -10, opacity: 0, duration: 0.2,
-                    stagger: 0.04, ease: 'power2.in',
-                    onComplete: () => {
-                        body.classList.remove('open');
-                        gsap.set(cols, { clearProps: 'all' });
-                    }
-                });
-            } else {
-                body.classList.remove('open');
-            }
+            body.classList.remove('open');
             icon.style.transform = 'rotate(0deg)';
             card.dataset.open = 'false';
         } else {
-            // Open: expand then animate columns in
             body.classList.add('open');
             icon.style.transform = 'rotate(180deg)';
             card.dataset.open = 'true';
             if (typeof gsap !== 'undefined') {
                 gsap.set(cols, { y: 16, opacity: 0 });
-                gsap.to(cols, {
-                    y: 0, opacity: 1, duration: 0.45,
-                    stagger: 0.08, ease: 'power3.out',
-                    delay: 0.1
-                });
+                gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out', delay: 0.1 });
             }
         }
     }
@@ -2154,14 +2153,14 @@
 
         const dir = index > currentMobilePhase ? 1 : -1;
 
-        // Lock the container height so nothing below moves during the transition
         const container = document.getElementById('phases-container');
         if (container) container.style.minHeight = container.offsetHeight + 'px';
 
-        // Exit: slide + fade + slight scale down
-        prev.style.transition = 'opacity 0.18s ease, transform 0.22s cubic-bezier(0.4,0,1,1)';
+        // Exit: fast slide + fade + blur
+        prev.style.transition = 'opacity 0.22s ease, transform 0.25s cubic-bezier(0.4,0,1,1), filter 0.22s ease';
         prev.style.opacity = '0';
-        prev.style.transform = `translateX(${dir * -48}px) scale(0.97)`;
+        prev.style.transform = `translateX(${dir * -60}px) scale(0.95)`;
+        prev.style.filter = 'blur(4px)';
 
         setTimeout(() => {
             prev.classList.remove('mobile-active');
@@ -2169,30 +2168,43 @@
             const prevState = panelStates.get(prev);
             if (prevState) prevState(0);
 
-            // Prepare next: start offset + slightly scaled down
-            next.style.cssText = `opacity:0;transform:translateX(${dir * 48}px) scale(0.97)`;
+            // Prepare next
+            next.style.cssText = `opacity:0;transform:translateX(${dir * 60}px) scale(0.95);filter:blur(4px)`;
             next.classList.add('mobile-active');
 
             const nextState = panelStates.get(next);
             requestAnimationFrame(() => { if (nextState) nextState(0); });
 
-            // Enter: spring into place
+            // Enter: spring with blur dissolve
             requestAnimationFrame(() => requestAnimationFrame(() => {
-                next.style.transition = 'opacity 0.28s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1)';
+                next.style.transition = 'opacity 0.35s ease, transform 0.42s cubic-bezier(0.16,1,0.3,1), filter 0.35s ease';
                 next.style.opacity = '1';
                 next.style.transform = 'translateX(0) scale(1)';
+                next.style.filter = 'blur(0px)';
                 setTimeout(() => {
                     next.style.cssText = '';
-                    // Release the container height lock after animation completes
                     if (container) container.style.minHeight = '';
-                }, 370);
+                }, 450);
             }));
 
             currentMobilePhase = index;
-        }, 200);
+        }, 230);
     }
 
-    /* ─── MOBILE: inner panel swipe (CSS scroll snap) ─── */
+    /* ─── Fix phase wrapper height on mobile to prevent layout shift ─── */
+    function initPhaseWrapperHeight() {
+        if (!isMobile()) return;
+        const wrapper = document.getElementById('phase-items-wrapper');
+        if (!wrapper) return;
+        const items = wrapper.querySelectorAll('.phase-item');
+        // Show all items temporarily to measure max height
+        items.forEach(el => { el.style.display = 'block'; el.style.visibility = 'hidden'; });
+        const maxH = Math.max(...[...items].map(el => el.offsetHeight));
+        items.forEach(el => { el.style.display = ''; el.style.visibility = ''; });
+        wrapper.style.minHeight = maxH + 'px';
+    }
+    window.addEventListener('load', initPhaseWrapperHeight);
+    window.addEventListener('resize', initPhaseWrapperHeight);
     const panelStates = new Map();
 
     function initInnerPanels() {
@@ -2402,8 +2414,7 @@
             document.getElementById('card-mecanique')
         ].filter(Boolean);
 
-        cards.forEach((card, ci) => {
-            const h4 = card.querySelector('h4');
+        cards.forEach((card, ci) => {            const h4 = card.querySelector('h4');
             if (!h4) return;
 
             // Keep h4 as-is (no split), just animate the whole title
@@ -2428,14 +2439,14 @@
             const strongs    = card.querySelectorAll('strong');
 
             const tl = gsap.timeline({
-                scrollTrigger: { trigger: card, start: 'top 78%', once: true },
+                scrollTrigger: { trigger: card, start: 'top 90%', once: true },
                 delay: ci * 0.1
             });
 
             // Title: fast clip from bottom
             tl.fromTo(h4,
-                { y: 32, opacity: 0, filter: 'blur(4px)' },
-                { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power4.out' }
+                { y: 40, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
             );
 
             // Underline snaps in
@@ -2445,12 +2456,15 @@
                 '-=0.1'
             );
 
-            // Paragraphs snap up fast with stagger
-            tl.fromTo(paraInners,
-                { y: 22, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.38, stagger: 0.08, ease: 'power3.out' },
-                '-=0.1'
-            );
+            // Paragraphs each triggered individually when they scroll into view
+            paraInners.forEach(p => {
+                gsap.fromTo(p,
+                    { y: 20, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out',
+                      scrollTrigger: { trigger: p, start: 'top 88%', once: true }
+                    }
+                );
+            });
 
             // Bold words flash orange
             if (strongs.length) {
@@ -2459,6 +2473,41 @@
                     { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
                     '-=0.25'
                 );
+            }
+        });
+
+        // Animate section 02 + sous-systèmes titles AND their paragraphs on mobile
+        ['title-solides', 'title-materiaux', 'title-infos', 'subsys-title'].forEach(id => {
+            const h4 = document.getElementById(id);
+            if (!h4) return;
+            h4.className = 'gsap-titre';
+            const ul = document.createElement('div');
+            ul.className = 'gsap-underline';
+            h4.after(ul);
+            const tl = gsap.timeline({
+                scrollTrigger: { trigger: h4, start: 'top 78%', once: true }
+            });
+            tl.fromTo(h4,
+                { y: 40, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
+            );
+            tl.fromTo(ul,
+                { scaleX: 0, opacity: 0 },
+                { scaleX: 1, opacity: 1, duration: 0.35, ease: 'power3.inOut' },
+                '-=0.1'
+            );
+
+            // Animate sibling paragraphs/list items one by one after the title
+            const parent = h4.closest('.reveal') || h4.parentElement;
+            if (parent) {
+                const els = [...parent.querySelectorAll('p, li, .solide-item, .mat-card, .meca-card, .subsys-item')].filter(el => !el.closest('.carousel-track') || el.classList.contains('carousel-track') === false);
+                if (els.length) {
+                    tl.fromTo(els,
+                        { y: 40, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power2.out' },
+                        '-=0.05'
+                    );
+                }
             }
         });
     }
@@ -2502,23 +2551,27 @@
         const strongs    = card.querySelectorAll('strong');
 
         const tl = gsap.timeline({
-            scrollTrigger: { trigger: card, start: 'top 75%', once: true }
+            scrollTrigger: { trigger: card, start: 'top 90%', once: true }
         });
 
         tl.fromTo(label,
-            { y: 32, opacity: 0, filter: 'blur(4px)' },
-            { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power4.out' }
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
         );
         tl.fromTo(underline,
             { scaleX: 0, opacity: 0 },
             { scaleX: 1, opacity: 1, duration: 0.35, ease: 'power3.inOut' },
             '-=0.1'
         );
-        tl.fromTo(paraInners,
-            { y: 22, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.38, stagger: 0.08, ease: 'power3.out' },
-            '-=0.1'
-        );
+        // Each paragraph triggered individually when it scrolls into view
+        paraInners.forEach(p => {
+            gsap.fromTo(p,
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out',
+                  scrollTrigger: { trigger: p, start: 'top 88%', once: true }
+                }
+            );
+        });
         if (strongs.length) {
             tl.fromTo(strongs,
                 { color: '#ff7a00' },
@@ -2763,23 +2816,23 @@
 
         if (cardFonction) {
             gsap.from(cardFonction, {
-                scrollTrigger: { trigger: cardFonction, start: 'top 65%', once: true },
-                x: -60, opacity: 0, duration: 0.9, ease: 'power3.out'
+                scrollTrigger: { trigger: cardFonction, start: 'top 90%', once: true },
+                x: -40, opacity: 0, duration: 1, ease: 'ease'
             });
             // Stagger inner paragraphs
             gsap.from(cardFonction.querySelectorAll('p'), {
-                scrollTrigger: { trigger: cardFonction, start: 'top 60%', once: true },
-                y: 20, opacity: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out', delay: 0.3
+                scrollTrigger: { trigger: cardFonction, start: 'top 90%', once: true },
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
             });
         }
         if (cardMecanique) {
             gsap.from(cardMecanique, {
-                scrollTrigger: { trigger: cardMecanique, start: 'top 65%', once: true },
-                x: 60, opacity: 0, duration: 0.9, ease: 'power3.out'
+                scrollTrigger: { trigger: cardMecanique, start: 'top 90%', once: true },
+                x: 40, opacity: 0, duration: 1, ease: 'ease'
             });
             gsap.from(cardMecanique.querySelectorAll('p'), {
-                scrollTrigger: { trigger: cardMecanique, start: 'top 60%', once: true },
-                y: 20, opacity: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out', delay: 0.3
+                scrollTrigger: { trigger: cardMecanique, start: 'top 90%', once: true },
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
             });
         }
 
@@ -2790,24 +2843,24 @@
 
             if (cardAlu) {
                 gsap.from(cardAlu, {
-                    scrollTrigger: { trigger: cardAlu, start: 'top 68%', once: true },
-                    x: -70, opacity: 0, duration: 1, ease: 'power3.out'
+                    scrollTrigger: { trigger: cardAlu, start: 'top 90%', once: true },
+                    x: -40, opacity: 0, duration: 1, ease: 'ease'
                 });
                 const imgAlu = cardAlu.querySelector('img');
                 if (imgAlu) gsap.from(imgAlu, {
-                    scrollTrigger: { trigger: cardAlu, start: 'top 65%', once: true },
-                    scale: 1.08, duration: 1.1, ease: 'power2.out', delay: 0.2
+                    scrollTrigger: { trigger: cardAlu, start: 'top 90%', once: true },
+                    scale: 1.04, duration: 1, ease: 'ease', delay: 0.15
                 });
             }
             if (cardPla) {
                 gsap.from(cardPla, {
-                    scrollTrigger: { trigger: cardPla, start: 'top 68%', once: true },
-                    x: 70, opacity: 0, duration: 1, ease: 'power3.out'
+                    scrollTrigger: { trigger: cardPla, start: 'top 90%', once: true },
+                    x: 40, opacity: 0, duration: 1, ease: 'ease'
                 });
                 const imgPla = cardPla.querySelector('img');
                 if (imgPla) gsap.from(imgPla, {
-                    scrollTrigger: { trigger: cardPla, start: 'top 65%', once: true },
-                    scale: 1.08, duration: 1.1, ease: 'power2.out', delay: 0.2
+                    scrollTrigger: { trigger: cardPla, start: 'top 90%', once: true },
+                    scale: 1.04, duration: 1, ease: 'ease', delay: 0.15
                 });
             }
         }
@@ -2825,8 +2878,8 @@
         const solideList = document.querySelector('.solide-list');
         if (solideList) {
             gsap.from(solideList.querySelectorAll('.solide-item'), {
-                scrollTrigger: { trigger: solideList, start: 'top 68%', once: true },
-                x: -30, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out'
+                scrollTrigger: { trigger: solideList, start: 'top 90%', once: true },
+                x: -30, opacity: 0, duration: 1, stagger: 0.12, ease: 'ease'
             });
         }
 
@@ -2834,30 +2887,27 @@
         const subsysItems = document.querySelectorAll('.subsys-item');
         if (subsysItems.length) {
             gsap.from(subsysItems, {
-                scrollTrigger: { trigger: subsysItems[0], start: 'top 68%', once: true },
-                y: 30, opacity: 0, duration: 0.65, stagger: 0.15, ease: 'power3.out'
+                scrollTrigger: { trigger: subsysItems[0], start: 'top 90%', once: true },
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease'
             });
         }
 
         /* ── Section 05: conclusion clip-path reveal ── */
         const conclusionCard = document.getElementById('card-conclusion');
         if (conclusionCard) {
-            // Clip-path reveal from center
             gsap.fromTo(conclusionCard,
                 { clipPath: 'inset(0% 50% 0% 50% round 28px)', opacity: 0 },
                 {
                     clipPath: 'inset(0% 0% 0% 0% round 28px)',
                     opacity: 1,
-                    duration: 1.1,
+                    duration: 0.7,
                     ease: 'power3.inOut',
-                    scrollTrigger: { trigger: conclusionCard, start: 'top 65%', once: true }
+                    scrollTrigger: { trigger: conclusionCard, start: 'top 90%', once: true }
                 }
             );
-
-            // Paragraphs cascade after reveal
             gsap.from(conclusionCard.querySelectorAll('p'), {
-                scrollTrigger: { trigger: conclusionCard, start: 'top 58%', once: true },
-                y: 25, opacity: 0, duration: 0.7, stagger: 0.18, ease: 'power2.out', delay: 0.6
+                scrollTrigger: { trigger: conclusionCard, start: 'top 90%', once: true },
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
             });
         }
     }
