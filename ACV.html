@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACV - LE BRAS DE FER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <style>
         /* =============================================
@@ -153,6 +153,17 @@
         .reveal-d2 { transition-delay: 0.16s; }
         .reveal-d3 { transition-delay: 0.24s; }
         .reveal-d4 { transition-delay: 0.32s; }
+
+        @media (max-width: 768px) {
+            .reveal {
+                transform: none !important;
+                transition: opacity 1s ease !important;
+            }
+            .reveal.active {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+        }
 
         /* =============================================
            CARDS
@@ -626,7 +637,7 @@
             
         }
         .cycle-center-card {
-            background: #0d0d0d;
+            background: rgba(13,13,13,0.90);
             border: 1.5px solid var(--cc, rgba(255,255,255,0.15));
             border-radius: 50%;
             aspect-ratio: 1;
@@ -698,7 +709,7 @@
             z-index: 9001;
             pointer-events: auto;
             cursor: pointer;
-            background: #0d0d0d !important;
+            background: rgba(13,13,13,0.90) !important;
             border: 1.5px solid var(--bubble-color, rgba(255,255,255,0.2));
             box-shadow: 0 0 40px var(--bubble-glow, rgba(255,255,255,0.1)) !important;
         }
@@ -755,7 +766,41 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ─── Projet cards mobile: no card styling + GSAP animation ─── */
+        @media (max-width: 768px) {
+            .subsys-text p { font-size: 0.78rem; }
+            .mat-card h3 { font-size: 0.95rem; }
+            .mat-card p { font-size: 0.78rem; }
+            .meca-card h4 { font-size: 0.65rem; }
+            .meca-card p { font-size: 0.78rem; }
+
+            /* ── Liquid Glass dot container ── */
+            .carousel-dots {
+                display: flex !important;
+                justify-content: center;
+                margin-top: 14px;
+            }
+            .carousel-dots-inner {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.08);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255,255,255,0.15);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.3);
+            }
+            .carousel-dot {
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.25);
+                cursor: pointer;
+                border: none; padding: 0;
+                flex-shrink: 0;
+                transition: none;
+            }
+        }
         @media (max-width: 768px) {
             .projet-grid {
                 display: flex !important;
@@ -811,7 +856,21 @@
             .gsap-para-inner strong { color: var(--text); }
         }
 
-        /* ─── Conclusion card mobile ─── */
+        @media (max-width: 768px) {
+            .carousel-wrap {
+                opacity: 0;
+                transition: opacity 1s ease;
+            }
+            .carousel-wrap.visible {
+                opacity: 1;
+            }
+        }
+        @media (max-width: 768px) {
+            .carousel-wrap.animating {
+                touch-action: none;
+                pointer-events: none;
+            }
+        }
         @media (max-width: 768px) {
             #card-conclusion {
                 background: none !important;
@@ -981,10 +1040,9 @@
             /* ── Horizontal scroll nav strip (mobile) ── */
             .phase-scroll-nav {
                 position: sticky;
-                bottom: 20px;
+                bottom: 8px;
                 z-index: 60;
                 margin-top: 16px;
-                /* fade edges */
                 -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
                 mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
             }
@@ -1129,13 +1187,24 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                gap: 8px;
                 padding: 14px 0 20px;
                 overflow: visible;
             }
+            .phase-mobile-dots-inner {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.08);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255,255,255,0.15);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.3);
+            }
             .phase-mobile-dot {
-                width: 8px; height: 8px; border-radius: 50%;
-                background: rgba(255,255,255,0.2);
+                width: 7px; height: 7px; border-radius: 50%;
+                background: rgba(255,255,255,0.25);
                 border: none; padding: 0; cursor: pointer;
                 transition: background 0.25s;
                 flex-shrink: 0;
@@ -1172,6 +1241,7 @@
                 margin-left: -16px !important;
                 margin-right: -16px !important;
                 width: 100vw !important;
+                touch-action: pan-y;
             }
             .carousel-wrap::-webkit-scrollbar { display: none; }
             .carousel-track {
@@ -1257,7 +1327,7 @@
         </div>
 
         <!-- Sous-systèmes -->
-        <div class="reveal" style="margin-top:20px;">
+        <div style="margin-top:20px;">
             <h4 id="subsys-title" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">SOUS-SYSTÈMES PRINCIPAUX</h4>
             <!-- Desktop: normal 2-col grid. Mobile: horizontal carousel -->
             <div class="subsys-grid carousel-wrap" data-carousel>
@@ -1499,7 +1569,7 @@
         </div>
 
         <!-- Matériaux -->
-        <div class="reveal" style="margin-top:20px;">
+        <div style="margin-top:20px;">
             <h4 id="title-materiaux" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">MATÉRIAUX CHOISIS</h4>
             <div class="mat-row carousel-wrap" data-carousel>
                 <div class="carousel-track">
@@ -1535,7 +1605,7 @@
         </div>
 
         <!-- Détails complémentaires -->
-        <div class="reveal" style="margin-top:16px;">
+        <div style="margin-top:16px;">
             <h4 id="title-infos" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">INFOS COMPLÉMENTAIRES</h4>
             <div class="meca-grid carousel-wrap" data-carousel>
                 <div class="carousel-track">
@@ -1564,7 +1634,7 @@
             <p class="chapter-sub">Pour chaque phase : choix & justifications, avantages, limites & risques, et pistes d'amélioration.</p>
         </div>
 
-        <!-- Sticky phase navigation -->
+        <!-- Sticky phase navigation (desktop) -->
         <div class="phase-nav reveal">
             <div class="phase-nav-inner" id="phaseNav">
                 <button class="phase-btn p1 active" onclick="goToPhase(0)" data-phase="0">Conception</button>
@@ -2042,14 +2112,35 @@
 
 <script>
     /* ─── REVEAL ─── */
+    /* ─── HELPERS ─── */
+    const isMobile = () => window.innerWidth <= 768;
+
     const ro = new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); ro.unobserve(e.target); } });
     }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
-    setTimeout(() => document.querySelector('.hero')?.classList.add('active'), 120);
+    // On mobile, force no transform on reveal divs containing carousels
+    if (isMobile()) {
+        ['subsys-title', 'title-materiaux', 'title-infos'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const reveal = el.closest('.reveal');
+                if (reveal) {
+                    reveal.style.cssText += ';transform:none!important;transition:opacity 1s ease!important';
+                }
+            }
+        });
+    }
 
-    /* ─── HELPERS ─── */
-    const isMobile = () => window.innerWidth <= 768;
+    document.querySelectorAll('.reveal').forEach(el => {
+        if (isMobile() && el.querySelector('.carousel-wrap')) {
+            el.classList.add('active');
+            el.style.opacity = '1';
+            el.style.transition = 'none';
+        } else {
+            ro.observe(el);
+        }
+    });
+    setTimeout(() => document.querySelector('.hero')?.classList.add('active'), 120);
 
     /* ─── DESKTOP: accordion ─── */
     function togglePhase(header) {
@@ -2191,7 +2282,51 @@
         }, 230);
     }
 
-    /* ─── Fix phase wrapper height on mobile to prevent layout shift ─── */
+    /* ─── Show mobile phase nav after scrolling into section 03 ─── */
+    function initMobilePhaseNav() {
+        if (!isMobile()) return;
+        const nav = document.getElementById('phaseScrollNav');
+        const section = document.getElementById('phases-container');
+        if (!nav || !section) return;
+
+        nav.style.transform = 'translateY(120%)';
+        nav.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    nav.style.transform = 'translateY(0)';
+                } else if (e.boundingClientRect.top > 0) {
+                    // Only hide when scrolling back up (section above viewport)
+                    nav.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 1, 1)';
+                    nav.style.transform = 'translateY(120%)';
+                    setTimeout(() => {
+                        nav.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    }, 350);
+                }
+            });
+        }, { threshold: 0.4 });
+
+        obs.observe(section);
+    }
+
+    initMobilePhaseNav();
+    /* ─── Mobile: fade in carousels after their title animation ─── */
+    if (isMobile()) {
+        const carouselObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    // Delay to let title + underline GSAP animate first (~1.2s)
+                    setTimeout(() => {
+                        e.target.classList.add('visible');
+                    }, 1200);
+                    carouselObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.carousel-wrap').forEach(w => carouselObs.observe(w));
+    }
+
     function initPhaseWrapperHeight() {
         if (!isMobile()) return;
         const wrapper = document.getElementById('phase-items-wrapper');
@@ -2223,17 +2358,20 @@
             const count = panels.length;
             let cur = 0;
 
-            // Build dots
+            // Build dots in liquid glass pill
             dotsEl.innerHTML = '';
+            const dotsInner = document.createElement('div');
+            dotsInner.className = 'phase-mobile-dots-inner';
+            dotsEl.appendChild(dotsInner);
             panels.forEach((_, i) => {
                 const btn = document.createElement('button');
                 btn.className = 'phase-mobile-dot' + (i === 0 ? ' active' : '');
                 btn.addEventListener('click', () => goTo(i));
-                dotsEl.appendChild(btn);
+                dotsInner.appendChild(btn);
             });
 
             function updateDots(idx) {
-                dotsEl.querySelectorAll('.phase-mobile-dot')
+                dotsInner.querySelectorAll('.phase-mobile-dot')
                     .forEach((d, i) => d.classList.toggle('active', i === idx));
             }
 
@@ -2255,7 +2393,7 @@
                 const progress = wrap.scrollLeft / Math.max(wrap.offsetWidth, 1);
                 const left = Math.min(Math.floor(progress), count - 1);
                 const frac = progress - left;
-                const dotEls = dotsEl.querySelectorAll('.phase-mobile-dot');
+                const dotEls = dotsInner.querySelectorAll('.phase-mobile-dot');
                 dotEls.forEach((d, i) => {
                     let op;
                     if      (i === left)     op = 1 - frac * 0.75;
@@ -2278,7 +2416,7 @@
                 updateHeight(0);
                 wrap.scrollLeft = 0;
                 // Set initial dot states via inline style
-                dotsEl.querySelectorAll('.phase-mobile-dot').forEach((d, i) => {
+                dotsInner.querySelectorAll('.phase-mobile-dot').forEach((d, i) => {
                     d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
                     d.classList.remove('active');
                 });
@@ -2328,14 +2466,23 @@
             window.addEventListener('resize', sizeItems);
             window.addEventListener('load', sizeItems);
 
-            // Dots
+            // Dots — wrapped in Liquid Glass pill on mobile
             dotsEl.innerHTML = '';
+            const dotsContainer = isMobile() ? (() => {
+                const inner = document.createElement('div');
+                inner.className = 'carousel-dots-inner';
+                dotsEl.appendChild(inner);
+                return inner;
+            })() : dotsEl;
+
             items.forEach((_, i) => {
                 const btn = document.createElement('button');
                 btn.className = 'carousel-dot';
                 btn.addEventListener('click', () => goTo(i));
-                dotsEl.appendChild(btn);
+                dotsContainer.appendChild(btn);
             });
+
+            // No touch blocking needed - touch-action: pan-y handles it
 
             function goTo(idx) {
                 cur = Math.max(0, Math.min(count - 1, idx));
@@ -2400,6 +2547,29 @@
     }
 
     initSubsysParallax();
+
+    /* ─── Subsys carousel text fade on scroll ─── */
+    function initSubsysTextFade() {
+        const subsysWrap = document.querySelector('.subsys-grid.carousel-wrap');
+        if (!subsysWrap || !isMobile()) return;
+
+        const texts = Array.from(subsysWrap.querySelectorAll('.subsys-text'));
+        const iw = () => window.innerWidth - 48;
+        const step = () => iw() + 12;
+
+        subsysWrap.addEventListener('scroll', () => {
+            const s = subsysWrap.scrollLeft;
+            texts.forEach((text, i) => {
+                const snapPos = i * step();
+                const dist = Math.abs(s - snapPos);
+                const maxDist = step() * 0.6;
+                const opacity = Math.max(0, 1 - dist / maxDist);
+                text.style.opacity = opacity;
+            });
+        }, { passive: true });
+    }
+
+    initSubsysTextFade();
 
     /* ─── GSAP: Section 01 — mobile, fast & premium ─── */
     function initProjetCardsGSAP() {
@@ -2500,7 +2670,7 @@
             // Animate sibling paragraphs/list items one by one after the title
             const parent = h4.closest('.reveal') || h4.parentElement;
             if (parent) {
-                const els = [...parent.querySelectorAll('p, li, .solide-item, .mat-card, .meca-card, .subsys-item')].filter(el => !el.closest('.carousel-track') || el.classList.contains('carousel-track') === false);
+                const els = [...parent.querySelectorAll('p, li, .solide-item')].filter(el => !el.closest('.carousel-wrap'));
                 if (els.length) {
                     tl.fromTo(els,
                         { y: 40, opacity: 0 },
@@ -2656,7 +2826,7 @@
             bubble.style.display = '';
             bubble.style.transition = 'none';
             bubble.style.transform = 'none';
-            bubble.style.background = '#0d0d0d';
+            bubble.style.background = 'rgba(13,13,13,0.90)';
             bubble.style.border = `1.5px solid ${d.color}`;
             bubble.style.boxShadow = `0 0 20px ${d.color}44`;
             bubble.style.setProperty('--bubble-color', d.color);
