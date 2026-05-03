@@ -162,7 +162,8 @@
         #nav-toggle {
             box-shadow:
                 0 0 0 1.5px rgba(255,255,255,0.28),
-                0 4px 16px rgba(0,0,0,0.5);
+                0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, box-shadow 0.7s ease;
         }
         /* État menu ouvert = coloré + néons */
         #nav-toggle.open .logo-img { filter: none; opacity: 1; }
@@ -273,12 +274,12 @@
         #nav-menu .nav-label {
             font-family: "Orbitron", sans-serif;
             font-size: 0.62rem;
-            color: rgba(255, 140, 0, 0.9);
+            color: rgba(255,255,255,0.75);
             letter-spacing: 2px;
             padding: 4px 18px 10px;
             border-bottom: 1px solid rgba(255,255,255,0.12);
             margin-bottom: 6px;
-            text-shadow: 0 0 8px rgba(255,122,0,0.4);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
         }
         #nav-menu a {
             display: flex;
@@ -291,17 +292,19 @@
             text-decoration: none;
             transition: background 0.2s, color 0.2s, padding-left 0.2s;
             white-space: nowrap;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
         }
         #nav-menu a .nav-icon { font-size: 1rem; flex-shrink: 0; }
         #nav-menu a:hover {
             background: rgba(255,255,255,0.08);
             color: #ff8a00;
             padding-left: 24px;
+            text-shadow: 0 0 8px rgba(255,122,0,0.5), 0 1px 4px rgba(0,0,0,0.5);
         }
         #nav-menu a.active {
-            color: #ff8a00;
-            background: rgba(255,122,0,0.1);
-            text-shadow: 0 0 6px rgba(255,122,0,0.3);
+            color: rgba(255,255,255,1);
+            background: rgba(255,122,0,0.15);
+            text-shadow: 0 0 10px rgba(255,122,0,0.6), 0 1px 4px rgba(0,0,0,0.5);
         }
         #nav-menu .nav-divider {
             height: 1px;
