@@ -1264,9 +1264,9 @@
                 margin-left: -16px !important;
                 margin-right: -16px !important;
                 width: 100vw !important;
-                /* pan-x: horizontal swipe scrolls the carousel.
-                   Vertical swipes bubble up to scroll the page. */
-                touch-action: pan-x;
+                /* pan-x pan-y: allow horizontal carousel scroll AND vertical
+                   page scroll. The browser auto-detects swipe direction. */
+                touch-action: pan-x pan-y;
             }
             .carousel-wrap::-webkit-scrollbar { display: none; }
             .carousel-track {
@@ -1314,6 +1314,52 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
+            }
+        }
+
+        /* =============================================
+           GSAP-DRIVEN SECTIONS — anti-flicker
+           
+           The .reveal CSS animates the parent's opacity from 0→1 over 1s.
+           GSAP also animates its child elements (h4, paragraphs) with
+           `fromTo immediateRender:true` which sets them to opacity:0 *instantly*.
+           
+           If the parent's IntersectionObserver fires BEFORE GSAP's
+           ScrollTrigger does (which is common on iOS Safari with delayed
+           image loading), the user sees:
+             1. Parent fade-in → content visible
+             2. GSAP applies opacity:0 → content disappears (FLICKER)
+             3. ScrollTrigger fires → content fades back in
+           
+           Two fixes: (1) skip the parent's CSS fade so only GSAP animates,
+           (2) hide the GSAP-animated content from the very first paint via
+           CSS, so there's never a visible→hidden transition.
+           
+           Wrapped in `prefers-reduced-motion: no-preference` so users with
+           that preference still see content even if JS fails to run.
+        ============================================= */
+        @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+            /* (1) Don't fade the parent — let GSAP own these animations */
+            .projet-grid.reveal,
+            #card-conclusion.reveal {
+                opacity: 1 !important;
+            }
+            
+            /* (2) Pre-hide GSAP-animated content via CSS so first paint
+               is already at opacity:0 — no flash before GSAP takes over */
+            #card-fonction h4,
+            #card-mecanique h4,
+            #card-fonction p,
+            #card-mecanique p,
+            #card-conclusion p,
+            #card-conclusion .section-tag,
+            #subsys-title,
+            #title-solides,
+            #title-materiaux,
+            #title-infos,
+            .solide-list .solide-item,
+            .gsap-underline {
+                opacity: 0;
             }
         }
     </style>
