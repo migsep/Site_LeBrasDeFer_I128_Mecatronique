@@ -1005,6 +1005,19 @@
             }
         });
 
+        // ---- PULSE MOBILE (touch) ----
+        navToggle.addEventListener('touchstart', () => {
+            navToggle.style.transform = 'scale(0.93)';
+        }, { passive: true });
+
+        navToggle.addEventListener('touchend', () => {
+            navToggle.style.transform = '';
+        }, { passive: true });
+
+        navToggle.addEventListener('touchcancel', () => {
+            navToggle.style.transform = '';
+        }, { passive: true });
+
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
