@@ -668,12 +668,10 @@
             letter-spacing: 1.5px; color: rgba(255,255,255,0.35);
             display: block; margin-bottom: 2px;
         }
-        /* Colored titles for the three categories */
-        .cycle-col-label.green { color: #22c55e; }
-        .cycle-col-label.red   { color: #ff453a; }
-        .cycle-col-label.amber { color: var(--neon); }
-        /* Body text always white */
-        .cycle-col-text { font-size: 0.84rem; color: #ffffff; line-height: 1.5; margin: 0; }
+        .cycle-col-text { font-size: 0.84rem; color: var(--muted); line-height: 1.5; margin: 0; }
+        .cycle-col-text.green { color: #22c55e; }
+        .cycle-col-text.red   { color: #ff453a; }
+        .cycle-col-text.amber { color: var(--neon); }
 
         /* Mobile modal */
         .cycle-modal-overlay {
@@ -3143,9 +3141,9 @@
                 content.innerHTML = `
                     <span class="cycle-modal-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color};font-family:Orbitron;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;">${d.name}</span>
                     <h3 class="cycle-modal-title" style="font-size:1.2rem;font-weight:900;margin:0 0 18px;color:${d.color}">${d.title}</h3>
-                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:#22c55e;margin-bottom:5px;display:block;">✅ Points forts</span><p class="cycle-modal-col-text" style="font-size:0.88rem;line-height:1.65;color:#ffffff;margin:0">${d.fort}</p></div>
-                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:#ff453a;margin-bottom:5px;display:block;">⚠️ Points faibles</span><p class="cycle-modal-col-text" style="font-size:0.88rem;line-height:1.65;color:#ffffff;margin:0">${d.faible}</p></div>
-                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--neon);margin-bottom:5px;display:block;">→ Améliorations</span><p class="cycle-modal-col-text" style="font-size:0.88rem;line-height:1.65;color:#ffffff;margin:0">${d.amelio}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">✅ Points forts</span><p class="cycle-modal-col-text green" style="font-size:0.88rem;line-height:1.65;color:#22c55e;margin:0">${d.fort}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">⚠️ Points faibles</span><p class="cycle-modal-col-text red" style="font-size:0.88rem;line-height:1.65;color:#ff453a;margin:0">${d.faible}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">→ Améliorations</span><p class="cycle-modal-col-text amber" style="font-size:0.88rem;line-height:1.65;color:var(--neon);margin:0">${d.amelio}</p></div>
                 `;
                 content.classList.add('visible');
 
@@ -3170,16 +3168,16 @@
                     <span class="cycle-center-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color}">${d.name}</span>
                     <div class="cycle-center-title" style="color:${d.color}">${d.title}</div>
                     <div class="cycle-col">
-                        <span class="cycle-col-label green">✅ Points forts</span>
-                        <p class="cycle-col-text">${d.fort}</p>
+                        <span class="cycle-col-label">✅ Points forts</span>
+                        <p class="cycle-col-text green">${d.fort}</p>
                     </div>
                     <div class="cycle-col">
-                        <span class="cycle-col-label red">⚠️ Points faibles</span>
-                        <p class="cycle-col-text">${d.faible}</p>
+                        <span class="cycle-col-label">⚠️ Points faibles</span>
+                        <p class="cycle-col-text red">${d.faible}</p>
                     </div>
                     <div class="cycle-col">
-                        <span class="cycle-col-label amber">→ Améliorations</span>
-                        <p class="cycle-col-text">${d.amelio}</p>
+                        <span class="cycle-col-label">→ Améliorations</span>
+                        <p class="cycle-col-text amber">${d.amelio}</p>
                     </div>
                 </div>
             `;
