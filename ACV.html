@@ -142,8 +142,7 @@
         ============================================= */
         .reveal {
             opacity: 0; transform: translateY(40px);
-            transition: opacity 1s cubic-bezier(0.16,1,0.3,1),
-                        transform 1s cubic-bezier(0.16,1,0.3,1);
+            transition: all 1s ease;
         }
         .reveal.active { opacity: 1; transform: translateY(0); }
         .reveal-d1 { transition-delay: 0.08s; }
@@ -154,7 +153,7 @@
         @media (max-width: 768px) {
             .reveal {
                 transform: none !important;
-                transition: opacity 1s cubic-bezier(0.16,1,0.3,1) !important;
+                transition: opacity 1s ease !important;
             }
             .reveal.active {
                 opacity: 1 !important;
@@ -722,8 +721,7 @@
             background: rgba(0,0,0,0);
             backdrop-filter: blur(0px);
             -webkit-backdrop-filter: blur(0px);
-            transition: background 0.4s cubic-bezier(0.16,1,0.3,1),
-                        backdrop-filter 0.4s cubic-bezier(0.16,1,0.3,1);
+            transition: background 0.4s ease, backdrop-filter 0.4s ease;
             pointer-events: none;
         }
         .cycle-bg-overlay.visible {
@@ -738,8 +736,7 @@
             padding: 28px 24px 36px;
             opacity: 0;
             transform: scale(0.85);
-            transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1) 0.3s,
-                        transform 0.3s cubic-bezier(0.16,1,0.3,1) 0.3s;
+            transition: opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s;
             overflow: hidden;
             max-height: 100%;
             width: 100%;
@@ -867,7 +864,7 @@
         @media (max-width: 768px) {
             .carousel-wrap {
                 opacity: 0;
-                transition: opacity 1s cubic-bezier(0.16,1,0.3,1);
+                transition: opacity 1s ease;
             }
             .carousel-wrap.visible {
                 opacity: 1;
@@ -2230,7 +2227,7 @@
             if (el) {
                 const reveal = el.closest('.reveal');
                 if (reveal) {
-                    reveal.style.cssText += ';transform:none!important;transition:opacity 1s cubic-bezier(0.16,1,0.3,1)!important';
+                    reveal.style.cssText += ';transform:none!important;transition:opacity 1s ease!important';
                 }
             }
         });
@@ -2266,7 +2263,7 @@
             card.dataset.open = 'true';
             if (typeof gsap !== 'undefined') {
                 gsap.set(cols, { y: 16, opacity: 0 });
-                gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'expo.out', delay: 0.1 });
+                gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out', delay: 0.1 });
             }
         }
     }
@@ -2292,7 +2289,7 @@
                     if (typeof gsap !== 'undefined') {
                         const cols = body.querySelectorAll('.phase-col');
                         gsap.set(cols, { y: 16, opacity: 0 });
-                        gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'expo.out', delay: 0.15 });
+                        gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out', delay: 0.15 });
                     }
                 }
             }
@@ -2405,7 +2402,7 @@
            the section. */
         nav.style.opacity = '0';
         nav.style.pointerEvents = 'none';
-        nav.style.transition = 'opacity 0.25s cubic-bezier(0.16,1,0.3,1)';
+        nav.style.transition = 'opacity 0.25s ease';
 
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
@@ -2872,7 +2869,7 @@
             // Title: fast clip from bottom
             tl.fromTo(h4,
                 { y: 40, opacity: 0 },
-                { y: 0, opacity: 1, duration: 1, ease: 'expo.out' }
+                { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
             );
 
             // Underline snaps in
@@ -2886,7 +2883,7 @@
             paraInners.forEach(p => {
                 gsap.fromTo(p,
                     { y: 20, opacity: 0 },
-                    { y: 0, opacity: 1, duration: 0.45, ease: 'expo.out',
+                    { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out',
                       scrollTrigger: { trigger: p, start: 'top 88%', once: true }
                     }
                 );
@@ -2896,7 +2893,7 @@
             if (strongs.length) {
                 tl.fromTo(strongs,
                     { color: '#ff7a00' },
-                    { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'expo.out' },
+                    { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
                     '-=0.25'
                 );
             }
@@ -2915,7 +2912,7 @@
             });
             tl.fromTo(h4,
                 { y: 40, opacity: 0 },
-                { y: 0, opacity: 1, duration: 1, ease: 'expo.out' }
+                { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
             );
             tl.fromTo(ul,
                 { scaleX: 0, opacity: 0 },
@@ -2930,7 +2927,7 @@
                 if (els.length) {
                     tl.fromTo(els,
                         { y: 40, opacity: 0 },
-                        { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'expo.out' },
+                        { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power2.out' },
                         '-=0.05'
                     );
                 }
@@ -2991,7 +2988,7 @@
 
         tl.fromTo(label,
             { y: 40, opacity: 0 },
-            { y: 0, opacity: 1, duration: 1, ease: 'expo.out' }
+            { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
         );
         tl.fromTo(underline,
             { scaleX: 0, opacity: 0 },
@@ -3002,7 +2999,7 @@
         paraInners.forEach(p => {
             gsap.fromTo(p,
                 { y: 20, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.45, ease: 'expo.out',
+                { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out',
                   scrollTrigger: { trigger: p, start: 'top 88%', once: true }
                 }
             );
@@ -3010,7 +3007,7 @@
         if (strongs.length) {
             tl.fromTo(strongs,
                 { color: '#ff7a00' },
-                { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'expo.out' },
+                { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
                 '-=0.25'
             );
         }
@@ -3268,22 +3265,22 @@
         if (cardFonction) {
             gsap.from(cardFonction, {
                 scrollTrigger: { trigger: cardFonction, start: 'top 90%', once: true },
-                x: -40, opacity: 0, duration: 1, ease: 'expo.out'
+                x: -40, opacity: 0, duration: 1, ease: 'ease'
             });
             // Stagger inner paragraphs
             gsap.from(cardFonction.querySelectorAll('p'), {
                 scrollTrigger: { trigger: cardFonction, start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out', delay: 0.2
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
             });
         }
         if (cardMecanique) {
             gsap.from(cardMecanique, {
                 scrollTrigger: { trigger: cardMecanique, start: 'top 90%', once: true },
-                x: 40, opacity: 0, duration: 1, ease: 'expo.out'
+                x: 40, opacity: 0, duration: 1, ease: 'ease'
             });
             gsap.from(cardMecanique.querySelectorAll('p'), {
                 scrollTrigger: { trigger: cardMecanique, start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out', delay: 0.2
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
             });
         }
 
@@ -3295,23 +3292,23 @@
             if (cardAlu) {
                 gsap.from(cardAlu, {
                     scrollTrigger: { trigger: cardAlu, start: 'top 90%', once: true },
-                    x: -40, opacity: 0, duration: 1, ease: 'expo.out'
+                    x: -40, opacity: 0, duration: 1, ease: 'ease'
                 });
                 const imgAlu = cardAlu.querySelector('img');
                 if (imgAlu) gsap.from(imgAlu, {
                     scrollTrigger: { trigger: cardAlu, start: 'top 90%', once: true },
-                    scale: 1.04, duration: 1, ease: 'expo.out', delay: 0.15
+                    scale: 1.04, duration: 1, ease: 'ease', delay: 0.15
                 });
             }
             if (cardPla) {
                 gsap.from(cardPla, {
                     scrollTrigger: { trigger: cardPla, start: 'top 90%', once: true },
-                    x: 40, opacity: 0, duration: 1, ease: 'expo.out'
+                    x: 40, opacity: 0, duration: 1, ease: 'ease'
                 });
                 const imgPla = cardPla.querySelector('img');
                 if (imgPla) gsap.from(imgPla, {
                     scrollTrigger: { trigger: cardPla, start: 'top 90%', once: true },
-                    scale: 1.04, duration: 1, ease: 'expo.out', delay: 0.15
+                    scale: 1.04, duration: 1, ease: 'ease', delay: 0.15
                 });
             }
         }
@@ -3321,7 +3318,7 @@
         if (mecaWrap) {
             gsap.from(mecaWrap.querySelectorAll('.meca-card'), {
                 scrollTrigger: { trigger: mecaWrap, start: 'top 82%', once: true },
-                y: 40, opacity: 0, duration: 0.7, stagger: 0.15, ease: 'expo.out'
+                y: 40, opacity: 0, duration: 0.7, stagger: 0.15, ease: 'power3.out'
             });
         }
 
@@ -3330,7 +3327,7 @@
         if (solideList) {
             gsap.from(solideList.querySelectorAll('.solide-item'), {
                 scrollTrigger: { trigger: solideList, start: 'top 90%', once: true },
-                x: -30, opacity: 0, duration: 1, stagger: 0.12, ease: 'expo.out'
+                x: -30, opacity: 0, duration: 1, stagger: 0.12, ease: 'ease'
             });
         }
 
@@ -3339,7 +3336,7 @@
         if (subsysItems.length) {
             gsap.from(subsysItems, {
                 scrollTrigger: { trigger: subsysItems[0], start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out'
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease'
             });
         }
 
@@ -3358,7 +3355,7 @@
             );
             gsap.from(conclusionCard.querySelectorAll('p'), {
                 scrollTrigger: { trigger: conclusionCard, start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out', delay: 0.2
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
             });
         }
     }
