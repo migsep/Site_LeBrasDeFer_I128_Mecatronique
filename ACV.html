@@ -1318,6 +1318,29 @@
         }
 
         /* =============================================
+           DRAG-SCRUB visual cue
+           
+           When the user holds long enough on a dots pill to engage scrub
+           mode, the pill gets a subtle scale-up + glow. This is essential
+           on iOS Safari where navigator.vibrate is disabled — without
+           this visual cue, iPhone users would have no idea scrub mode
+           just engaged. On Android, this complements the haptic tick.
+        ============================================= */
+        .carousel-dots-inner,
+        .phase-mobile-dots-inner {
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.18s ease,
+                        background 0.18s ease;
+        }
+        .carousel-dots-inner.scrub-active,
+        .phase-mobile-dots-inner.scrub-active {
+            transform: scale(1.08);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25),
+                        0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* =============================================
            GSAP-DRIVEN SECTIONS — anti-flicker
            
            The .reveal CSS animates the parent's opacity from 0→1 over 1s.
@@ -2382,17 +2405,30 @@
         if (!nav || !section) return;
 
         /* Discreet opacity fade — bar stays in the DOM, just fades in/out
-           when section 03 enters/leaves the viewport. pointer-events is
-           tied to visibility so taps don't register through the invisible bar. */
+           when section 03 enters the viewport. pointer-events is tied to
+           visibility so taps don't register through the invisible bar.
+           
+           Asymmetric behavior: once visible, the bar stays visible when the
+           user scrolls DOWN past section 03 (it remains fixed at its last
+           position). It only fades back out when the user scrolls UP, above
+           the section. */
         nav.style.opacity = '0';
         nav.style.pointerEvents = 'none';
         nav.style.transition = 'opacity 0.25s ease';
 
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
-                const visible = e.isIntersecting;
-                nav.style.opacity = visible ? '1' : '0';
-                nav.style.pointerEvents = visible ? 'auto' : 'none';
+                if (e.isIntersecting) {
+                    // Section enters viewport (from any direction) → show
+                    nav.style.opacity = '1';
+                    nav.style.pointerEvents = 'auto';
+                } else if (e.boundingClientRect.top > 0) {
+                    // Section is BELOW viewport → user scrolled UP past it → hide
+                    nav.style.opacity = '0';
+                    nav.style.pointerEvents = 'none';
+                }
+                /* Section is ABOVE viewport (top < 0) → user scrolled DOWN
+                   past section 03 → DO NOTHING, keep the bar visible. */
             });
         }, { threshold: 0.4 });
 
@@ -2442,6 +2478,12 @@
        Allows the user to press-and-drag horizontally on the dots
        indicator to jump to any slide directly (no need to swipe the
        carousel multiple times). A short tap still works as a click.
+       
+       Haptic feedback: navigator.vibrate works on Android and is
+       silently ignored on iOS Safari (Apple doesn't expose the
+       Taptic Engine to web JS). To compensate, a visual pulse on the
+       pill is also triggered when scrub mode engages — so iPhone
+       users get a clear cue too.
        ───────────────────────────────────────────────────────────── */
     function attachDragScrub(pillEl, count, goTo) {
         if (!pillEl || count < 2) return;
@@ -2454,8 +2496,15 @@
         let pointerId = null;
         let suppressNextClick = false;
 
-        const SCRUB_DELAY = 160;     // ms held before scrub starts
+        const SCRUB_DELAY = 500;     // ms held before scrub starts (matches iOS Haptic Touch)
         const SCRUB_THRESHOLD = 8;   // px of horizontal movement to start scrub
+
+        // Haptic helpers — no-op on iOS, real vibration on Android
+        const haptic = (ms) => {
+            if (navigator.vibrate) {
+                try { navigator.vibrate(ms); } catch (_) {}
+            }
+        };
 
         function idxFromX(clientX) {
             // Map pointer X across the pill width to a slide index.
@@ -2471,12 +2520,17 @@
         function startScrub(clientX) {
             dragging = true;
             pillEl.style.cursor = 'grabbing';
+            // Engagement feedback: medium haptic (Android) + visual pulse (all)
+            haptic(15);
+            pillEl.classList.add('scrub-active');
             scrubTo(clientX);
         }
 
         function scrubTo(clientX) {
             const i = idxFromX(clientX);
             if (i !== lastIdx) {
+                // Per-tick haptic on each index change (Android only)
+                if (lastIdx !== -1) haptic(8);
                 lastIdx = i;
                 goTo(i, true); // instant scroll during drag — feels responsive
             }
@@ -2531,6 +2585,7 @@
             try { pillEl.releasePointerCapture(pointerId); } catch (_) {}
             if (dragging) {
                 pillEl.style.cursor = '';
+                pillEl.classList.remove('scrub-active');
                 // Final smooth snap to the released index
                 if (lastIdx >= 0) goTo(lastIdx, false);
                 // Suppress the synthetic click that follows pointerup
