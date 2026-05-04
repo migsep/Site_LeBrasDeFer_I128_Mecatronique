@@ -142,7 +142,8 @@
         ============================================= */
         .reveal {
             opacity: 0; transform: translateY(40px);
-            transition: all 1s ease;
+            transition: opacity 1s cubic-bezier(0.16,1,0.3,1),
+                        transform 1s cubic-bezier(0.16,1,0.3,1);
         }
         .reveal.active { opacity: 1; transform: translateY(0); }
         .reveal-d1 { transition-delay: 0.08s; }
@@ -153,7 +154,7 @@
         @media (max-width: 768px) {
             .reveal {
                 transform: none !important;
-                transition: opacity 1s ease !important;
+                transition: opacity 1s cubic-bezier(0.16,1,0.3,1) !important;
             }
             .reveal.active {
                 opacity: 1 !important;
@@ -668,10 +669,12 @@
             letter-spacing: 1.5px; color: rgba(255,255,255,0.35);
             display: block; margin-bottom: 2px;
         }
-        .cycle-col-text { font-size: 0.84rem; color: var(--muted); line-height: 1.5; margin: 0; }
-        .cycle-col-text.green { color: #22c55e; }
-        .cycle-col-text.red   { color: #ff453a; }
-        .cycle-col-text.amber { color: var(--neon); }
+        /* Colored titles for the three categories */
+        .cycle-col-label.green { color: #22c55e; }
+        .cycle-col-label.red   { color: #ff453a; }
+        .cycle-col-label.amber { color: var(--neon); }
+        /* Body text always white */
+        .cycle-col-text { font-size: 0.84rem; color: #ffffff; line-height: 1.5; margin: 0; }
 
         /* Mobile modal */
         .cycle-modal-overlay {
@@ -719,7 +722,8 @@
             background: rgba(0,0,0,0);
             backdrop-filter: blur(0px);
             -webkit-backdrop-filter: blur(0px);
-            transition: background 0.4s ease, backdrop-filter 0.4s ease;
+            transition: background 0.4s cubic-bezier(0.16,1,0.3,1),
+                        backdrop-filter 0.4s cubic-bezier(0.16,1,0.3,1);
             pointer-events: none;
         }
         .cycle-bg-overlay.visible {
@@ -734,7 +738,8 @@
             padding: 28px 24px 36px;
             opacity: 0;
             transform: scale(0.85);
-            transition: opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s;
+            transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1) 0.3s,
+                        transform 0.3s cubic-bezier(0.16,1,0.3,1) 0.3s;
             overflow: hidden;
             max-height: 100%;
             width: 100%;
@@ -862,7 +867,7 @@
         @media (max-width: 768px) {
             .carousel-wrap {
                 opacity: 0;
-                transition: opacity 1s ease;
+                transition: opacity 1s cubic-bezier(0.16,1,0.3,1);
             }
             .carousel-wrap.visible {
                 opacity: 1;
@@ -1119,7 +1124,7 @@
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-                transition: height 0.38s cubic-bezier(0.25,1,0.5,1);
+                transition: height 0.38s cubic-bezier(0.16,1,0.3,1);
                 overscroll-behavior-x: contain;
             }
             .phase-mobile-wrap::-webkit-scrollbar { display: none; }
@@ -2225,7 +2230,7 @@
             if (el) {
                 const reveal = el.closest('.reveal');
                 if (reveal) {
-                    reveal.style.cssText += ';transform:none!important;transition:opacity 1s ease!important';
+                    reveal.style.cssText += ';transform:none!important;transition:opacity 1s cubic-bezier(0.16,1,0.3,1)!important';
                 }
             }
         });
@@ -2261,7 +2266,7 @@
             card.dataset.open = 'true';
             if (typeof gsap !== 'undefined') {
                 gsap.set(cols, { y: 16, opacity: 0 });
-                gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out', delay: 0.1 });
+                gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'expo.out', delay: 0.1 });
             }
         }
     }
@@ -2287,7 +2292,7 @@
                     if (typeof gsap !== 'undefined') {
                         const cols = body.querySelectorAll('.phase-col');
                         gsap.set(cols, { y: 16, opacity: 0 });
-                        gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out', delay: 0.15 });
+                        gsap.to(cols, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'expo.out', delay: 0.15 });
                     }
                 }
             }
@@ -2370,7 +2375,7 @@
 
             // Enter: spring slide
             requestAnimationFrame(() => requestAnimationFrame(() => {
-                next.style.transition = 'opacity 0.35s ease, transform 0.42s cubic-bezier(0.16,1,0.3,1)';
+                next.style.transition = 'opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.42s cubic-bezier(0.16,1,0.3,1)';
                 next.style.opacity = '1';
                 next.style.transform = 'translateX(0) scale(1)';
                 setTimeout(() => {
@@ -2400,7 +2405,7 @@
            the section. */
         nav.style.opacity = '0';
         nav.style.pointerEvents = 'none';
-        nav.style.transition = 'opacity 0.25s ease';
+        nav.style.transition = 'opacity 0.25s cubic-bezier(0.16,1,0.3,1)';
 
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
@@ -2638,7 +2643,7 @@
 
             function updateHeight(idx) {
                 if (!isMobile()) return;
-                wrap.style.transition = 'height 0.38s cubic-bezier(0.25,1,0.5,1)';
+                wrap.style.transition = 'height 0.38s cubic-bezier(0.16,1,0.3,1)';
                 wrap.style.height = panels[idx].scrollHeight + 'px';
             }
 
@@ -2867,7 +2872,7 @@
             // Title: fast clip from bottom
             tl.fromTo(h4,
                 { y: 40, opacity: 0 },
-                { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
+                { y: 0, opacity: 1, duration: 1, ease: 'expo.out' }
             );
 
             // Underline snaps in
@@ -2881,7 +2886,7 @@
             paraInners.forEach(p => {
                 gsap.fromTo(p,
                     { y: 20, opacity: 0 },
-                    { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out',
+                    { y: 0, opacity: 1, duration: 0.45, ease: 'expo.out',
                       scrollTrigger: { trigger: p, start: 'top 88%', once: true }
                     }
                 );
@@ -2891,7 +2896,7 @@
             if (strongs.length) {
                 tl.fromTo(strongs,
                     { color: '#ff7a00' },
-                    { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
+                    { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'expo.out' },
                     '-=0.25'
                 );
             }
@@ -2910,7 +2915,7 @@
             });
             tl.fromTo(h4,
                 { y: 40, opacity: 0 },
-                { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
+                { y: 0, opacity: 1, duration: 1, ease: 'expo.out' }
             );
             tl.fromTo(ul,
                 { scaleX: 0, opacity: 0 },
@@ -2925,7 +2930,7 @@
                 if (els.length) {
                     tl.fromTo(els,
                         { y: 40, opacity: 0 },
-                        { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power2.out' },
+                        { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'expo.out' },
                         '-=0.05'
                     );
                 }
@@ -2986,7 +2991,7 @@
 
         tl.fromTo(label,
             { y: 40, opacity: 0 },
-            { y: 0, opacity: 1, duration: 1, ease: 'power2.out' }
+            { y: 0, opacity: 1, duration: 1, ease: 'expo.out' }
         );
         tl.fromTo(underline,
             { scaleX: 0, opacity: 0 },
@@ -2997,7 +3002,7 @@
         paraInners.forEach(p => {
             gsap.fromTo(p,
                 { y: 20, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out',
+                { y: 0, opacity: 1, duration: 0.45, ease: 'expo.out',
                   scrollTrigger: { trigger: p, start: 'top 88%', once: true }
                 }
             );
@@ -3005,7 +3010,7 @@
         if (strongs.length) {
             tl.fromTo(strongs,
                 { color: '#ff7a00' },
-                { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'power2.out' },
+                { color: '#f5f5f7', stagger: 0.05, duration: 0.3, ease: 'expo.out' },
                 '-=0.25'
             );
         }
@@ -3141,9 +3146,9 @@
                 content.innerHTML = `
                     <span class="cycle-modal-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color};font-family:Orbitron;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;">${d.name}</span>
                     <h3 class="cycle-modal-title" style="font-size:1.2rem;font-weight:900;margin:0 0 18px;color:${d.color}">${d.title}</h3>
-                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">✅ Points forts</span><p class="cycle-modal-col-text green" style="font-size:0.88rem;line-height:1.65;color:#22c55e;margin:0">${d.fort}</p></div>
-                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">⚠️ Points faibles</span><p class="cycle-modal-col-text red" style="font-size:0.88rem;line-height:1.65;color:#ff453a;margin:0">${d.faible}</p></div>
-                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:5px;display:block;">→ Améliorations</span><p class="cycle-modal-col-text amber" style="font-size:0.88rem;line-height:1.65;color:var(--neon);margin:0">${d.amelio}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:#22c55e;margin-bottom:5px;display:block;">✅ Points forts</span><p class="cycle-modal-col-text" style="font-size:0.88rem;line-height:1.65;color:#ffffff;margin:0">${d.fort}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:#ff453a;margin-bottom:5px;display:block;">⚠️ Points faibles</span><p class="cycle-modal-col-text" style="font-size:0.88rem;line-height:1.65;color:#ffffff;margin:0">${d.faible}</p></div>
+                    <div class="cycle-modal-col"><span class="cycle-modal-col-label" style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--neon);margin-bottom:5px;display:block;">→ Améliorations</span><p class="cycle-modal-col-text" style="font-size:0.88rem;line-height:1.65;color:#ffffff;margin:0">${d.amelio}</p></div>
                 `;
                 content.classList.add('visible');
 
@@ -3168,16 +3173,16 @@
                     <span class="cycle-center-badge" style="background:${d.color}22;border:1px solid ${d.color}55;color:${d.color}">${d.name}</span>
                     <div class="cycle-center-title" style="color:${d.color}">${d.title}</div>
                     <div class="cycle-col">
-                        <span class="cycle-col-label">✅ Points forts</span>
-                        <p class="cycle-col-text green">${d.fort}</p>
+                        <span class="cycle-col-label green">✅ Points forts</span>
+                        <p class="cycle-col-text">${d.fort}</p>
                     </div>
                     <div class="cycle-col">
-                        <span class="cycle-col-label">⚠️ Points faibles</span>
-                        <p class="cycle-col-text red">${d.faible}</p>
+                        <span class="cycle-col-label red">⚠️ Points faibles</span>
+                        <p class="cycle-col-text">${d.faible}</p>
                     </div>
                     <div class="cycle-col">
-                        <span class="cycle-col-label">→ Améliorations</span>
-                        <p class="cycle-col-text amber">${d.amelio}</p>
+                        <span class="cycle-col-label amber">→ Améliorations</span>
+                        <p class="cycle-col-text">${d.amelio}</p>
                     </div>
                 </div>
             `;
@@ -3263,22 +3268,22 @@
         if (cardFonction) {
             gsap.from(cardFonction, {
                 scrollTrigger: { trigger: cardFonction, start: 'top 90%', once: true },
-                x: -40, opacity: 0, duration: 1, ease: 'ease'
+                x: -40, opacity: 0, duration: 1, ease: 'expo.out'
             });
             // Stagger inner paragraphs
             gsap.from(cardFonction.querySelectorAll('p'), {
                 scrollTrigger: { trigger: cardFonction, start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out', delay: 0.2
             });
         }
         if (cardMecanique) {
             gsap.from(cardMecanique, {
                 scrollTrigger: { trigger: cardMecanique, start: 'top 90%', once: true },
-                x: 40, opacity: 0, duration: 1, ease: 'ease'
+                x: 40, opacity: 0, duration: 1, ease: 'expo.out'
             });
             gsap.from(cardMecanique.querySelectorAll('p'), {
                 scrollTrigger: { trigger: cardMecanique, start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out', delay: 0.2
             });
         }
 
@@ -3290,23 +3295,23 @@
             if (cardAlu) {
                 gsap.from(cardAlu, {
                     scrollTrigger: { trigger: cardAlu, start: 'top 90%', once: true },
-                    x: -40, opacity: 0, duration: 1, ease: 'ease'
+                    x: -40, opacity: 0, duration: 1, ease: 'expo.out'
                 });
                 const imgAlu = cardAlu.querySelector('img');
                 if (imgAlu) gsap.from(imgAlu, {
                     scrollTrigger: { trigger: cardAlu, start: 'top 90%', once: true },
-                    scale: 1.04, duration: 1, ease: 'ease', delay: 0.15
+                    scale: 1.04, duration: 1, ease: 'expo.out', delay: 0.15
                 });
             }
             if (cardPla) {
                 gsap.from(cardPla, {
                     scrollTrigger: { trigger: cardPla, start: 'top 90%', once: true },
-                    x: 40, opacity: 0, duration: 1, ease: 'ease'
+                    x: 40, opacity: 0, duration: 1, ease: 'expo.out'
                 });
                 const imgPla = cardPla.querySelector('img');
                 if (imgPla) gsap.from(imgPla, {
                     scrollTrigger: { trigger: cardPla, start: 'top 90%', once: true },
-                    scale: 1.04, duration: 1, ease: 'ease', delay: 0.15
+                    scale: 1.04, duration: 1, ease: 'expo.out', delay: 0.15
                 });
             }
         }
@@ -3316,7 +3321,7 @@
         if (mecaWrap) {
             gsap.from(mecaWrap.querySelectorAll('.meca-card'), {
                 scrollTrigger: { trigger: mecaWrap, start: 'top 82%', once: true },
-                y: 40, opacity: 0, duration: 0.7, stagger: 0.15, ease: 'power3.out'
+                y: 40, opacity: 0, duration: 0.7, stagger: 0.15, ease: 'expo.out'
             });
         }
 
@@ -3325,7 +3330,7 @@
         if (solideList) {
             gsap.from(solideList.querySelectorAll('.solide-item'), {
                 scrollTrigger: { trigger: solideList, start: 'top 90%', once: true },
-                x: -30, opacity: 0, duration: 1, stagger: 0.12, ease: 'ease'
+                x: -30, opacity: 0, duration: 1, stagger: 0.12, ease: 'expo.out'
             });
         }
 
@@ -3334,7 +3339,7 @@
         if (subsysItems.length) {
             gsap.from(subsysItems, {
                 scrollTrigger: { trigger: subsysItems[0], start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease'
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out'
             });
         }
 
@@ -3353,7 +3358,7 @@
             );
             gsap.from(conclusionCard.querySelectorAll('p'), {
                 scrollTrigger: { trigger: conclusionCard, start: 'top 90%', once: true },
-                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'ease', delay: 0.2
+                y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: 'expo.out', delay: 0.2
             });
         }
     }
