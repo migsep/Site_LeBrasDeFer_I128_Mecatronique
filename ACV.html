@@ -1264,7 +1264,9 @@
                 margin-left: -16px !important;
                 margin-right: -16px !important;
                 width: 100vw !important;
-                touch-action: pan-y;
+                /* pan-x: horizontal swipe scrolls the carousel.
+                   Vertical swipes bubble up to scroll the page. */
+                touch-action: pan-x;
             }
             .carousel-wrap::-webkit-scrollbar { display: none; }
             .carousel-track {
@@ -2293,11 +2295,10 @@
         const container = document.getElementById('phases-container');
         if (container) container.style.minHeight = container.offsetHeight + 'px';
 
-        // Exit: fast slide + fade + blur
-        prev.style.transition = 'opacity 0.22s ease, transform 0.25s cubic-bezier(0.4,0,1,1), filter 0.22s ease';
+        // Exit: slide + fade (no blur — user explicitly disliked it)
+        prev.style.transition = 'opacity 0.22s ease, transform 0.25s cubic-bezier(0.4,0,1,1)';
         prev.style.opacity = '0';
         prev.style.transform = `translateX(${dir * -60}px) scale(0.95)`;
-        prev.style.filter = 'blur(4px)';
 
         setTimeout(() => {
             prev.classList.remove('mobile-active');
@@ -2306,18 +2307,17 @@
             if (prevState) prevState(0);
 
             // Prepare next
-            next.style.cssText = `opacity:0;transform:translateX(${dir * 60}px) scale(0.95);filter:blur(4px)`;
+            next.style.cssText = `opacity:0;transform:translateX(${dir * 60}px) scale(0.95)`;
             next.classList.add('mobile-active');
 
             const nextState = panelStates.get(next);
             requestAnimationFrame(() => { if (nextState) nextState(0); });
 
-            // Enter: spring with blur dissolve
+            // Enter: spring slide
             requestAnimationFrame(() => requestAnimationFrame(() => {
-                next.style.transition = 'opacity 0.35s ease, transform 0.42s cubic-bezier(0.16,1,0.3,1), filter 0.35s ease';
+                next.style.transition = 'opacity 0.35s ease, transform 0.42s cubic-bezier(0.16,1,0.3,1)';
                 next.style.opacity = '1';
                 next.style.transform = 'translateX(0) scale(1)';
-                next.style.filter = 'blur(0px)';
                 setTimeout(() => {
                     next.style.cssText = '';
                     if (container) container.style.minHeight = '';
@@ -2719,7 +2719,15 @@
         });
     }
 
-    window.addEventListener('load', initProjetCardsGSAP);
+    /* Run synchronously — NOT on window.load.
+       If we wait for `load` (which fires after all images), and the user has
+       already scrolled past section 01, the IntersectionObserver has already
+       revealed the content. Then GSAP runs and `fromTo` with immediateRender:true
+       sets opacity:0 on h4/paragraphs, making them visibly disappear before the
+       ScrollTrigger fires and animates them back to opacity:1.
+       Running synchronously here ensures GSAP's initial state is set BEFORE
+       the IO callback can fire (which is async). */
+    initProjetCardsGSAP();
 
     /* ─── GSAP: Section 05 — mobile, identical to section 01 ─── */
     function initConclusionGSAP() {
@@ -2837,12 +2845,22 @@
 
     let activePhase = null;
     let activeNodeRect = null; // store node position at open time
-    let cycleAnimating = false; // guard against rapid taps
+    let _cycleCloseTimers = []; // timers from closeModal — cleared on reopen
+
+    function _clearCloseTimers() {
+        _cycleCloseTimers.forEach(id => clearTimeout(id));
+        _cycleCloseTimers = [];
+    }
 
     function selectPhase(n) {
         const d = cycleData[n];
         if (!d) return;
-        if (cycleAnimating) return; // ignore rapid successive taps
+
+        /* If a close animation is in flight, its setTimeout would later set
+           bubble.style.display = 'none', hiding the new modal we're about to
+           open. Cancel them now so the new modal's grow animation isn't
+           interrupted. */
+        _clearCloseTimers();
 
         // Update active node
         document.querySelectorAll('.cycle-node').forEach(node => {
@@ -2851,10 +2869,6 @@
         activePhase = n;
 
         if (isMobile()) {
-            cycleAnimating = true;
-            // Release the lock once both grow + squarify transitions have settled
-            setTimeout(() => { cycleAnimating = false; }, 700);
-
             const node = document.querySelector(`.cycle-node[data-phase="${n}"]`);
             const bubble = document.getElementById('cycleBubble');
             const content = document.getElementById('cycleBubbleContent');
@@ -2976,7 +2990,7 @@
                 bubble.style.borderRadius = '50%';
 
                 // Step 2: shrinks back to node
-                setTimeout(() => {
+                const t1 = setTimeout(() => {
                     bubble.style.transition = 'none';
                     bubble.offsetWidth;
                     requestAnimationFrame(() => {
@@ -2995,13 +3009,15 @@
                             bubble.style.opacity = '0';
                         });
                     });
-                    setTimeout(() => {
+                    const t2 = setTimeout(() => {
                         bubble.style.display    = 'none';
                         bubble.style.opacity    = '1';
                         bubble.style.transition = '';
                         bubble.style.zIndex     = '';
                     }, 500);
+                    _cycleCloseTimers.push(t2);
                 }, 300);
+                _cycleCloseTimers.push(t1);
 
                 activeNodeRect = null;
             }
@@ -3014,7 +3030,8 @@
         activePhase = null;
     }
 
-    window.addEventListener('load', initConclusionGSAP);
+    /* Run synchronously — same reason as initProjetCardsGSAP above */
+    initConclusionGSAP();
 
     /* ─── GSAP DESKTOP — Sections 01, 02, 05 ─── */
     function initDesktopGSAP() {
