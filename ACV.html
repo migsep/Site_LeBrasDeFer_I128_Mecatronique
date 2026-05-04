@@ -2374,28 +2374,25 @@
         }, 230);
     }
 
-    /* ─── Show mobile phase nav after scrolling into section 03 ─── */
+    /* ─── Show mobile phase nav when section 03 is in view ─── */
     function initMobilePhaseNav() {
         if (!isMobile()) return;
         const nav = document.getElementById('phaseScrollNav');
         const section = document.getElementById('phases-container');
         if (!nav || !section) return;
 
-        nav.style.transform = 'translateY(120%)';
-        nav.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        /* Discreet opacity fade — bar stays in the DOM, just fades in/out
+           when section 03 enters/leaves the viewport. pointer-events is
+           tied to visibility so taps don't register through the invisible bar. */
+        nav.style.opacity = '0';
+        nav.style.pointerEvents = 'none';
+        nav.style.transition = 'opacity 0.25s ease';
 
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
-                if (e.isIntersecting) {
-                    nav.style.transform = 'translateY(0)';
-                } else if (e.boundingClientRect.top > 0) {
-                    // Only hide when scrolling back up (section above viewport)
-                    nav.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 1, 1)';
-                    nav.style.transform = 'translateY(120%)';
-                    setTimeout(() => {
-                        nav.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                    }, 350);
-                }
+                const visible = e.isIntersecting;
+                nav.style.opacity = visible ? '1' : '0';
+                nav.style.pointerEvents = visible ? 'auto' : 'none';
             });
         }, { threshold: 0.4 });
 
@@ -2441,6 +2438,128 @@
     });
     const panelStates = new Map();
 
+    /* ─── DRAG-SCRUB on dots pill ─────────────────────────────────
+       Allows the user to press-and-drag horizontally on the dots
+       indicator to jump to any slide directly (no need to swipe the
+       carousel multiple times). A short tap still works as a click.
+       ───────────────────────────────────────────────────────────── */
+    function attachDragScrub(pillEl, count, goTo) {
+        if (!pillEl || count < 2) return;
+
+        let dragging = false;
+        let startX = 0, startY = 0;
+        let pillRect = null;
+        let lastIdx = -1;
+        let pressTimer = null;
+        let pointerId = null;
+        let suppressNextClick = false;
+
+        const SCRUB_DELAY = 160;     // ms held before scrub starts
+        const SCRUB_THRESHOLD = 8;   // px of horizontal movement to start scrub
+
+        function idxFromX(clientX) {
+            // Map pointer X across the pill width to a slide index.
+            // Slight inset so edges still snap to first/last.
+            const pad = 12;
+            const left = pillRect.left + pad;
+            const usable = pillRect.width - pad * 2;
+            const ratio = (clientX - left) / Math.max(usable, 1);
+            const i = Math.round(ratio * (count - 1));
+            return Math.max(0, Math.min(count - 1, i));
+        }
+
+        function startScrub(clientX) {
+            dragging = true;
+            pillEl.style.cursor = 'grabbing';
+            scrubTo(clientX);
+        }
+
+        function scrubTo(clientX) {
+            const i = idxFromX(clientX);
+            if (i !== lastIdx) {
+                lastIdx = i;
+                goTo(i, true); // instant scroll during drag — feels responsive
+            }
+        }
+
+        pillEl.addEventListener('pointerdown', (e) => {
+            // Only primary button / single touch
+            if (e.button && e.button !== 0) return;
+            pointerId = e.pointerId;
+            startX = e.clientX;
+            startY = e.clientY;
+            pillRect = pillEl.getBoundingClientRect();
+            lastIdx = -1;
+            dragging = false;
+
+            // Long-press → enter scrub mode even without movement
+            pressTimer = setTimeout(() => {
+                if (pointerId !== null) {
+                    try { pillEl.setPointerCapture(pointerId); } catch (_) {}
+                    startScrub(startX);
+                }
+            }, SCRUB_DELAY);
+        });
+
+        pillEl.addEventListener('pointermove', (e) => {
+            if (pointerId === null || e.pointerId !== pointerId) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            if (!dragging) {
+                // Cancel scrub if user is clearly trying to scroll the page
+                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+                    clearTimeout(pressTimer);
+                    pointerId = null;
+                    return;
+                }
+                // Start scrub on horizontal movement past threshold
+                if (Math.abs(dx) > SCRUB_THRESHOLD) {
+                    clearTimeout(pressTimer);
+                    try { pillEl.setPointerCapture(e.pointerId); } catch (_) {}
+                    startScrub(e.clientX);
+                }
+            } else {
+                e.preventDefault(); // we own this gesture now
+                scrubTo(e.clientX);
+            }
+        });
+
+        function endDrag(e) {
+            if (pointerId === null || e.pointerId !== pointerId) return;
+            clearTimeout(pressTimer);
+            try { pillEl.releasePointerCapture(pointerId); } catch (_) {}
+            if (dragging) {
+                pillEl.style.cursor = '';
+                // Final smooth snap to the released index
+                if (lastIdx >= 0) goTo(lastIdx, false);
+                // Suppress the synthetic click that follows pointerup
+                // (otherwise the dot under the finger would re-fire goTo).
+                suppressNextClick = true;
+                setTimeout(() => { suppressNextClick = false; }, 350);
+            }
+            dragging = false;
+            pointerId = null;
+            lastIdx = -1;
+        }
+        pillEl.addEventListener('pointerup', endDrag);
+        pillEl.addEventListener('pointercancel', endDrag);
+
+        // Block the click that would otherwise fire on the dot under the
+        // finger at pointerup — we already navigated to the right slide.
+        pillEl.addEventListener('click', (e) => {
+            if (suppressNextClick) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }, true);
+
+        // Disable native gestures (text selection, page pan) on the pill
+        pillEl.style.touchAction = 'none';
+        pillEl.style.userSelect = 'none';
+        pillEl.style.webkitUserSelect = 'none';
+    }
+
     function initInnerPanels() {
         document.querySelectorAll('.phase-mobile-wrap').forEach(wrap => {
             const track = wrap.querySelector('.phase-mobile-track');
@@ -2480,9 +2599,9 @@
                 wrap.style.height = panels[idx].scrollHeight + 'px';
             }
 
-            function goTo(idx) {
+            function goTo(idx, instant) {
                 cur = Math.max(0, Math.min(count - 1, idx));
-                wrap.scrollTo({ left: cur * wrap.offsetWidth, behavior: 'smooth' });
+                wrap.scrollTo({ left: cur * wrap.offsetWidth, behavior: instant ? 'auto' : 'smooth' });
                 updateDots(cur);
                 updateHeight(cur);
             }
@@ -2510,6 +2629,9 @@
 
             const phaseItem = wrap.closest('.phase-item');
             if (phaseItem) panelStates.set(phaseItem, (idx) => goTo(idx));
+
+            // Drag-scrub: press-and-drag on the dots pill to jump anywhere
+            attachDragScrub(dotsInner, count, goTo);
 
             requestAnimationFrame(() => {
                 updateHeight(0);
@@ -2581,11 +2703,14 @@
                 dotsContainer.appendChild(btn);
             });
 
+            // Drag-scrub: press-and-drag on the dots pill to jump anywhere
+            if (isMobile()) attachDragScrub(dotsContainer, count, goTo);
+
             // No touch blocking needed - touch-action: pan-y handles it
 
-            function goTo(idx) {
+            function goTo(idx, instant) {
                 cur = Math.max(0, Math.min(count - 1, idx));
-                wrap.scrollTo({ left: cur * step(), behavior: 'smooth' });
+                wrap.scrollTo({ left: cur * step(), behavior: instant ? 'auto' : 'smooth' });
             }
 
             wrap.addEventListener('scroll', () => {
