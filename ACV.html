@@ -57,18 +57,6 @@
         h1, h2, h3, h4, .tech-font { font-family: "Orbitron", sans-serif; }
 
         /* =============================================
-           AMBIENT BACKGROUND
-        ============================================= */
-        .ambient {
-            position: fixed;
-            top: -20%; left: 50%;
-            transform: translateX(-50%);
-            width: 100vw; height: 80vh;
-            background: radial-gradient(ellipse 70% 60% at 50% 10%, rgba(255,122,0,0.09), transparent 65%);
-            z-index: -1; pointer-events: none;
-        }
-
-        /* =============================================
            LAYOUT
         ============================================= */
         .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; overflow: visible; }
@@ -1389,8 +1377,6 @@
 </head>
 <body>
 
-<div class="ambient"></div>
-
 <!-- =============================================
      HERO
 ============================================= -->
@@ -2609,8 +2595,10 @@
             }
         }, true);
 
-        // Disable native gestures (text selection, page pan) on the pill
-        pillEl.style.touchAction = 'none';
+        // Allow native vertical page scroll when finger lands on the pill —
+        // only horizontal gestures are interpreted as scrub. user-select
+        // disabled to avoid text selection during long-press.
+        pillEl.style.touchAction = 'pan-y';
         pillEl.style.userSelect = 'none';
         pillEl.style.webkitUserSelect = 'none';
     }
