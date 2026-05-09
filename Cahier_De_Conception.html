@@ -229,6 +229,7 @@
         .figure-frame img {
             max-width: 100%;
             height: auto;
+            border-radius: 14px;
             display: block;
             margin: 0 auto;
         }
@@ -241,6 +242,58 @@
             margin-top: 20px;
         }
         .figure-caption strong { color: var(--neon); margin-right: 8px; }
+
+        /* ZOOMABLE IMAGES (lightbox triggers) */
+        .zoomable {
+            cursor: zoom-in;
+            transition: transform 0.3s;
+        }
+        .zoomable:hover {
+            transform: scale(1.02);
+        }
+
+        /* LIGHTBOX OVERLAY */
+        #lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: zoom-out;
+        }
+        #lightbox-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        #lightbox-img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            transform-origin: center center;
+            cursor: grab;
+            transition: transform 0.1s ease-out;
+            user-select: none;
+            border-radius: 14px;
+        }
+        #lightbox-img:active {
+            cursor: grabbing;
+        }
+        .lightbox-hint {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: "Inter";
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            pointer-events: none;
+        }
 
         /* ─────────────────────────────────────────
            SECTION I — VARIABLES GRID
@@ -401,6 +454,7 @@
         }
         .conv-row:last-child { border-bottom: none; }
         .conv-row .conv-label { color: var(--text-sub); }
+        .conv-row .conv-label .var { color: var(--text-main); }
         .conv-row .conv-formula {
             font-family: "JetBrains Mono", monospace;
             color: var(--text-sub);
@@ -415,7 +469,7 @@
             font-size: 0.92rem;
         }
         .conv-row .conv-value.highlight {
-            color: var(--neon);
+            color: var(--text-main);
         }
 
         /* ─────────────────────────────────────────
@@ -440,7 +494,6 @@
             flex-shrink: 0;
         }
         .liste-item span.qty {
-            margin-left: auto;
             font-family: "Orbitron"; font-size: 0.7rem;
             color: var(--neon);
             background: var(--neon-dim);
@@ -543,12 +596,12 @@
         }
         .material-desc strong { color: var(--text-main); }
         .material-desc a {
-            color: var(--neon);
+            color: var(--blue);
             text-decoration: none;
             word-break: break-all;
             font-size: 0.82rem;
         }
-        .material-desc a:hover { text-decoration: underline; }
+        .material-desc a:hover { text-decoration: underline; color: #8ad8ff; }
         .material-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -595,8 +648,12 @@
             padding: 6px 0;
             line-height: 1.7;
         }
+        .calc-line .var {
+            color: var(--text-main);
+            font-weight: 500;
+        }
         .calc-line .res {
-            color: var(--neon);
+            color: var(--text-main);
             font-weight: 500;
         }
 
@@ -758,12 +815,12 @@
             </p>
 
             <div class="figure-frame">
-                <img src="SC.png" alt="Schéma cinématique du bras robotique">
+                <img src="SC.png" alt="Schéma cinématique du bras robotique" class="zoomable">
                 <div class="figure-caption"><strong>FIGURE 1</strong>Schéma cinématique du bras robotique</div>
             </div>
 
             <div class="figure-frame">
-                <img src="GL.png" alt="Graphe des liaisons du bras robotique">
+                <img src="GL.png" alt="Graphe des liaisons du bras robotique" class="zoomable">
                 <div class="figure-caption"><strong>FIGURE 2</strong>Graphe des liaisons du bras robotique</div>
             </div>
         </div>
@@ -917,7 +974,7 @@
             </p>
 
             <div class="figure-frame">
-                <img src="SB1.png" alt="Schéma bloc de l'alimentation des composants électriques">
+                <img src="SB1.png" alt="Schéma bloc de l'alimentation des composants électriques" class="zoomable">
                 <div class="figure-caption"><strong>FIGURE 3</strong>Schéma bloc de l'alimentation des composants électriques</div>
             </div>
         </div>
@@ -942,15 +999,15 @@
                     <div class="conv-block">
                         <span class="conv-block-label out">Sortie</span>
                         <div class="conv-row">
-                            <span class="conv-label">U<sub>out</sub> = U<sub>Raspberry</sub></span>
+                            <span class="conv-label"><span class="var">U<sub>out</sub></span> = U<sub>Raspberry</sub></span>
                             <span class="conv-value highlight">5 V</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">I<sub>out</sub> = I<sub>Raspberry</sub></span>
+                            <span class="conv-label"><span class="var">I<sub>out</sub></span> = I<sub>Raspberry</sub></span>
                             <span class="conv-value highlight">5 A</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">P<sub>out</sub> = U<sub>out</sub> × I<sub>out</sub></span>
+                            <span class="conv-label"><span class="var">P<sub>out</sub></span> = U<sub>out</sub> × I<sub>out</sub></span>
                             <span class="conv-value">25,00 W</span>
                         </div>
                     </div>
@@ -958,15 +1015,15 @@
                     <div class="conv-block">
                         <span class="conv-block-label in">Entrée</span>
                         <div class="conv-row">
-                            <span class="conv-label">U<sub>in</sub></span>
+                            <span class="conv-label"><span class="var">U<sub>in</sub></span></span>
                             <span class="conv-value">12 V</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">P<sub>in</sub> = P<sub>out</sub> / η</span>
+                            <span class="conv-label"><span class="var">P<sub>in</sub></span> = P<sub>out</sub> / η</span>
                             <span class="conv-value">29,41 W</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">I<sub>in</sub> = P<sub>in</sub> / U<sub>in</sub></span>
+                            <span class="conv-label"><span class="var">I<sub>in</sub></span> = P<sub>in</sub> / U<sub>in</sub></span>
                             <span class="conv-value highlight">2,45 A</span>
                         </div>
                     </div>
@@ -980,15 +1037,15 @@
                     <div class="conv-block">
                         <span class="conv-block-label out">Sortie</span>
                         <div class="conv-row">
-                            <span class="conv-label">U<sub>out</sub> = U<sub>max</sub></span>
+                            <span class="conv-label"><span class="var">U<sub>out</sub></span> = U<sub>max</sub></span>
                             <span class="conv-value highlight">6 V</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">I<sub>out</sub> = 5 × I<sub>SCS15</sub> + I<sub>HS-422</sub></span>
+                            <span class="conv-label"><span class="var">I<sub>out</sub></span> = 5 × I<sub>SCS15</sub> + I<sub>HS-422</sub></span>
                             <span class="conv-value highlight">13,25 A</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">P<sub>out</sub> = U<sub>out</sub> × I<sub>out</sub></span>
+                            <span class="conv-label"><span class="var">P<sub>out</sub></span> = U<sub>out</sub> × I<sub>out</sub></span>
                             <span class="conv-value">79,50 W</span>
                         </div>
                     </div>
@@ -996,15 +1053,15 @@
                     <div class="conv-block">
                         <span class="conv-block-label in">Entrée</span>
                         <div class="conv-row">
-                            <span class="conv-label">U<sub>in</sub></span>
+                            <span class="conv-label"><span class="var">U<sub>in</sub></span></span>
                             <span class="conv-value">12 V</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">P<sub>in</sub> = P<sub>out</sub> / η</span>
+                            <span class="conv-label"><span class="var">P<sub>in</sub></span> = P<sub>out</sub> / η</span>
                             <span class="conv-value">93,53 W</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">I<sub>in</sub> = P<sub>in</sub> / U<sub>in</sub></span>
+                            <span class="conv-label"><span class="var">I<sub>in</sub></span> = P<sub>in</sub> / U<sub>in</sub></span>
                             <span class="conv-value highlight">7,79 A</span>
                         </div>
                     </div>
@@ -1018,15 +1075,15 @@
                     <div class="conv-block">
                         <span class="conv-block-label in">Entrée</span>
                         <div class="conv-row">
-                            <span class="conv-label">U<sub>Arduino</sub></span>
+                            <span class="conv-label"><span class="var">U<sub>Arduino</sub></span></span>
                             <span class="conv-value highlight">12 V</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">I<sub>Arduino</sub></span>
+                            <span class="conv-label"><span class="var">I<sub>Arduino</sub></span></span>
                             <span class="conv-value highlight">1 A</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">P<sub>Arduino</sub> = U × I</span>
+                            <span class="conv-label"><span class="var">P<sub>Arduino</sub></span> = U × I</span>
                             <span class="conv-value">12,00 W</span>
                         </div>
                     </div>
@@ -1040,7 +1097,7 @@
                     <div class="conv-block">
                         <span class="conv-block-label in">Entrée</span>
                         <div class="conv-row">
-                            <span class="conv-label">Source</span>
+                            <span class="conv-label"><span class="var">Source</span></span>
                             <span class="conv-value">Secteur</span>
                         </div>
                     </div>
@@ -1048,15 +1105,15 @@
                     <div class="conv-block">
                         <span class="conv-block-label out">Sortie</span>
                         <div class="conv-row">
-                            <span class="conv-label">U<sub>out</sub> = U<sub>max</sub></span>
+                            <span class="conv-label"><span class="var">U<sub>out</sub></span> = U<sub>max</sub></span>
                             <span class="conv-value highlight">12,00 V</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">I<sub>out</sub> = ΣI</span>
+                            <span class="conv-label"><span class="var">I<sub>out</sub></span> = ΣI</span>
                             <span class="conv-value highlight">11,24 A</span>
                         </div>
                         <div class="conv-row">
-                            <span class="conv-label">P<sub>out</sub> = U<sub>out</sub> × I<sub>out</sub></span>
+                            <span class="conv-label"><span class="var">P<sub>out</sub></span> = U<sub>out</sub> × I<sub>out</sub></span>
                             <span class="conv-value">134,88 W</span>
                         </div>
                     </div>
@@ -1076,7 +1133,7 @@
             </p>
 
             <div class="figure-frame">
-                <img src="SB2.png" alt="Schéma bloc complet de l'alimentation des composants électriques">
+                <img src="SB2.png" alt="Schéma bloc complet de l'alimentation des composants électriques" class="zoomable">
                 <div class="figure-caption"><strong>FIGURE 4</strong>Schéma bloc complet de l'alimentation des composants électriques</div>
             </div>
         </div>
@@ -1182,11 +1239,11 @@
 
             <div class="id-grid">
                 <div class="figure-frame">
-                    <img src="Pince.png" alt="Identification des composants de la pince">
+                    <img src="Pince.png" alt="Identification des composants de la pince" class="zoomable">
                     <div class="figure-caption"><strong>FIGURE 5</strong>Composants de la pince</div>
                 </div>
                 <div class="figure-frame">
-                    <img src="Bras.png" alt="Identification des composants du bras">
+                    <img src="Bras.png" alt="Identification des composants du bras" class="zoomable">
                     <div class="figure-caption"><strong>FIGURE 6</strong>Composants du bras</div>
                 </div>
             </div>
@@ -1225,9 +1282,9 @@
 
                     <div class="material-calc">
                         <div class="material-calc-title">Poutre 20×20×250 mm</div>
-                        <div class="calc-line">m = 1,29×10⁻³ × 0,02 × 0,02 × 0,25 = <span class="res">0,129 kg</span></div>
-                        <div class="calc-line">P = 0,129 × 9,81 = <span class="res">1,27 N</span></div>
-                        <div class="calc-line">I<sub>gz</sub> = <span class="res">13 333 mm⁴</span></div>
+                        <div class="calc-line"><span class="var">m</span> = 1,29×10⁻³ × 0,02 × 0,02 × 0,25 = <span class="res">0,129 kg</span></div>
+                        <div class="calc-line"><span class="var">P</span> = 0,129 × 9,81 = <span class="res">1,27 N</span></div>
+                        <div class="calc-line"><span class="var">I<sub>gz</sub></span> = <span class="res">13 333 mm⁴</span></div>
                     </div>
                 </div>
 
@@ -1261,8 +1318,8 @@
 
                     <div class="material-calc">
                         <div class="material-calc-title">Poutre de 250 mm</div>
-                        <div class="calc-line">m = 0,456 × 0,25 = <span class="res">0,114 kg</span></div>
-                        <div class="calc-line">P = 0,123 × 9,81 = <span class="res">1,12 N</span></div>
+                        <div class="calc-line"><span class="var">m</span> = 0,456 × 0,25 = <span class="res">0,114 kg</span></div>
+                        <div class="calc-line"><span class="var">P</span> = 0,123 × 9,81 = <span class="res">1,12 N</span></div>
                     </div>
                 </div>
 
@@ -1359,6 +1416,129 @@
         item.addEventListener('click', () => {
             navOpen = false; toggle.classList.remove('open'); menu.classList.remove('open'); toggle.textContent = '☰';
         });
+    });
+    /* ─── LIGHTBOX (zoom + drag) ─── */
+    const lightboxOverlay = document.createElement('div');
+    lightboxOverlay.id = 'lightbox-overlay';
+
+    const lightboxImg = document.createElement('img');
+    lightboxImg.id = 'lightbox-img';
+
+    const hint = document.createElement('div');
+    hint.className = 'lightbox-hint';
+    hint.innerHTML = "Molette : Zoom &nbsp;•&nbsp; Glisser : Déplacer &nbsp;•&nbsp; Clic : Fermer";
+
+    lightboxOverlay.appendChild(lightboxImg);
+    lightboxOverlay.appendChild(hint);
+    document.body.appendChild(lightboxOverlay);
+
+    let scale = 1, pointX = 0, pointY = 0, startX = 0, startY = 0;
+    let isDragging = false, isPanning = false;
+
+    function updateTransform() {
+        lightboxImg.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+    }
+
+    function openLightbox(src) {
+        lightboxImg.src = src;
+        lightboxOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        scale = 1; pointX = 0; pointY = 0;
+        updateTransform();
+    }
+
+    function closeLightbox() {
+        lightboxOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => { lightboxImg.src = ''; }, 400);
+    }
+
+    /* Ouvrir au clic sur une image zoomable */
+    document.querySelectorAll('img.zoomable').forEach(img => {
+        img.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLightbox(img.src);
+        });
+    });
+
+    /* Zoom à la molette */
+    lightboxOverlay.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY * -0.005;
+        scale = Math.min(Math.max(1, scale + delta), 5);
+        if (scale === 1) { pointX = 0; pointY = 0; }
+        updateTransform();
+    }, { passive: false });
+
+    /* Drag pour déplacer */
+    lightboxImg.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        startX = e.clientX - pointX;
+        startY = e.clientY - pointY;
+        isDragging = true;
+        isPanning = false;
+    });
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        isPanning = true;
+        if (scale > 1) {
+            pointX = e.clientX - startX;
+            pointY = e.clientY - startY;
+            updateTransform();
+        }
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    /* Fermeture au clic (sauf si on glissait) */
+    lightboxOverlay.addEventListener('click', () => {
+        if (!isPanning) closeLightbox();
+        isPanning = false;
+    });
+
+    /* Fermeture à la touche Échap */
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightboxOverlay.classList.contains('active')) {
+            closeLightbox();
+        }
+    });
+
+    /* Support tactile (mobile) — pinch zoom + drag */
+    let lastTouchDist = null;
+    lightboxOverlay.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            startX = e.touches[0].clientX - pointX;
+            startY = e.touches[0].clientY - pointY;
+            isDragging = true;
+            isPanning = false;
+        } else if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            lastTouchDist = Math.hypot(dx, dy);
+        }
+    }, { passive: true });
+    lightboxOverlay.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && isDragging && scale > 1) {
+            isPanning = true;
+            pointX = e.touches[0].clientX - startX;
+            pointY = e.touches[0].clientY - startY;
+            updateTransform();
+        } else if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.hypot(dx, dy);
+            if (lastTouchDist) {
+                const delta = (dist - lastTouchDist) * 0.01;
+                scale = Math.min(Math.max(1, scale + delta), 5);
+                if (scale === 1) { pointX = 0; pointY = 0; }
+                updateTransform();
+            }
+            lastTouchDist = dist;
+        }
+    }, { passive: true });
+    lightboxOverlay.addEventListener('touchend', () => {
+        isDragging = false;
+        lastTouchDist = null;
     });
 </script>
 </body>
