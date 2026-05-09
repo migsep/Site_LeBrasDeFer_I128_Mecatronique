@@ -1499,6 +1499,7 @@
 
     /* Fermeture au clic (sauf si on glissait) */
     lightboxOverlay.addEventListener('click', () => {
+        if (touchHandled) return;          // mobile : déjà géré par touchend
         if (!isPanning) closeLightbox();
         isPanning = false;
     });
@@ -1510,30 +1511,45 @@
         }
     });
 
-    /* Support tactile (mobile) — pinch zoom + drag */
+    /* Support tactile (mobile) — pinch zoom + drag + tap pour fermer */
     let lastTouchDist = null;
+    let touchStartX = 0, touchStartY = 0;
+    let movedSignificantly = false;
+    let touchHandled = false;
+
     lightboxOverlay.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (e.touches.length === 1) {
-            startX = e.touches[0].clientX - pointX;
-            startY = e.touches[0].clientY - pointY;
-            isDragging = true;
-            isPanning = false;
-        } else if (e.touches.length === 2) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             lastTouchDist = Math.hypot(dx, dy);
             isDragging = false;
+            movedSignificantly = true;
+        } else if (e.touches.length === 1) {
+            startX = e.touches[0].clientX - pointX;
+            startY = e.touches[0].clientY - pointY;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isDragging = true;
+            movedSignificantly = false;
         }
     }, { passive: false });
+
     lightboxOverlay.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        if (e.touches.length === 1 && isDragging && scale > 1) {
-            isPanning = true;
-            pointX = e.touches[0].clientX - startX;
-            pointY = e.touches[0].clientY - startY;
-            updateTransform();
+        if (e.touches.length === 1 && isDragging) {
+            const dx = e.touches[0].clientX - touchStartX;
+            const dy = e.touches[0].clientY - touchStartY;
+            if (Math.hypot(dx, dy) > 10) movedSignificantly = true;
+
+            if (scale > 1) {
+                e.preventDefault();
+                pointX = e.touches[0].clientX - startX;
+                pointY = e.touches[0].clientY - startY;
+                updateTransform();
+            }
         } else if (e.touches.length === 2) {
+            e.preventDefault();
+            movedSignificantly = true;
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             const dist = Math.hypot(dx, dy);
@@ -1546,8 +1562,16 @@
             lastTouchDist = dist;
         }
     }, { passive: false });
+
     lightboxOverlay.addEventListener('touchend', (e) => {
         if (e.touches.length === 0) {
+            // Si l'utilisateur n'a fait qu'un tap (pas de drag, pas de pinch) → on ferme
+            if (!movedSignificantly) {
+                closeLightbox();
+            }
+            // Flag pour empêcher le click synthétique de re-fermer juste après
+            touchHandled = true;
+            setTimeout(() => { touchHandled = false; }, 400);
             isDragging = false;
             lastTouchDist = null;
         }
