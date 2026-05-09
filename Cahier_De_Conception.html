@@ -223,17 +223,12 @@
 
         /* FIGURE FRAME (image container) */
         .figure-frame {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 30px;
             margin-top: 40px;
             text-align: center;
         }
         .figure-frame img {
             max-width: 100%;
             height: auto;
-            border-radius: 14px;
             display: block;
             margin: 0 auto;
         }
@@ -243,9 +238,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--text-sub);
-            margin-top: 22px;
-            padding-top: 18px;
-            border-top: 1px solid var(--border);
+            margin-top: 20px;
         }
         .figure-caption strong { color: var(--neon); margin-right: 8px; }
 
@@ -334,20 +327,16 @@
             font-size: 0.92rem;
         }
         .components-table a {
-            color: var(--neon);
+            color: var(--blue);
             text-decoration: none;
             font-size: 0.85rem;
             transition: color 0.2s;
         }
-        .components-table a:hover { color: #ffa040; text-decoration: underline; }
+        .components-table a:hover { color: #8ad8ff; text-decoration: underline; }
         .ds-pages { color: var(--text-sub); font-size: 0.78rem; margin-left: 4px; }
 
         .efficiency-note {
             margin-top: 30px;
-            padding: 18px 24px;
-            background: var(--bg-card-2);
-            border-left: 3px solid var(--neon);
-            border-radius: 8px;
             font-size: 0.95rem;
             color: var(--text-sub);
         }
@@ -439,10 +428,7 @@
             margin-top: 24px;
         }
         .liste-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px 22px;
+            padding: 12px 0;
             display: flex; align-items: center; gap: 16px;
             font-size: 0.95rem;
         }
@@ -726,7 +712,6 @@
             .material-card,
             .card { padding: 26px; }
             .material-stats { grid-template-columns: 1fr; }
-            .figure-frame { padding: 18px; }
         }
     </style>
 </head>
@@ -773,12 +758,12 @@
             </p>
 
             <div class="figure-frame">
-                <img src="schema_cinematique.png" alt="Schéma cinématique du bras robotique">
+                <img src="SC.png" alt="Schéma cinématique du bras robotique">
                 <div class="figure-caption"><strong>FIGURE 1</strong>Schéma cinématique du bras robotique</div>
             </div>
 
             <div class="figure-frame">
-                <img src="graphe_liaisons.png" alt="Graphe des liaisons du bras robotique">
+                <img src="GL.png" alt="Graphe des liaisons du bras robotique">
                 <div class="figure-caption"><strong>FIGURE 2</strong>Graphe des liaisons du bras robotique</div>
             </div>
         </div>
@@ -795,6 +780,10 @@
 
             <div class="vars-grid">
                 <div class="var-item">
+                    <div class="var-symbol">θ</div>
+                    <div class="var-def">Angle entre la <strong>base 0</strong> et la <strong>base 1</strong></div>
+                </div>
+                <div class="var-item">
                     <div class="var-symbol">α</div>
                     <div class="var-def">Angle entre la <strong>base 1</strong> et la <strong>base 2</strong> autour de <em>z₁</em></div>
                 </div>
@@ -805,6 +794,10 @@
                 <div class="var-item">
                     <div class="var-symbol">γ</div>
                     <div class="var-def">Angle entre la <strong>base 3</strong> et la <strong>base 4</strong> autour de <em>z₁</em></div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">Δ</div>
+                    <div class="var-def">Angle entre la <strong>base 4</strong> et la <strong>base 5</strong></div>
                 </div>
                 <div class="var-item">
                     <div class="var-symbol">m₄</div>
@@ -924,7 +917,7 @@
             </p>
 
             <div class="figure-frame">
-                <img src="schema_bloc.png" alt="Schéma bloc de l'alimentation des composants électriques">
+                <img src="SB1.png" alt="Schéma bloc de l'alimentation des composants électriques">
                 <div class="figure-caption"><strong>FIGURE 3</strong>Schéma bloc de l'alimentation des composants électriques</div>
             </div>
         </div>
@@ -1083,7 +1076,7 @@
             </p>
 
             <div class="figure-frame">
-                <img src="schema_bloc_complet.png" alt="Schéma bloc complet de l'alimentation des composants électriques">
+                <img src="SB2.png" alt="Schéma bloc complet de l'alimentation des composants électriques">
                 <div class="figure-caption"><strong>FIGURE 4</strong>Schéma bloc complet de l'alimentation des composants électriques</div>
             </div>
         </div>
@@ -1189,11 +1182,11 @@
 
             <div class="id-grid">
                 <div class="figure-frame">
-                    <img src="pince_composants.png" alt="Identification des composants de la pince">
+                    <img src="Pince.png" alt="Identification des composants de la pince">
                     <div class="figure-caption"><strong>FIGURE 5</strong>Composants de la pince</div>
                 </div>
                 <div class="figure-frame">
-                    <img src="bras_composants.png" alt="Identification des composants du bras">
+                    <img src="Bras.png" alt="Identification des composants du bras">
                     <div class="figure-caption"><strong>FIGURE 6</strong>Composants du bras</div>
                 </div>
             </div>
