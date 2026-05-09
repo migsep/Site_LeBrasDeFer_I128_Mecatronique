@@ -267,6 +267,9 @@
             pointer-events: none;
             transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             cursor: zoom-out;
+            touch-action: none;
+            -ms-touch-action: none;
+            overscroll-behavior: contain;
         }
         #lightbox-overlay.active {
             opacity: 1;
@@ -280,7 +283,11 @@
             cursor: grab;
             transition: transform 0.1s ease-out;
             user-select: none;
+            -webkit-user-select: none;
             border-radius: 14px;
+            touch-action: none;
+            -ms-touch-action: none;
+            -webkit-touch-callout: none;
         }
         #lightbox-img:active {
             cursor: grabbing;
@@ -1506,6 +1513,7 @@
     /* Support tactile (mobile) — pinch zoom + drag */
     let lastTouchDist = null;
     lightboxOverlay.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         if (e.touches.length === 1) {
             startX = e.touches[0].clientX - pointX;
             startY = e.touches[0].clientY - pointY;
@@ -1515,9 +1523,11 @@
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             lastTouchDist = Math.hypot(dx, dy);
+            isDragging = false;
         }
-    }, { passive: true });
+    }, { passive: false });
     lightboxOverlay.addEventListener('touchmove', (e) => {
+        e.preventDefault();
         if (e.touches.length === 1 && isDragging && scale > 1) {
             isPanning = true;
             pointX = e.touches[0].clientX - startX;
@@ -1535,10 +1545,21 @@
             }
             lastTouchDist = dist;
         }
-    }, { passive: true });
-    lightboxOverlay.addEventListener('touchend', () => {
-        isDragging = false;
-        lastTouchDist = null;
+    }, { passive: false });
+    lightboxOverlay.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+            isDragging = false;
+            lastTouchDist = null;
+        }
+    }, { passive: false });
+
+    /* iOS Safari : bloque le double-tap-zoom & le geste pinch sur la page entière
+       quand la lightbox est ouverte */
+    document.addEventListener('gesturestart', (e) => {
+        if (lightboxOverlay.classList.contains('active')) e.preventDefault();
+    });
+    document.addEventListener('gesturechange', (e) => {
+        if (lightboxOverlay.classList.contains('active')) e.preventDefault();
     });
 </script>
 </body>
