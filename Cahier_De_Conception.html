@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Bras de Fer - Cahier de Conception</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon: #ff7a00;
+            --neon-dim: rgba(255, 122, 0, 0.15);
+            --bg-deep: #000000;
+            --bg-card: #111111;
+            --bg-card-2: #0d0d0d;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-neon: rgba(255, 122, 0, 0.3);
+            --text-main: #f5f5f7;
+            --text-sub: #86868b;
+            --green: #4cd964;
+            --blue: #5ac8fa;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: "Inter", sans-serif;
+            overflow-x: hidden;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, .tech-font { font-family: "Orbitron", sans-serif; letter-spacing: -0.5px; }
+        code, .mono { font-family: "JetBrains Mono", monospace; }
+
+        /* AMBIENT GLOW */
+        .ambient-light {
+            position: fixed;
+            top: -10%; left: 50%;
+            transform: translateX(-50%);
+            width: 100vw; height: 100vh;
+            background: radial-gradient(ellipse 70% 60% at 50% 10%, rgba(255,122,0,0.10), transparent 65%);
+            z-index: -1; pointer-events: none;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
+
+        /* ─── iOS 26 LIQUID GLASS NAV BUBBLE ─── */
+        .nav-bubble-wrapper {
+            position: fixed;
+            top: 24px; right: 24px;
+            z-index: 1000;
+        }
+        .nav-bubble-toggle {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.10);
+            backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            border: 1px solid rgba(255,255,255,0.22);
+            box-shadow:
+                0 2px 20px rgba(0,0,0,0.35),
+                inset 0 1.5px 0 rgba(255,255,255,0.28),
+                inset 0 -1px 0 rgba(0,0,0,0.10);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s ease;
+            color: rgba(255,255,255,0.85);
+            font-size: 1rem;
+            user-select: none;
+        }
+        .nav-bubble-toggle:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .nav-bubble-toggle.open {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.28);
+        }
+        .nav-bubble-menu {
+            position: absolute;
+            top: 54px; right: 0;
+            background: rgba(28,28,30,0.55);
+            backdrop-filter: blur(50px) saturate(220%) brightness(1.05);
+            -webkit-backdrop-filter: blur(50px) saturate(220%) brightness(1.05);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 22px;
+            padding: 8px 6px;
+            min-width: 230px;
+            box-shadow:
+                0 16px 60px rgba(0,0,0,0.55),
+                inset 0 1.5px 0 rgba(255,255,255,0.14),
+                inset 0 -1px 0 rgba(0,0,0,0.08);
+            opacity: 0;
+            transform: translateY(-6px) scale(0.96);
+            pointer-events: none;
+            transition: all 0.20s cubic-bezier(0.16,1,0.3,1);
+            transform-origin: top right;
+        }
+        .nav-bubble-menu.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+        .nav-bubble-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 13px; border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.12s;
+            text-decoration: none;
+            color: rgba(255,255,255,0.65);
+            font-size: 0.78rem; letter-spacing: 0.2px;
+            font-weight: 400;
+            position: relative;
+        }
+        .nav-bubble-item + .nav-bubble-item::before {
+            content: '';
+            position: absolute; top: 0; left: 13px; right: 13px;
+            height: 0.5px;
+            background: rgba(255,255,255,0.08);
+        }
+        .nav-bubble-item:hover {
+            background: rgba(255,255,255,0.09);
+            color: rgba(255,255,255,0.95);
+        }
+        .nav-bubble-item .nb-num {
+            font-family: "Orbitron"; font-size: 0.55rem;
+            color: var(--neon); min-width: 22px; opacity: 0.85;
+            font-weight: 600;
+        }
+
+        /* LAYOUT */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+        section { padding: 120px 0; background: var(--bg-deep); }
+
+        .section-tag {
+            color: var(--neon); font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 3px;
+            margin-bottom: 16px; display: block;
+            font-weight: 600; font-family: "Inter";
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900; line-height: 1.1;
+            margin-bottom: 50px;
+        }
+        .sub-title {
+            font-family: "Orbitron"; font-size: 1.2rem;
+            font-weight: 600; color: var(--text-main);
+            margin: 60px 0 20px;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .sub-title-num {
+            font-family: "Orbitron"; font-size: 0.7rem;
+            color: var(--neon); border: 1px solid var(--border-neon);
+            background: var(--neon-dim);
+            padding: 5px 10px; border-radius: 6px;
+            letter-spacing: 1.5px;
+        }
+        .sub-section-label {
+            display: block; font-family: "Orbitron"; font-size: 0.68rem;
+            text-transform: uppercase; letter-spacing: 3px;
+            color: var(--text-sub); margin-bottom: 24px;
+            padding-bottom: 12px; border-bottom: 1px solid var(--border);
+        }
+
+        /* HERO */
+        #hero {
+            height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; position: relative;
+        }
+        .hero-tag {
+            color: var(--neon);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            display: block;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+        }
+        .hero-title {
+            font-size: 5rem;
+            margin: 20px 0;
+            color: #ff7a00;
+            text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3);
+            letter-spacing: -2px;
+            line-height: 1.1;
+            font-family: 'Orbitron';
+            font-weight: 900;
+        }
+        .hero-sub {
+            font-size: 1.5rem;
+            color: var(--text-sub);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* GENERIC TEXT BLOCK */
+        .text-plain {
+            font-size: 1.05rem; color: var(--text-sub); line-height: 1.85;
+            max-width: 800px;
+        }
+        .text-plain strong { color: var(--text-main); }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative; overflow: hidden;
+        }
+
+        /* FIGURE FRAME (image container) */
+        .figure-frame {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .figure-frame img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 14px;
+            display: block;
+            margin: 0 auto;
+        }
+        .figure-caption {
+            font-family: "Orbitron";
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-sub);
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+        .figure-caption strong { color: var(--neon); margin-right: 8px; }
+
+        /* ─────────────────────────────────────────
+           SECTION I — VARIABLES GRID
+           ───────────────────────────────────────── */
+        .vars-intro {
+            font-size: 1rem; color: var(--text-sub); line-height: 1.85;
+            max-width: 760px; margin-bottom: 40px;
+        }
+        .vars-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .var-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px 26px;
+            display: flex; align-items: center; gap: 22px;
+        }
+        .var-symbol {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 1.6rem; font-weight: 500;
+            color: var(--neon);
+            min-width: 60px; text-align: center;
+            padding: 6px 12px;
+            background: var(--neon-dim);
+            border: 1px solid var(--border-neon);
+            border-radius: 10px;
+            line-height: 1;
+        }
+        .var-def {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            line-height: 1.55;
+        }
+        .var-def strong { color: var(--text-main); }
+
+        /* ─────────────────────────────────────────
+           SECTION II — TABLE
+           ───────────────────────────────────────── */
+        .components-table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            margin-top: 24px;
+        }
+        .components-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .components-table thead {
+            background: rgba(255,122,0,0.05);
+        }
+        .components-table th {
+            font-family: "Orbitron";
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon);
+            font-weight: 600;
+            text-align: left;
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border-neon);
+        }
+        .components-table td {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.95rem;
+            color: var(--text-sub);
+        }
+        .components-table tbody tr:last-child td { border-bottom: none; }
+        .components-table tbody tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .components-table .comp-name {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .components-table .comp-value {
+            font-family: "JetBrains Mono", monospace;
+            color: var(--text-main);
+            font-size: 0.92rem;
+        }
+        .components-table a {
+            color: var(--neon);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .components-table a:hover { color: #ffa040; text-decoration: underline; }
+        .ds-pages { color: var(--text-sub); font-size: 0.78rem; margin-left: 4px; }
+
+        .efficiency-note {
+            margin-top: 30px;
+            padding: 18px 24px;
+            background: var(--bg-card-2);
+            border-left: 3px solid var(--neon);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-sub);
+        }
+        .efficiency-note strong {
+            color: var(--text-main);
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        /* ─────────────────────────────────────────
+           SECTION II — CONVERTERS GRID
+           ───────────────────────────────────────── */
+        .converters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .converter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .converter-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+        }
+        .converter-name {
+            font-family: "Orbitron"; font-size: 1.1rem;
+            color: var(--neon); margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .converter-desc {
+            font-size: 0.82rem; color: var(--text-sub);
+            margin-bottom: 28px;
+        }
+        .conv-block {
+            margin-top: 18px;
+        }
+        .conv-block-label {
+            display: inline-block;
+            font-family: "Orbitron"; font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: 2.5px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 6px;
+            color: var(--text-sub);
+            margin-bottom: 14px;
+        }
+        .conv-block-label.in { color: var(--blue); border-color: rgba(90,200,250,0.3); background: rgba(90,200,250,0.08); }
+        .conv-block-label.out { color: var(--green); border-color: rgba(76,217,100,0.3); background: rgba(76,217,100,0.08); }
+        .conv-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 9px 0;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .conv-row:last-child { border-bottom: none; }
+        .conv-row .conv-label { color: var(--text-sub); }
+        .conv-row .conv-formula {
+            font-family: "JetBrains Mono", monospace;
+            color: var(--text-sub);
+            font-size: 0.82rem;
+            opacity: 0.7;
+            margin-left: 8px;
+        }
+        .conv-row .conv-value {
+            font-family: "JetBrains Mono", monospace;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.92rem;
+        }
+        .conv-row .conv-value.highlight {
+            color: var(--neon);
+        }
+
+        /* ─────────────────────────────────────────
+           SECTION II — COMPONENTS LIST
+           ───────────────────────────────────────── */
+        .liste-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 24px;
+        }
+        .liste-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            display: flex; align-items: center; gap: 16px;
+            font-size: 0.95rem;
+        }
+        .liste-bullet {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--neon);
+            box-shadow: 0 0 10px rgba(255,122,0,0.5);
+            flex-shrink: 0;
+        }
+        .liste-item span.qty {
+            margin-left: auto;
+            font-family: "Orbitron"; font-size: 0.7rem;
+            color: var(--neon);
+            background: var(--neon-dim);
+            border: 1px solid var(--border-neon);
+            padding: 3px 9px;
+            border-radius: 6px;
+        }
+
+        /* ─────────────────────────────────────────
+           SECTION III — METHOD STEPS
+           ───────────────────────────────────────── */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .step-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            opacity: 0.5;
+        }
+        .step-num {
+            font-family: "Orbitron";
+            font-size: 2.4rem; font-weight: 900;
+            color: var(--neon); opacity: 0.25;
+            line-height: 1; margin-bottom: 18px;
+        }
+        .step-text {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.55;
+        }
+
+        /* ─────────────────────────────────────────
+           SECTION III — IDENTIFICATION (figures)
+           ───────────────────────────────────────── */
+        .id-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .id-grid .figure-frame { margin-top: 0; }
+
+        /* ─────────────────────────────────────────
+           SECTION III — SECTIONS COMPARISON
+           ───────────────────────────────────────── */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .material-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .material-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+        }
+        .material-tag {
+            display: inline-block;
+            font-family: "Orbitron"; font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: 2.5px;
+            color: var(--neon);
+            background: var(--neon-dim);
+            border: 1px solid var(--border-neon);
+            padding: 4px 12px; border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .material-name {
+            font-family: "Orbitron"; font-size: 1.4rem;
+            color: var(--text-main);
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .material-desc {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+        .material-desc strong { color: var(--text-main); }
+        .material-desc a {
+            color: var(--neon);
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.82rem;
+        }
+        .material-desc a:hover { text-decoration: underline; }
+        .material-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .mat-stat {
+            background: var(--bg-card-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .mat-stat-label {
+            font-family: "Orbitron"; font-size: 0.6rem;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+        .mat-stat-value {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .mat-stat-value .unit {
+            color: var(--text-sub);
+            font-size: 0.78rem;
+            margin-left: 3px;
+        }
+        .material-calc {
+            border-top: 1px solid var(--border);
+            padding-top: 18px;
+        }
+        .material-calc-title {
+            font-family: "Orbitron"; font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: 2px;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+        }
+        .calc-line {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            padding: 6px 0;
+            line-height: 1.7;
+        }
+        .calc-line .res {
+            color: var(--neon);
+            font-weight: 500;
+        }
+
+        /* ─────────────────────────────────────────
+           ANNEXE — DATA SHEETS
+           ───────────────────────────────────────── */
+        .annexe-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 24px;
+        }
+        .annexe-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px 26px;
+            text-decoration: none;
+            color: inherit;
+            display: flex; align-items: center; gap: 16px;
+            transition: all 0.25s ease;
+        }
+        .annexe-item:hover {
+            border-color: var(--border-neon);
+            background: rgba(255,122,0,0.03);
+            transform: translateY(-2px);
+        }
+        .annexe-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--neon-dim);
+            border: 1px solid var(--border-neon);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--neon);
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+        .annexe-text {
+            display: flex; flex-direction: column; gap: 3px;
+            min-width: 0;
+        }
+        .annexe-name {
+            font-family: "Orbitron"; font-size: 0.78rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .annexe-arrow {
+            margin-left: auto;
+            color: var(--text-sub);
+            transition: color 0.2s, transform 0.2s;
+        }
+        .annexe-item:hover .annexe-arrow {
+            color: var(--neon);
+            transform: translateX(3px);
+        }
+
+        /* REVEAL */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.10s; }
+        .reveal-delay-2 { transition-delay: 0.20s; }
+        .reveal-delay-3 { transition-delay: 0.30s; }
+        .reveal-delay-4 { transition-delay: 0.40s; }
+
+        /* FOOTER */
+        footer {
+            text-align: center; padding: 80px 0;
+            background: var(--bg-deep);
+        }
+        .footer-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            max-width: 1100px; margin: 0 auto 60px;
+        }
+        .btn-back {
+            display: inline-block; padding: 15px 40px; border-radius: 50px;
+            border: 1px solid var(--neon); color: var(--neon);
+            text-decoration: none; font-family: "Orbitron";
+            font-size: 0.85rem; transition: 0.3s; letter-spacing: 1px;
+        }
+        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
+
+        /* ─────────────────────────────────────────
+           RESPONSIVE
+           ───────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .container { padding: 0 24px; }
+            section { padding: 80px 0; }
+            .hero-title { font-size: 3rem; }
+            .hero-sub { font-size: 1.05rem; padding: 0 20px; }
+            .vars-grid,
+            .converters-grid,
+            .liste-grid,
+            .steps-grid,
+            .id-grid,
+            .materials-grid,
+            .annexe-grid { grid-template-columns: 1fr; }
+            .components-table-wrapper { overflow-x: auto; }
+            .components-table { min-width: 640px; }
+            .nav-bubble-wrapper { top: 16px; right: 16px; }
+            .reveal { transform: translateY(22px); }
+            .reveal.active { transform: translateY(0); }
+        }
+
+        @media (max-width: 540px) {
+            .hero-title { font-size: 2.2rem; }
+            .section-title { font-size: 1.8rem; }
+            .converter-card,
+            .material-card,
+            .card { padding: 26px; }
+            .material-stats { grid-template-columns: 1fr; }
+            .figure-frame { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ambient-light"></div>
+
+<!-- ─── iOS 26 LIQUID GLASS NAV BUBBLE ─── -->
+<div class="nav-bubble-wrapper">
+    <div class="nav-bubble-toggle" id="navToggle">☰</div>
+    <div class="nav-bubble-menu" id="navMenu">
+        <a class="nav-bubble-item" href="#cinematique"><span class="nb-num">I</span>Étude cinématique</a>
+        <a class="nav-bubble-item" href="#electronique"><span class="nb-num">II</span>Composants électroniques</a>
+        <a class="nav-bubble-item" href="#materiaux"><span class="nb-num">III</span>Étude des matériaux</a>
+        <a class="nav-bubble-item" href="#annexe"><span class="nb-num">A</span>Annexe</a>
+    </div>
+</div>
+
+<!-- HERO -->
+<section id="hero" class="reveal">
+    <span class="hero-tag">Cahier de Conception — Groupe 9</span>
+    <h1 class="hero-title">FICHE<br>TECHNIQUE.</h1>
+    <p class="hero-sub">Étude technique complète du bras robotique 3 axes&nbsp;:<br>cinématique, électronique et matériaux.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     I. ÉTUDE CINÉMATIQUE
+═══════════════════════════════════════════════ -->
+<section id="cinematique">
+    <div class="container">
+        <div class="reveal">
+            <span class="section-tag">I — Étude Cinématique</span>
+            <h2 class="section-title">La géométrie<br>du mouvement.</h2>
+        </div>
+
+        <!-- 1.1 Schéma cinématique -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">1.1</span>
+                Schéma cinématique
+            </div>
+            <p class="text-plain">
+                Le schéma cinématique décrit l'architecture mécanique du bras robotique et les liaisons entre ses différents solides. Le graphe des liaisons associé répertorie les degrés de liberté, les actionneurs (servomoteurs, courroie) et les efforts extérieurs (poids) appliqués à chaque élément du système.
+            </p>
+
+            <div class="figure-frame">
+                <img src="schema_cinematique.png" alt="Schéma cinématique du bras robotique">
+                <div class="figure-caption"><strong>FIGURE 1</strong>Schéma cinématique du bras robotique</div>
+            </div>
+
+            <div class="figure-frame">
+                <img src="graphe_liaisons.png" alt="Graphe des liaisons du bras robotique">
+                <div class="figure-caption"><strong>FIGURE 2</strong>Graphe des liaisons du bras robotique</div>
+            </div>
+        </div>
+
+        <!-- 1.2 Définition des variables et changement de bases -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">1.2</span>
+                Définition des variables &amp; changement de bases
+            </div>
+            <p class="vars-intro">
+                Les variables suivantes paramètrent la cinématique du système et seront utilisées dans l'établissement des équations de la dynamique du bras robotique.
+            </p>
+
+            <div class="vars-grid">
+                <div class="var-item">
+                    <div class="var-symbol">α</div>
+                    <div class="var-def">Angle entre la <strong>base 1</strong> et la <strong>base 2</strong> autour de <em>z₁</em></div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">β</div>
+                    <div class="var-def">Angle entre la <strong>base 2</strong> et la <strong>base 3</strong> autour de <em>z₁</em></div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">γ</div>
+                    <div class="var-def">Angle entre la <strong>base 3</strong> et la <strong>base 4</strong> autour de <em>z₁</em></div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">m₄</div>
+                    <div class="var-def">Masse du <strong>composant 4</strong></div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">m₅</div>
+                    <div class="var-def">Masse du <strong>composant 5</strong></div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">x'</div>
+                    <div class="var-def">Distance entre <strong>D</strong> et <strong>G₅</strong> (centre d'inertie du composant 5)</div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">x''</div>
+                    <div class="var-def">Distance entre <strong>C</strong> et <strong>G₄</strong> (centre d'inertie du composant 4)</div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">l₄</div>
+                    <div class="var-def">Distance entre <strong>C</strong> et <strong>D</strong>, longueur du composant 4</div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">b</div>
+                    <div class="var-def">Longueur du <strong>composant 3</strong> et du <strong>composant 2</strong> (composants identiques)</div>
+                </div>
+                <div class="var-item">
+                    <div class="var-symbol">A₅, B₅, C₅</div>
+                    <div class="var-def">Moments principaux d'inertie de <strong>5</strong> au point <strong>G₅</strong></div>
+                </div>
+                <div class="var-item" style="grid-column: 1 / -1;">
+                    <div class="var-symbol">A₄, B₄, C₄</div>
+                    <div class="var-def">Moments principaux d'inertie de <strong>4</strong> au point <strong>G₄</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     II. ÉTUDE DES COMPOSANTS ÉLECTRONIQUES
+═══════════════════════════════════════════════ -->
+<section id="electronique">
+    <div class="container">
+        <div class="reveal">
+            <span class="section-tag">II — Étude des Composants Électroniques</span>
+            <h2 class="section-title">L'alimentation<br>du système.</h2>
+        </div>
+
+        <!-- 2.1 Caractéristiques -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">2.1</span>
+                Caractéristiques des composants
+            </div>
+            <p class="text-plain">
+                Les caractéristiques de tension maximale et de courant de blocage de chaque composant sont relevées directement depuis leurs data sheet officielles afin de dimensionner correctement la chaîne d'alimentation.
+            </p>
+
+            <div class="components-table-wrapper">
+                <table class="components-table">
+                    <thead>
+                        <tr>
+                            <th>Composant</th>
+                            <th>Tension max</th>
+                            <th>Courant de blocage</th>
+                            <th>Data sheet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="comp-name">Raspberry Pi 5</td>
+                            <td class="comp-value">5 V</td>
+                            <td class="comp-value">5 A</td>
+                            <td><a href="https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008348-DS-4-raspberry-pi-5-product-brief.pdf?disposition=inline" target="_blank">Raspberry Pi 5</a><span class="ds-pages">— Page 3</span></td>
+                        </tr>
+                        <tr>
+                            <td class="comp-name">Arduino MEGA 2560</td>
+                            <td class="comp-value">12 V</td>
+                            <td class="comp-value">1 A</td>
+                            <td><a href="https://docs.arduino.cc/resources/datasheets/A000067-datasheet.pdf" target="_blank">Arduino MEGA 2560</a><span class="ds-pages">— Pages 6 et 8</span></td>
+                        </tr>
+                        <tr>
+                            <td class="comp-name">Capteur TCS34725</td>
+                            <td class="comp-value">3,6 V</td>
+                            <td class="comp-value">330 µA</td>
+                            <td><a href="https://cdn-shop.adafruit.com/datasheets/TCS34725.pdf" target="_blank">TCS34725</a><span class="ds-pages">— Pages 3 et 4</span></td>
+                        </tr>
+                        <tr>
+                            <td class="comp-name">Servomoteur SCS15</td>
+                            <td class="comp-value">6 V</td>
+                            <td class="comp-value">2,5 A</td>
+                            <td><a href="https://www.feetechrc.com/Data/feetechrc/upload/file/20221201/6380550421311512053793525.pdf" target="_blank">SCS15</a><span class="ds-pages">— Page 3</span></td>
+                        </tr>
+                        <tr>
+                            <td class="comp-name">Servomoteur HS-422</td>
+                            <td class="comp-value">6 V</td>
+                            <td class="comp-value">0,75 A</td>
+                            <td><a href="https://cdn.sparkfun.com/assets/1/1/f/a/3/HCS_HS-422_Specsheet_v2.2__102623.pdf" target="_blank">HS-422</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="efficiency-note">
+                Le rendement des convertisseurs retenu pour les calculs de dimensionnement est <strong>η = 0,85</strong>.
+            </div>
+        </div>
+
+        <!-- 2.2 Schéma bloc -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">2.2</span>
+                Schéma bloc
+            </div>
+            <p class="text-plain">
+                Le schéma bloc ci-dessous présente la structure de l'alimentation des différents composants électriques du bras, depuis la source secteur jusqu'aux organes terminaux (Raspberry Pi, Arduino, capteur et servomoteurs).
+            </p>
+
+            <div class="figure-frame">
+                <img src="schema_bloc.png" alt="Schéma bloc de l'alimentation des composants électriques">
+                <div class="figure-caption"><strong>FIGURE 3</strong>Schéma bloc de l'alimentation des composants électriques</div>
+            </div>
+        </div>
+
+        <!-- 2.3 Dimensionnement des convertisseurs -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">2.3</span>
+                Dimensionnement des convertisseurs
+            </div>
+            <p class="text-plain">
+                Le dimensionnement de chaque convertisseur découle des caractéristiques d'entrée et de sortie des composants alimentés et du rendement retenu η = 0,85.
+            </p>
+
+            <div class="converters-grid">
+
+                <!-- DC-DC A -->
+                <div class="converter-card">
+                    <div class="converter-name">DC-DC<sub>A</sub></div>
+                    <div class="converter-desc">Alimentation de la Raspberry Pi 5 depuis le 12 V de l'AC-DC.</div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label out">Sortie</span>
+                        <div class="conv-row">
+                            <span class="conv-label">U<sub>out</sub> = U<sub>Raspberry</sub></span>
+                            <span class="conv-value highlight">5 V</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">I<sub>out</sub> = I<sub>Raspberry</sub></span>
+                            <span class="conv-value highlight">5 A</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">P<sub>out</sub> = U<sub>out</sub> × I<sub>out</sub></span>
+                            <span class="conv-value">25,00 W</span>
+                        </div>
+                    </div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label in">Entrée</span>
+                        <div class="conv-row">
+                            <span class="conv-label">U<sub>in</sub></span>
+                            <span class="conv-value">12 V</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">P<sub>in</sub> = P<sub>out</sub> / η</span>
+                            <span class="conv-value">29,41 W</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">I<sub>in</sub> = P<sub>in</sub> / U<sub>in</sub></span>
+                            <span class="conv-value highlight">2,45 A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DC-DC B -->
+                <div class="converter-card">
+                    <div class="converter-name">DC-DC<sub>B</sub></div>
+                    <div class="converter-desc">Alimentation des 5 servomoteurs SCS15 et du HS-422 depuis le 12 V.</div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label out">Sortie</span>
+                        <div class="conv-row">
+                            <span class="conv-label">U<sub>out</sub> = U<sub>max</sub></span>
+                            <span class="conv-value highlight">6 V</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">I<sub>out</sub> = 5 × I<sub>SCS15</sub> + I<sub>HS-422</sub></span>
+                            <span class="conv-value highlight">13,25 A</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">P<sub>out</sub> = U<sub>out</sub> × I<sub>out</sub></span>
+                            <span class="conv-value">79,50 W</span>
+                        </div>
+                    </div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label in">Entrée</span>
+                        <div class="conv-row">
+                            <span class="conv-label">U<sub>in</sub></span>
+                            <span class="conv-value">12 V</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">P<sub>in</sub> = P<sub>out</sub> / η</span>
+                            <span class="conv-value">93,53 W</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">I<sub>in</sub> = P<sub>in</sub> / U<sub>in</sub></span>
+                            <span class="conv-value highlight">7,79 A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ARDUINO -->
+                <div class="converter-card">
+                    <div class="converter-name">Arduino MEGA 2560</div>
+                    <div class="converter-desc">Alimentation directe de la carte de commande depuis le 12 V.</div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label in">Entrée</span>
+                        <div class="conv-row">
+                            <span class="conv-label">U<sub>Arduino</sub></span>
+                            <span class="conv-value highlight">12 V</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">I<sub>Arduino</sub></span>
+                            <span class="conv-value highlight">1 A</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">P<sub>Arduino</sub> = U × I</span>
+                            <span class="conv-value">12,00 W</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AC-DC -->
+                <div class="converter-card">
+                    <div class="converter-name">AC-DC</div>
+                    <div class="converter-desc">Conversion alimentation secteur vers le 12 V continu de l'ensemble du bras.</div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label in">Entrée</span>
+                        <div class="conv-row">
+                            <span class="conv-label">Source</span>
+                            <span class="conv-value">Secteur</span>
+                        </div>
+                    </div>
+
+                    <div class="conv-block">
+                        <span class="conv-block-label out">Sortie</span>
+                        <div class="conv-row">
+                            <span class="conv-label">U<sub>out</sub> = U<sub>max</sub></span>
+                            <span class="conv-value highlight">12,00 V</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">I<sub>out</sub> = ΣI</span>
+                            <span class="conv-value highlight">11,24 A</span>
+                        </div>
+                        <div class="conv-row">
+                            <span class="conv-label">P<sub>out</sub> = U<sub>out</sub> × I<sub>out</sub></span>
+                            <span class="conv-value">134,88 W</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2.4 Schéma bloc complet -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">2.4</span>
+                Schéma bloc entièrement complété
+            </div>
+            <p class="text-plain">
+                Une fois les convertisseurs dimensionnés, le schéma bloc est complété avec les valeurs de tension et de courant à chaque étage, donnant une vue d'ensemble exploitable pour le câblage final.
+            </p>
+
+            <div class="figure-frame">
+                <img src="schema_bloc_complet.png" alt="Schéma bloc complet de l'alimentation des composants électriques">
+                <div class="figure-caption"><strong>FIGURE 4</strong>Schéma bloc complet de l'alimentation des composants électriques</div>
+            </div>
+        </div>
+
+        <!-- 2.5 Liste des composants -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">2.5</span>
+                Liste des composants électriques nécessaires
+            </div>
+            <p class="text-plain">
+                À l'issue de l'étude, voici la liste consolidée des composants électriques à approvisionner pour la réalisation du bras.
+            </p>
+
+            <div class="liste-grid">
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    Raspberry Pi 5
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    Arduino MEGA 2560
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    Capteur TCS34725
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    Servomoteur SCS15
+                    <span class="qty">×5</span>
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    Servomoteur HS-422
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    Adaptateur AC/DC 12 V c.c., 12,5 A — 150 W
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    DC-DC BUCK
+                </div>
+                <div class="liste-item">
+                    <div class="liste-bullet"></div>
+                    DC-DC convertisseur LM2596
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     III. ÉTUDE DES MATÉRIAUX
+═══════════════════════════════════════════════ -->
+<section id="materiaux">
+    <div class="container">
+        <div class="reveal">
+            <span class="section-tag">III — Étude des Matériaux</span>
+            <h2 class="section-title">Le choix<br>de la matière.</h2>
+        </div>
+
+        <!-- 3.1 Méthode -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">3.1</span>
+                Méthode de sélection
+            </div>
+            <p class="text-plain">
+                La sélection des matériaux suit une méthode structurée en quatre étapes successives, du besoin fonctionnel à la décision finale.
+            </p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-text">Identifier les <strong>fonctions</strong> des composants.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-text">Identifier à quelles <strong>contraintes</strong> est soumise la pièce.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <div class="step-text">Déterminer les <strong>critères</strong> (propriétés) auxquels doit pouvoir répondre le composant.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">04</div>
+                    <div class="step-text">Trier les matériaux en fonction des <strong>critères d'acceptabilité</strong>.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.2 Identification des composants -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">3.2</span>
+                Identification des composants
+            </div>
+            <p class="text-plain">
+                Pour mettre en place cette méthode, il faut tout d'abord identifier les différents composants présents sur le bras robot. Ils se regroupent en deux ensembles&nbsp;: la <strong>pince</strong> (rail linéaire, mors, support) et le <strong>bras</strong> (sections, éléments de rotation, base rotative et base fixe).
+            </p>
+
+            <div class="id-grid">
+                <div class="figure-frame">
+                    <img src="pince_composants.png" alt="Identification des composants de la pince">
+                    <div class="figure-caption"><strong>FIGURE 5</strong>Composants de la pince</div>
+                </div>
+                <div class="figure-frame">
+                    <img src="bras_composants.png" alt="Identification des composants du bras">
+                    <div class="figure-caption"><strong>FIGURE 6</strong>Composants du bras</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.3 Étude des sections -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">3.3</span>
+                Étude des sections
+            </div>
+            <p class="text-plain">
+                Deux matériaux sont disponibles pour la fabrication des sections du bras&nbsp;: le <strong>PLA</strong> (impression 3D) et l'<strong>aluminium</strong> (profilé V-slot). L'étude porte sur une poutre de référence de 250&nbsp;mm de long.
+            </p>
+
+            <div class="materials-grid">
+
+                <!-- PLA -->
+                <div class="material-card">
+                    <span class="material-tag">Impression 3D</span>
+                    <div class="material-name">PLA — Section pleine 20×20 mm</div>
+                    <p class="material-desc">
+                        Pour l'étude du PLA, on suppose une <strong>poutre de section carrée 20×20&nbsp;mm</strong> avec un <strong>remplissage à 100%</strong>. D'après les données issues de <strong>GrantaEduPack</strong>, sa masse volumique est de 1,29&nbsp;×&nbsp;10⁻³&nbsp;kg/m³.
+                    </p>
+
+                    <div class="material-stats">
+                        <div class="mat-stat">
+                            <div class="mat-stat-label">Masse volumique</div>
+                            <div class="mat-stat-value">1,29×10⁻³<span class="unit">kg/m³</span></div>
+                        </div>
+                        <div class="mat-stat">
+                            <div class="mat-stat-label">Section</div>
+                            <div class="mat-stat-value">20×20<span class="unit">mm</span></div>
+                        </div>
+                    </div>
+
+                    <div class="material-calc">
+                        <div class="material-calc-title">Poutre 20×20×250 mm</div>
+                        <div class="calc-line">m = 1,29×10⁻³ × 0,02 × 0,02 × 0,25 = <span class="res">0,129 kg</span></div>
+                        <div class="calc-line">P = 0,129 × 9,81 = <span class="res">1,27 N</span></div>
+                        <div class="calc-line">I<sub>gz</sub> = <span class="res">13 333 mm⁴</span></div>
+                    </div>
+                </div>
+
+                <!-- ALUMINIUM -->
+                <div class="material-card">
+                    <span class="material-tag">Profilé V-slot</span>
+                    <div class="material-name">Aluminium — Profilé 20×20</div>
+                    <p class="material-desc">
+                        Pour l'étude de l'aluminium, on retient un <strong>profilé V-slot 20×20</strong> à fente 6&nbsp;mm. Les profilés étant relativement standards, les calculs s'appuient sur la fiche technique du produit&nbsp;:<br>
+                        <a href="https://www.systeal.com/fr/profiles-aluminium-6-mm/1221-profile-aluminium-v-slot-20x20-fente-6-mm.html" target="_blank">systeal.com — Profilé V-slot 20×20</a>
+                    </p>
+
+                    <div class="material-stats">
+                        <div class="mat-stat">
+                            <div class="mat-stat-label">Masse linéaire</div>
+                            <div class="mat-stat-value">0,456<span class="unit">kg/m</span></div>
+                        </div>
+                        <div class="mat-stat">
+                            <div class="mat-stat-label">Section</div>
+                            <div class="mat-stat-value">169<span class="unit">mm²</span></div>
+                        </div>
+                        <div class="mat-stat">
+                            <div class="mat-stat-label">I<sub>gz</sub> (axe X)</div>
+                            <div class="mat-stat-value">0,689×10⁴<span class="unit">mm⁴</span></div>
+                        </div>
+                        <div class="mat-stat">
+                            <div class="mat-stat-label">I<sub>gz</sub> (axe Y)</div>
+                            <div class="mat-stat-value">0,689×10⁴<span class="unit">mm⁴</span></div>
+                        </div>
+                    </div>
+
+                    <div class="material-calc">
+                        <div class="material-calc-title">Poutre de 250 mm</div>
+                        <div class="calc-line">m = 0,456 × 0,25 = <span class="res">0,114 kg</span></div>
+                        <div class="calc-line">P = 0,123 × 9,81 = <span class="res">1,12 N</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     ANNEXE — DATA SHEETS
+═══════════════════════════════════════════════ -->
+<section id="annexe">
+    <div class="container">
+        <div class="reveal">
+            <span class="section-tag">Annexe — Liens vers les Data Sheets</span>
+            <h2 class="section-title">Sources<br>techniques.</h2>
+        </div>
+
+        <p class="text-plain reveal">
+            L'ensemble des caractéristiques retenues pour le dimensionnement provient des fiches techniques officielles des constructeurs. Elles sont accessibles directement ci-dessous.
+        </p>
+
+        <div class="annexe-grid reveal">
+            <a href="https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008348-DS-4-raspberry-pi-5-product-brief.pdf?disposition=inline" target="_blank" class="annexe-item">
+                <div class="annexe-icon">📄</div>
+                <div class="annexe-text">
+                    <div class="annexe-name">Raspberry Pi 5</div>
+                </div>
+                <div class="annexe-arrow">→</div>
+            </a>
+            <a href="https://docs.arduino.cc/resources/datasheets/A000067-datasheet.pdf" target="_blank" class="annexe-item">
+                <div class="annexe-icon">📄</div>
+                <div class="annexe-text">
+                    <div class="annexe-name">Arduino MEGA 2560</div>
+                </div>
+                <div class="annexe-arrow">→</div>
+            </a>
+            <a href="https://cdn-shop.adafruit.com/datasheets/TCS34725.pdf" target="_blank" class="annexe-item">
+                <div class="annexe-icon">📄</div>
+                <div class="annexe-text">
+                    <div class="annexe-name">Capteur TCS34725</div>
+                </div>
+                <div class="annexe-arrow">→</div>
+            </a>
+            <a href="https://www.feetechrc.com/Data/feetechrc/upload/file/20221201/6380550421311512053793525.pdf" target="_blank" class="annexe-item">
+                <div class="annexe-icon">📄</div>
+                <div class="annexe-text">
+                    <div class="annexe-name">Servomoteur SCS15</div>
+                </div>
+                <div class="annexe-arrow">→</div>
+            </a>
+            <a href="https://cdn.sparkfun.com/assets/1/1/f/a/3/HCS_HS-422_Specsheet_v2.2__102623.pdf" target="_blank" class="annexe-item">
+                <div class="annexe-icon">📄</div>
+                <div class="annexe-text">
+                    <div class="annexe-name">Servomoteur HS-422</div>
+                </div>
+                <div class="annexe-arrow">→</div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-line"></div>
+    <a href="Details_Du_Projet.html" class="btn-back">← Retour au Menu Principal</a>
+</footer>
+
+<script>
+    /* ─── REVEAL OBSERVER ─── */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('active'); revealObserver.unobserve(e.target); }
+        });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    setTimeout(() => document.querySelectorAll('#hero.reveal').forEach(el => el.classList.add('active')), 100);
+
+    /* ─── NAV BUBBLE ─── */
+    const toggle = document.getElementById('navToggle');
+    const menu   = document.getElementById('navMenu');
+    let navOpen  = false;
+
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navOpen = !navOpen;
+        toggle.classList.toggle('open', navOpen);
+        menu.classList.toggle('open', navOpen);
+        toggle.textContent = navOpen ? '✕' : '☰';
+    });
+    document.addEventListener('click', () => {
+        if (navOpen) { navOpen = false; toggle.classList.remove('open'); menu.classList.remove('open'); toggle.textContent = '☰'; }
+    });
+    document.querySelectorAll('.nav-bubble-item').forEach(item => {
+        item.addEventListener('click', () => {
+            navOpen = false; toggle.classList.remove('open'); menu.classList.remove('open'); toggle.textContent = '☰';
+        });
+    });
+</script>
+</body>
+</html>
