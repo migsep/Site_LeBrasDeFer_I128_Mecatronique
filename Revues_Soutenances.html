@@ -73,18 +73,16 @@
             padding: 4rem 0;
         }
 
-        /* Ligne qui se dessine au scroll — animée via transform pour GPU */
+        /* Ligne qui se dessine au scroll */
         .timeline-line {
             position: absolute;
             left: 50%;
             top: 0;
             width: 2px;
-            height: 0; /* sera fixé en JS au lastDotMax */
+            height: 0; /* animée via JS */
             background: linear-gradient(180deg, var(--neon), #ff5500);
-            transform: translateX(-50%) scaleY(0);
-            transform-origin: top;
+            transform: translateX(-50%);
             box-shadow: 0 0 8px rgba(255, 122, 0, 0.4);
-            will-change: transform;
         }
 
         /* Timeline Item — état initial caché, glisse depuis la ligne */
@@ -198,9 +196,10 @@
             font-size: 1rem;
             cursor: pointer;
             font-family: "Orbitron";
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, transform 0.1s ease;
             position: relative;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .open-presentation-btn::before {
@@ -215,8 +214,7 @@
 
         .open-presentation-btn:hover::before { left: 0; }
         .open-presentation-btn:hover { color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
-        .open-presentation-btn:active::before { left: 0; }
-        .open-presentation-btn:active { color: black; }
+        .open-presentation-btn:active { transform: scale(0.96); }
 
         /* ---- MODAL PLEIN ÉCRAN ---- */
         .presentation-modal {
@@ -255,8 +253,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, transform 0.1s ease;
             z-index: 10001;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .close-btn:hover {
@@ -266,8 +265,7 @@
         }
 
         .close-btn:active {
-            background: rgba(255, 122, 0, 0.3);
-            border-color: var(--neon);
+            transform: scale(0.92);
         }
 
         .slides-container {
@@ -371,11 +369,12 @@
             color: var(--neon);
             text-decoration: none;
             font-family: "Orbitron";
-            transition: 0.3s;
+            transition: 0.3s, transform 0.1s ease;
             margin-top: 50px;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
-        .btn-back:active { background: var(--neon); color: black; }
+        .btn-back:active { transform: scale(0.97); }
 
         /* Reveal header */
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s ease; }
@@ -438,6 +437,7 @@
             pointer-events: none;
             z-index: -1;
             overflow: hidden;
+            contain: strict;
         }
 
         .particle {
@@ -446,6 +446,7 @@
             border-radius: 50%;
             animation: floatParticle 20s infinite ease-in-out;
             opacity: 0.12;
+            will-change: transform;
         }
 
         @keyframes floatParticle {
@@ -758,7 +759,7 @@
         let lineFixed   = false;
         let dotOffsets  = [];
         let lastDotMax  = 0;
-        let minProgress = 0; // plancher : la ligne ne peut plus rétrécir en dessous
+        let minLineH    = 0; // plancher : la ligne ne peut plus rétrécir en dessous
         let ticking     = false;
 
         // Calcul des offsets des points (fait une seule fois à l'init et au resize)
@@ -772,10 +773,6 @@
                 dotOffsets.push(pos);
             });
             lastDotMax = dotOffsets[dotOffsets.length - 1] || 0;
-            // Fixe la hauteur du tracé (scaleY animera proprement)
-            if (lastDotMax > 0) {
-                timelineLine.style.height = lastDotMax + 'px';
-            }
         }
 
         function updateTimelineLine() {
@@ -786,11 +783,11 @@
 
             // Distance scrollée à l'intérieur du container
             const scrolled  = Math.max(0, windowH * 0.55 - containerRect.top);
-            const lineH     = Math.min(lastDotMax, scrolled);
-            const progress  = Math.max(minProgress, Math.min(1, lineH / lastDotMax));
+            const lineH     = Math.max(minLineH, Math.min(lastDotMax, scrolled));
 
-            // Transform GPU (pas de layout)
-            timelineLine.style.transform = `translateX(-50%) scaleY(${progress})`;
+            // Animation par height — l'élément étant en position absolute,
+            // ça ne provoque pas de relayout des autres éléments
+            timelineLine.style.height = lineH + 'px';
 
             // Pop des points
             const items = document.querySelectorAll('.timeline-item');
@@ -798,8 +795,7 @@
                 const dot = item.querySelector('.timeline-dot');
                 if (lineH >= dotOffsets[idx]) {
                     // Met à jour le plancher pour empêcher la ligne de reculer
-                    const dotProgress = dotOffsets[idx] / lastDotMax;
-                    if (dotProgress > minProgress) minProgress = dotProgress;
+                    if (dotOffsets[idx] > minLineH) minLineH = dotOffsets[idx];
 
                     if (!dot.classList.contains('popped')) {
                         dot.classList.add('popped');
@@ -840,6 +836,14 @@
             p.style.animationDuration = (Math.random() * 10 + 15) + 's';
             particlesContainer.appendChild(p);
         }
+
+        /* Pause les particules quand l'onglet n'est pas visible — économise CPU/batterie */
+        document.addEventListener('visibilitychange', () => {
+            const state = document.hidden ? 'paused' : 'running';
+            document.querySelectorAll('.particle').forEach(p => {
+                p.style.animationPlayState = state;
+            });
+        });
 
         /* ─── Reveal du header ─── */
         const revealObserver = new IntersectionObserver((entries) => {
