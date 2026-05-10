@@ -89,7 +89,9 @@
             width: 2px;
             height: 0; /* animée via JS */
             background: linear-gradient(180deg, var(--neon), #ff5500);
-            transform: translateX(-50%);
+            /* translateZ(0) force une couche GPU dédiée : les modifs de height
+               ne provoquent plus de repaint dans la zone environnante */
+            transform: translateX(-50%) translateZ(0);
             box-shadow: 0 0 8px rgba(255, 122, 0, 0.4);
         }
 
@@ -407,7 +409,11 @@
 
         /* Responsive */
         @media (max-width: 900px) {
-            .timeline-line { left: 30px; }
+            .timeline-line {
+                left: 30px;
+                /* box-shadow trop coûteux à repaint à chaque frame de scroll sur mobile */
+                box-shadow: none;
+            }
             .timeline-content {
                 width: calc(100% - 80px);
                 margin-left: 80px !important;
@@ -924,7 +930,17 @@
                             }, delay);
                         }
                         // Apparition de la card 180ms après le pop visible
-                        setTimeout(() => item.classList.add('visible'), delay + 180);
+                        setTimeout(() => {
+                            // Promotion GPU temporaire : pendant l'anim seulement
+                            const content = item.querySelector('.timeline-content');
+                            content.style.willChange = 'transform, opacity';
+                            item.classList.add('visible');
+                            // Une fois l'anim terminée, on retire le will-change pour
+                            // libérer la couche GPU (will-change permanent serait gourmand)
+                            content.addEventListener('transitionend', () => {
+                                content.style.willChange = '';
+                            }, { once: true });
+                        }, delay + 180);
                     }
                 }
             });
