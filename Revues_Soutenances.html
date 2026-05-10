@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revues & Soutenances - LE BRAS DE FER</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
@@ -59,8 +57,7 @@
         .chapter-header p { font-size: 1.3rem; color: var(--text-sub); font-weight: 300; }
 
         header {
-            height: 100vh; /* fallback */
-            height: 100dvh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -72,7 +69,7 @@
             font-size: 5rem;
             margin: 20px 0;
             color: #ff7a00;
-            text-shadow: 0 0 30px rgba(255, 122, 0, 0.6);
+            text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3);
             letter-spacing: -2px;
             line-height: 1.1;
         }
@@ -85,18 +82,17 @@
             padding: 4rem 0;
         }
 
-        /* Ligne qui se dessine au scroll — animée via transform pour GPU */
+        /* Ligne qui se dessine au scroll */
         .timeline-line {
             position: absolute;
             left: 50%;
             top: 0;
             width: 2px;
-            height: 0; /* sera fixé en JS au lastDotMax */
+            height: 0; /* démarre à 0 */
             background: linear-gradient(180deg, var(--neon), #ff5500);
-            transform: translateX(-50%) scaleY(0);
-            transform-origin: top;
+            transform: translateX(-50%);
+            transition: height 0.05s linear;
             box-shadow: 0 0 8px rgba(255, 122, 0, 0.4);
-            will-change: transform;
         }
 
         /* Timeline Item — état initial caché, glisse depuis la ligne */
@@ -227,8 +223,6 @@
 
         .open-presentation-btn:hover::before { left: 0; }
         .open-presentation-btn:hover { color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
-        .open-presentation-btn:active::before { left: 0; }
-        .open-presentation-btn:active { color: black; }
 
         /* ---- MODAL PLEIN ÉCRAN ---- */
         .presentation-modal {
@@ -236,7 +230,6 @@
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
-            height: 100dvh;
             background: #000000;
             z-index: 10000;
             animation: fadeIn 0.3s ease;
@@ -277,20 +270,13 @@
             transform: rotate(90deg);
         }
 
-        .close-btn:active {
-            background: rgba(255, 122, 0, 0.3);
-            border-color: var(--neon);
-        }
-
         .slides-container {
             width: 100vw; height: 100vh;
-            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            touch-action: pan-y;
         }
 
         .slide {
@@ -315,14 +301,14 @@
             display: inline-flex; /* se rétracte à la taille de l'image */
             align-items: flex-end;
             justify-content: flex-end;
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
         }
 
         .slide img {
             display: block;
-            max-width: 100%;
-            max-height: 100dvh;
+            max-width: 100vw;
+            max-height: 100vh;
             width: auto;
             height: auto;
             object-fit: contain;
@@ -387,7 +373,6 @@
             margin-top: 50px;
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
-        .btn-back:active { background: var(--neon); color: black; }
 
         /* Reveal header */
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s ease; }
@@ -396,48 +381,12 @@
         /* Responsive */
         @media (max-width: 900px) {
             .timeline-line { left: 30px; }
-            .timeline-content {
-                width: calc(100% - 80px);
-                margin-left: 80px !important;
-                margin-right: 0 !important;
-                /* backdrop-filter trop coûteux sur mobile : on le retire et on compense en bg */
-                backdrop-filter: none;
-                background: rgba(255, 255, 255, 0.05);
-            }
+            .timeline-content { width: calc(100% - 80px); margin-left: 80px !important; margin-right: 0 !important; }
             .timeline-dot { left: 30px; }
             header h1 { font-size: 3rem; }
             .chapter-header h2 { font-size: 2rem; }
-            .close-btn {
-                top: 12px; right: 12px;
-                width: 44px; height: 44px; /* tap target Apple HIG */
-                font-size: 1.6rem;
-            }
+            .close-btn { top: 10px; right: 10px; width: 40px; height: 40px; }
             .slide-number { width: 40px; height: 40px; font-size: 0.85rem; }
-            /* On allège aussi le glow pour préserver le GPU */
-            header h1 { text-shadow: 0 0 20px rgba(255, 122, 0, 0.5); }
-        }
-
-        /* Petits téléphones (iPhone SE, etc.) */
-        @media (max-width: 480px) {
-            header h1 { font-size: 2.4rem; letter-spacing: -1px; }
-            header p { font-size: 1.1rem; }
-            .chapter-header h2 { font-size: 1.7rem; }
-            .chapter-header p { font-size: 1.05rem; }
-            .timeline-content { padding: 24px; border-radius: 22px; }
-            .review-title { font-size: 1.4rem; }
-            .open-presentation-btn { padding: 13px 28px; font-size: 0.9rem; }
-            .chapter { margin-bottom: 100px; }
-            .container { padding: 0 16px; }
-        }
-
-        /* Respect des préférences d'accessibilité */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            .particle { display: none; }
         }
 
         ::-webkit-scrollbar { width: 10px; }
@@ -450,18 +399,16 @@
             top: 0; left: 0;
             width: 100%; height: 100%;
             pointer-events: none;
-            z-index: -1;
+            z-index: 0;
             overflow: hidden;
         }
 
         .particle {
             position: absolute;
-            background: var(--neon);
+            background: radial-gradient(circle, rgba(255, 122, 0, 0.8) 0%, transparent 70%);
             border-radius: 50%;
-            filter: blur(20px);
             animation: floatParticle 20s infinite ease-in-out;
             opacity: 0.12;
-            will-change: transform;
         }
 
         @keyframes floatParticle {
@@ -571,7 +518,7 @@
                         <div><h3 class="review-title">Soutenance Blanche de Mi-Projet</h3></div>
                         <p class="review-date">10 Décembre 2025</p>
                     </div>
-                    <p class="review-description">Répétition générale avant la soutenance officielle : test de la posture orale, des imprévus et préparation aux questions du jury.</p>
+                    <p class="review-description">Répétition générale avant la soutenance officielle : test de la posture orale, des imprevus et préparation aux questions du jury.</p>
                     <div class="review-stats">
                         <div class="stat">
                             <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
@@ -665,13 +612,7 @@
                 wrapper.className = 'slide-wrapper';
 
                 const img = document.createElement('img');
-                const slideUrl = `slides/${presentation.folder}/slide-${i}.png`;
-                // Lazy : on ne charge que les 3 premières slides immédiatement
-                if (i <= 3) {
-                    img.src = slideUrl;
-                } else {
-                    img.dataset.src = slideUrl;
-                }
+                img.src = `slides/${presentation.folder}/slide-${i}.png`;
                 img.alt = `Slide ${i}`;
                 img.onerror = function () {
                     this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><rect width="1920" height="1080" fill="%23000"/><text x="50%" y="50%" text-anchor="middle" fill="%23ff7a00" font-family="Arial" font-size="48">Image non trouvée : slide-' + i + '.png</text></svg>';
@@ -729,15 +670,6 @@
                 else if (i < index)   slide.classList.add('exit-left');
             });
 
-            // Charge la slide courante + 2 voisines (avant/après)
-            [index - 1, index, index + 1, index + 2].forEach(i => {
-                if (i < 0 || i >= slides.length) return;
-                const img = slides[i].querySelector('img');
-                if (img && !img.src && img.dataset.src) {
-                    img.src = img.dataset.src;
-                }
-            });
-
             currentSlideIndex = index;
             const progress = ((index + 1) / presentation.slideCount) * 100;
             document.getElementById('progressBar').style.width = progress + '%';
@@ -769,85 +701,78 @@
             else if (e.key === 'Escape')                   closePresentation();
         }
 
-        /* ─── Timeline line — animée via transform (GPU) avec rAF ─── */
+        /* ─── Timeline line — se dessine au scroll ─── */
         const timelineContainer = document.getElementById('timelineContainer');
         const timelineLine      = document.getElementById('timelineLine');
         let lineFixed   = false;
         let dotOffsets  = [];
         let lastDotMax  = 0;
-        let minProgress = 0; // plancher : la ligne ne peut plus rétrécir en dessous
-        let ticking     = false;
+        let minLineH    = 0; // plancher : la ligne ne peut plus rétrécir en dessous
 
-        // Calcul des offsets des points (fait une seule fois à l'init et au resize)
+        // Calcul fiable des positions via positions réelles rendues
         function computeDotOffsets() {
             const containerTop = timelineContainer.getBoundingClientRect().top + window.scrollY;
             dotOffsets = [];
             document.querySelectorAll('.timeline-item').forEach(item => {
                 const dot = item.querySelector('.timeline-dot');
                 const dotRect = dot.getBoundingClientRect();
+                // Centre du dot par rapport au haut du container
                 const pos = dotRect.top + window.scrollY - containerTop + dotRect.height / 2;
                 dotOffsets.push(pos);
             });
-            lastDotMax = dotOffsets[dotOffsets.length - 1] || 0;
-            // Fixe la hauteur du tracé (scaleY animera proprement)
-            if (lastDotMax > 0) {
-                timelineLine.style.height = lastDotMax + 'px';
-            }
+            lastDotMax = dotOffsets[dotOffsets.length - 1];
         }
 
         function updateTimelineLine() {
-            if (lineFixed || lastDotMax === 0) return;
+            if (lineFixed) return;
+
+            // Recalcul des positions à chaque frame pour éviter tout décalage
+            computeDotOffsets();
 
             const containerRect = timelineContainer.getBoundingClientRect();
             const windowH       = window.innerHeight;
 
-            // Distance scrollée à l'intérieur du container
+            // Front naturel de la ligne selon le scroll
             const scrolled  = Math.max(0, windowH * 0.55 - containerRect.top);
-            const lineH     = Math.min(lastDotMax, scrolled);
-            const progress  = Math.max(minProgress, Math.min(1, lineH / lastDotMax));
+            // Plafonné au dernier point, et jamais en dessous du plancher
+            const lineH     = Math.max(minLineH, Math.min(lastDotMax, scrolled));
 
-            // Transform GPU (pas de layout)
-            timelineLine.style.transform = `translateX(-50%) scaleY(${progress})`;
+            timelineLine.style.height = lineH + 'px';
 
-            // Pop des points
+            // Largeur progressive : part de 0.5px, atteint 2px sur les 120 premiers px
+            const widthProgress = Math.min(1, lineH / 120);
+            const lineW = 0.5 + widthProgress * 1.5; // 0.5px → 2px
+            timelineLine.style.width = lineW + 'px';
+
+            // Déclencher le pop de chaque point quand la ligne le touche
             const items = document.querySelectorAll('.timeline-item');
             items.forEach((item, idx) => {
                 const dot = item.querySelector('.timeline-dot');
-                if (lineH >= dotOffsets[idx]) {
-                    // Met à jour le plancher pour empêcher la ligne de reculer
-                    const dotProgress = dotOffsets[idx] / lastDotMax;
-                    if (dotProgress > minProgress) minProgress = dotProgress;
 
+                if (lineH >= dotOffsets[idx]) {
+                    // Mettre à jour le plancher : la ligne ne peut plus reculer au-delà de ce point
+                    if (dotOffsets[idx] > minLineH) {
+                        minLineH = dotOffsets[idx];
+                    }
+                    // 1) Pop du point (immédiat)
                     if (!dot.classList.contains('popped')) {
                         dot.classList.add('popped');
+                        // 2) Apparition de la box (léger délai après le pop)
                         setTimeout(() => item.classList.add('visible'), 180);
                     }
                 }
             });
 
-            // Fige la ligne une fois qu'elle a atteint le dernier point
-            // (on garde le listener actif mais l'early-return ci-dessus le rend gratuit)
+            // Figer la ligne une fois qu'elle atteint le dernier point
             if (lineH >= lastDotMax) {
                 lineFixed = true;
+                window.removeEventListener('scroll', updateTimelineLine);
             }
         }
 
-        // Throttle via requestAnimationFrame — un seul update par frame max
-        function onScroll() {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    updateTimelineLine();
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        }
-
-        /* ─── Particules — count adaptatif au device ─── */
+        /* ─── Particules ─── */
         const particlesContainer = document.getElementById('particles');
-        const isMobile = window.innerWidth < 768;
-        const particleCount = isMobile ? 6 : 15;
-        for (let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < 15; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             const size = Math.random() * 100 + 50;
@@ -855,8 +780,7 @@
             p.style.height = size + 'px';
             p.style.left   = Math.random() * 100 + '%';
             p.style.top    = Math.random() * 100 + '%';
-            // Délai négatif : démarre l'anim en cours, évite l'effet "rampe"
-            p.style.animationDelay    = -(Math.random() * 20) + 's';
+            p.style.animationDelay    = Math.random() * 20 + 's';
             p.style.animationDuration = (Math.random() * 10 + 15) + 's';
             particlesContainer.appendChild(p);
         }
@@ -868,20 +792,10 @@
         document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
         /* ─── Events ─── */
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', () => {
-            // Reset du flag pour permettre la mise à jour si la mise en page change
-            lineFixed = false;
-            computeDotOffsets();
-            onScroll();
-        }, { passive: true });
+        window.addEventListener('scroll', updateTimelineLine, { passive: true });
+        window.addEventListener('resize', () => { computeDotOffsets(); updateTimelineLine(); }, { passive: true });
 
-        // Init — attendre que les fonts/layouts soient stables
-        window.addEventListener('load', () => {
-            computeDotOffsets();
-            updateTimelineLine();
-        });
-        // Premier calcul immédiat aussi (au cas où "load" tarde)
+        // Init
         computeDotOffsets();
         updateTimelineLine();
     </script>
