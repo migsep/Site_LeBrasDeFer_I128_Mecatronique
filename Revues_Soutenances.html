@@ -729,6 +729,10 @@
             const modal = document.getElementById('presentationModal');
             modal.classList.add('active');
 
+            // Suspend les updates de la timeline (sinon le scroll-lock fait croire
+            // qu'on est en haut de page → toutes les cards apparaissent d'un coup)
+            presentationOpen = true;
+
             // Scroll-lock robuste (iOS + Android) : on mémorise la position et on bloque le body
             scrollLockY = window.scrollY;
             document.body.style.position = 'fixed';
@@ -762,6 +766,10 @@
             document.body.style.right = '';
             document.body.style.width = '';
             window.scrollTo(0, scrollLockY);
+
+            // Réactive les updates de la timeline (à la frame suivante pour s'assurer
+            // que le scroll est bien restauré avant le prochain calcul)
+            requestAnimationFrame(() => { presentationOpen = false; });
 
             modal.removeEventListener('touchstart', handleTouchStart);
             modal.removeEventListener('touchmove',  handleTouchMove);
@@ -861,6 +869,7 @@
         let ticking     = false;
         let lastPopTime = 0; // pour imposer un stagger entre dots successifs
         const POP_STAGGER_MIN = 120; // ms — décalage minimum entre deux pops
+        let presentationOpen = false; // suspend l'update timeline pendant le modal
 
         // Calcul des offsets des points (fait une seule fois à l'init et au resize)
         function computeDotOffsets() {
@@ -876,7 +885,7 @@
         }
 
         function updateTimelineLine() {
-            if (lineFixed || lastDotMax === 0) return;
+            if (lineFixed || lastDotMax === 0 || presentationOpen) return;
 
             const containerRect = timelineContainer.getBoundingClientRect();
             const windowH       = window.innerHeight;
