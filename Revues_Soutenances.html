@@ -340,8 +340,10 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            width: 50px;
-            height: 50px;
+            /* Taille proportionnelle : suit la diagonale du viewport visible */
+            width: clamp(40px, 7vmin, 60px);
+            height: clamp(40px, 7vmin, 60px);
+            font-size: clamp(0.75rem, 1.6vmin, 1rem);
             background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(10px);
             border-top-left-radius: 12px;
@@ -352,7 +354,6 @@
             align-items: center;
             justify-content: center;
             font-family: "Orbitron";
-            font-size: 1rem;
             color: var(--neon);
             font-weight: 600;
             pointer-events: none;
@@ -416,12 +417,16 @@
                 background: rgba(255, 255, 255, 0.05);
             }
             .timeline-dot { left: 30px; }
+            /* Sur mobile, toutes les cards glissent depuis la gauche pour rester
+               cohérent avec la ligne placée à gauche (on n'alterne plus odd/even) */
+            .timeline-item:nth-child(odd) .timeline-content {
+                transform: translateX(-60px);
+            }
             .close-btn {
                 top: 12px; right: 12px;
                 width: 44px; height: 44px; /* tap target Apple HIG */
                 font-size: 1.6rem;
             }
-            .slide-number { width: 40px; height: 40px; font-size: 0.85rem; }
         }
 
         /* Petits téléphones (iPhone SE, etc.) */
@@ -671,7 +676,11 @@
         let currentPresentationIndex = 0;
         let currentSlideIndex = 0;
         let touchStartX = 0;
+        let touchStartY = 0;
         let touchEndX = 0;
+        let touchEndY = 0;
+        let touchDirection = null; // 'horizontal' | 'vertical' | null
+        let scrollLockY = 0;
         let isThrottled = false;
 
         /* ─── Présentation ─── */
@@ -719,16 +728,25 @@
 
             const modal = document.getElementById('presentationModal');
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+
+            // Scroll-lock robuste (iOS + Android) : on mémorise la position et on bloque le body
+            scrollLockY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollLockY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
 
             showSlide(0);
 
             document.getElementById('navLeft').onclick = previousSlide;
             document.getElementById('navRight').onclick = nextSlide;
 
-            const container = document.getElementById('slidesContainer');
-            container.addEventListener('touchstart', handleTouchStart, false);
-            container.addEventListener('touchend', handleTouchEnd, false);
+            // Touch listeners sur le modal lui-même (au-dessus des nav-area)
+            // touchmove en non-passif pour pouvoir preventDefault sur les swipes horizontaux
+            modal.addEventListener('touchstart', handleTouchStart, { passive: true });
+            modal.addEventListener('touchmove',  handleTouchMove,  { passive: false });
+            modal.addEventListener('touchend',   handleTouchEnd,   { passive: true });
             modal.addEventListener('wheel', handleWheel, { passive: false });
             document.addEventListener('keydown', handleKeyPress);
         }
@@ -736,11 +754,18 @@
         function closePresentation() {
             const modal = document.getElementById('presentationModal');
             modal.classList.remove('active');
-            document.body.style.overflow = '';
 
-            const container = document.getElementById('slidesContainer');
-            container.removeEventListener('touchstart', handleTouchStart);
-            container.removeEventListener('touchend', handleTouchEnd);
+            // Restauration du scroll
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            window.scrollTo(0, scrollLockY);
+
+            modal.removeEventListener('touchstart', handleTouchStart);
+            modal.removeEventListener('touchmove',  handleTouchMove);
+            modal.removeEventListener('touchend',   handleTouchEnd);
             modal.removeEventListener('wheel', handleWheel);
             document.removeEventListener('keydown', handleKeyPress);
         }
@@ -772,8 +797,39 @@
         function nextSlide()     { const n = document.querySelectorAll('.slide').length; if (currentSlideIndex < n - 1) showSlide(currentSlideIndex + 1); }
         function previousSlide() { if (currentSlideIndex > 0) showSlide(currentSlideIndex - 1); }
 
-        function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
-        function handleTouchEnd(e)   { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }
+        function handleTouchStart(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            touchEndX = touchStartX;
+            touchEndY = touchStartY;
+            touchDirection = null;
+        }
+
+        function handleTouchMove(e) {
+            const x = e.changedTouches[0].screenX;
+            const y = e.changedTouches[0].screenY;
+            touchEndX = x;
+            touchEndY = y;
+
+            // Détecte la direction dominante après ~10px de mouvement
+            if (touchDirection === null) {
+                const dx = Math.abs(x - touchStartX);
+                const dy = Math.abs(y - touchStartY);
+                if (dx > 10 || dy > 10) {
+                    touchDirection = dx > dy ? 'horizontal' : 'vertical';
+                }
+            }
+
+            // Si l'utilisateur swipe horizontalement, on bloque le scroll natif
+            // (et on évite le geste "page précédente" du navigateur sur les bords)
+            if (touchDirection === 'horizontal') {
+                e.preventDefault();
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (touchDirection === 'horizontal') handleSwipe();
+        }
 
         function handleSwipe() {
             const diff = touchStartX - touchEndX;
