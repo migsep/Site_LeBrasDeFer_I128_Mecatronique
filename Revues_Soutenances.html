@@ -20,6 +20,10 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html, body {
+            overflow-x: hidden;
+        }
+
         body {
             background-color: var(--bg-deep);
             color: var(--text-main);
@@ -101,7 +105,7 @@
             margin-right: 60px;
             opacity: 0;
             transform: translateX(60px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* Les cards paires (à droite de la ligne) glissent depuis la gauche */
@@ -110,7 +114,7 @@
             margin-left: 60px;
             opacity: 0;
             transform: translateX(-60px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .timeline-content {
@@ -223,9 +227,12 @@
             z-index: -1;
         }
 
-        .open-presentation-btn:hover::before { left: 0; }
-        .open-presentation-btn:hover { color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
-        .open-presentation-btn:active { transform: scale(0.96); }
+        @media (hover: hover) {
+            .open-presentation-btn:hover::before { left: 0; }
+            .open-presentation-btn:hover { color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
+        }
+        .open-presentation-btn:active,
+        .open-presentation-btn.tap-feedback { transform: scale(0.96); }
 
         /* ---- MODAL PLEIN ÉCRAN ---- */
         .presentation-modal {
@@ -269,13 +276,16 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .close-btn:hover {
-            background: rgba(255, 122, 0, 0.2);
-            border-color: var(--neon);
-            transform: rotate(90deg);
+        @media (hover: hover) {
+            .close-btn:hover {
+                background: rgba(255, 122, 0, 0.2);
+                border-color: var(--neon);
+                transform: rotate(90deg);
+            }
         }
 
-        .close-btn:active {
+        .close-btn:active,
+        .close-btn.tap-feedback {
             transform: scale(0.92);
         }
 
@@ -384,11 +394,14 @@
             margin-top: 50px;
             -webkit-tap-highlight-color: transparent;
         }
-        .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
-        .btn-back:active { transform: scale(0.97); }
+        @media (hover: hover) {
+            .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
+        }
+        .btn-back:active,
+        .btn-back.tap-feedback { transform: scale(0.97); }
 
         /* Reveal header */
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s ease; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
         /* Responsive */
@@ -449,6 +462,14 @@
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
         ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon), #ff5500); border-radius: 5px; }
+
+        /* Sur les devices tactiles (mobile/tablette), cacher la scrollbar custom :
+           soit elle est ignorée par le navigateur, soit elle apparaît mais fait
+           tache. Dans tous les cas on s'en remet au système. */
+        @media (hover: none) {
+            ::-webkit-scrollbar { display: none; }
+            html { scrollbar-width: none; } /* Firefox Mobile */
+        }
 
         /* ---- PARTICULES ---- */
         .background-particles {
@@ -782,6 +803,8 @@
         let lastDotMax  = 0;
         let minLineH    = 0; // plancher : la ligne ne peut plus rétrécir en dessous
         let ticking     = false;
+        let lastPopTime = 0; // pour imposer un stagger entre dots successifs
+        const POP_STAGGER_MIN = 120; // ms — décalage minimum entre deux pops
 
         // Calcul des offsets des points (fait une seule fois à l'init et au resize)
         function computeDotOffsets() {
@@ -803,14 +826,14 @@
             const windowH       = window.innerHeight;
 
             // Distance scrollée à l'intérieur du container
-            const scrolled  = Math.max(0, windowH * 0.55 - containerRect.top);
+            const scrolled  = Math.max(0, windowH * 0.70 - containerRect.top);
             const lineH     = Math.max(minLineH, Math.min(lastDotMax, scrolled));
 
             // Animation par height — l'élément étant en position absolute,
             // ça ne provoque pas de relayout des autres éléments
             timelineLine.style.height = lineH + 'px';
 
-            // Pop des points
+            // Pop des points (avec stagger minimum entre pops successifs)
             const items = document.querySelectorAll('.timeline-item');
             items.forEach((item, idx) => {
                 const dot = item.querySelector('.timeline-dot');
@@ -819,8 +842,24 @@
                     if (dotOffsets[idx] > minLineH) minLineH = dotOffsets[idx];
 
                     if (!dot.classList.contains('popped')) {
+                        // Calcul du délai : au moins POP_STAGGER_MIN après le pop précédent
+                        const now = Date.now();
+                        const minNextPop = lastPopTime + POP_STAGGER_MIN;
+                        const delay = Math.max(0, minNextPop - now);
+                        const scheduledTime = now + delay;
+                        lastPopTime = scheduledTime;
+
+                        // Marque immédiatement comme "popped" pour éviter de le reprogrammer
                         dot.classList.add('popped');
-                        setTimeout(() => item.classList.add('visible'), 180);
+                        // Mais retarde le rendu visuel
+                        if (delay > 0) {
+                            dot.style.transform = 'translate(-50%, -50%) scale(0)';
+                            setTimeout(() => {
+                                dot.style.transform = '';
+                            }, delay);
+                        }
+                        // Apparition de la card 180ms après le pop visible
+                        setTimeout(() => item.classList.add('visible'), delay + 180);
                     }
                 }
             });
@@ -865,6 +904,35 @@
                 p.style.animationPlayState = state;
             });
         });
+
+        /* ─── Tap feedback : visuel + haptic vibration sur Android ─── */
+        const TAP_SELECTOR = '.open-presentation-btn, .close-btn, .btn-back';
+        const TAP_MIN_DURATION = 150; // ms — feedback visible même sur tap très bref
+
+        document.addEventListener('touchstart', (e) => {
+            const target = e.target.closest(TAP_SELECTOR);
+            if (!target) return;
+            target.classList.add('tap-feedback');
+            target.dataset.tapStart = Date.now();
+            // Vibration légère (Android uniquement, ignorée sur iOS)
+            if (navigator.vibrate) navigator.vibrate(10);
+        }, { passive: true });
+
+        function endTapFeedback(target) {
+            if (!target) return;
+            const elapsed = Date.now() - parseInt(target.dataset.tapStart || 0);
+            const remaining = Math.max(0, TAP_MIN_DURATION - elapsed);
+            setTimeout(() => target.classList.remove('tap-feedback'), remaining);
+        }
+
+        document.addEventListener('touchend', (e) => {
+            const target = e.target.closest(TAP_SELECTOR);
+            endTapFeedback(target);
+        }, { passive: true });
+
+        document.addEventListener('touchcancel', () => {
+            document.querySelectorAll('.tap-feedback').forEach(el => endTapFeedback(el));
+        }, { passive: true });
 
         /* ─── Reveal du header ─── */
         const revealObserver = new IntersectionObserver((entries) => {
