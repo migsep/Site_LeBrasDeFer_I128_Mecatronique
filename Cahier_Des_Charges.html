@@ -814,21 +814,21 @@
 
 <!-- ─── APPLE-STYLE FLOATING BARS ─── -->
 <div class="apple-bar" id="bar-objectifs" onclick="openModal('modal-objectifs')" role="button" tabindex="0">
-    <span class="apple-bar-label"><strong>Objectifs</strong> — Diagramme bête à cornes</span>
+    <span class="apple-bar-label"><strong>Diagramme bête à cornes</strong></span>
     <div class="apple-bar-btn" aria-hidden="true">
         <svg viewBox="0 0 15 15" fill="none"><line x1="7.5" y1="2" x2="7.5" y2="13"/><line x1="2" y1="7.5" x2="13" y2="7.5"/></svg>
     </div>
 </div>
 
 <div class="apple-bar" id="bar-fonctions" onclick="openModal('modal-fonctions')" role="button" tabindex="0">
-    <span class="apple-bar-label"><strong>Fonctions</strong> — Diagramme de pieuvre</span>
+    <span class="apple-bar-label"><strong>Diagramme de pieuvre</strong></span>
     <div class="apple-bar-btn" aria-hidden="true">
         <svg viewBox="0 0 15 15" fill="none"><line x1="7.5" y1="2" x2="7.5" y2="13"/><line x1="2" y1="7.5" x2="13" y2="7.5"/></svg>
     </div>
 </div>
 
 <div class="apple-bar" id="bar-synthese" onclick="openModal('modal-synthese')" role="button" tabindex="0">
-    <span class="apple-bar-label"><strong>Synthèse</strong> — Résumé visuel du projet</span>
+    <span class="apple-bar-label"><strong>Schéma des contraintes</strong></span>
     <div class="apple-bar-btn" aria-hidden="true">
         <svg viewBox="0 0 15 15" fill="none"><line x1="7.5" y1="2" x2="7.5" y2="13"/><line x1="2" y1="7.5" x2="13" y2="7.5"/></svg>
     </div>
@@ -838,33 +838,21 @@
 <div class="img-modal-overlay" id="modal-objectifs" onclick="closeModalOnBg(event, 'modal-objectifs')">
     <div class="img-modal-box">
         <button class="img-modal-close" onclick="closeModal('modal-objectifs')">✕</button>
-        <div class="img-modal-placeholder">
-            <div class="ph-icon">🐮</div>
-            <div class="ph-title">Section II — Objectifs</div>
-            <p>Remplace ce bloc par : <code>&lt;img src="ton_image.png"&gt;</code></p>
-        </div>
+        <img src="DiagrammeBAC.png" alt="Diagramme BAC" style="max-width:100%;max-height:80vh;border-radius:12px;display:block;margin:auto;">
     </div>
 </div>
 
 <div class="img-modal-overlay" id="modal-fonctions" onclick="closeModalOnBg(event, 'modal-fonctions')">
     <div class="img-modal-box">
         <button class="img-modal-close" onclick="closeModal('modal-fonctions')">✕</button>
-        <div class="img-modal-placeholder">
-            <div class="ph-icon">🐙</div>
-            <div class="ph-title">Section III — Fonctions</div>
-            <p>Remplace ce bloc par : <code>&lt;img src="ton_image.png"&gt;</code></p>
-        </div>
+        <img src="DiagrammeDePieuvre.png" alt="Diagramme de Pieuvre" style="max-width:100%;max-height:80vh;border-radius:12px;display:block;margin:auto;">
     </div>
 </div>
 
 <div class="img-modal-overlay" id="modal-synthese" onclick="closeModalOnBg(event, 'modal-synthese')">
     <div class="img-modal-box">
         <button class="img-modal-close" onclick="closeModal('modal-synthese')">✕</button>
-        <div class="img-modal-placeholder">
-            <div class="ph-icon">📊</div>
-            <div class="ph-title">Section IX — Synthèse</div>
-            <p>Remplace ce bloc par : <code>&lt;img src="ton_image.png"&gt;</code></p>
-        </div>
+        <img src="SchémaDesContraintes.png" alt="Schéma des Contraintes" style="max-width:100%;max-height:80vh;border-radius:12px;display:block;margin:auto;">
     </div>
 </div>
 
