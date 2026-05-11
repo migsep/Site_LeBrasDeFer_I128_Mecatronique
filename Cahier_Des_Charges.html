@@ -342,10 +342,40 @@
         .risque-item p { font-size: 0.9rem; color: var(--text-sub); }
         .risque-item p strong { color: var(--text-main); }
 
-        /* LIVRABLES */
+        /* ─── LIVRABLES ─────────────────────────────────────────────
+           Desktop : layout original 5 colonnes, chaque item dans sa box.
+           Les wrappers .livrables-band et .livrables-row sont rendus
+           transparents via display: contents → les 5 livrable-item
+           deviennent enfants directs du grid 5-cols. L'ordre logique
+           du HTML place Site Web en dernier (pratique pour le mobile
+           2/2/1), donc on utilise `order` pour le replacer en 3e
+           position sur desktop, comme avant.
+
+           Mobile : disposition 2/2/1 avec bandes grises pleine largeur,
+           gérée plus bas dans le @media (max-width: 900px). */
         .livrables-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+        .livrables-band,
+        .livrables-row { display: contents; }
+        /* Ordre desktop : Prototype, Présentation, Site Web, Revues, Soutenance */
+        .livrables-band > .livrable-item:nth-child(1) { order: 1; }
+        .livrables-band > .livrable-item:nth-child(2) { order: 2; }
+        .band-single > .livrable-item { order: 3; }
+        .livrables-row > .livrable-item:nth-child(1) { order: 4; }
+        .livrables-row > .livrable-item:nth-child(2) { order: 5; }
         .livrable-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px 20px; text-align: center; }
-        .livrable-icon { font-size: 2rem; margin-bottom: 16px; }
+        .livrable-icon {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--neon);
+        }
+        .livrable-icon svg {
+            width: 38px;
+            height: 38px;
+            display: block;
+        }
         .livrable-item h4 { font-size: 0.8rem; font-family: "Orbitron"; color: var(--text-main); line-height: 1.4; }
 
         /* SYNTHESE */
@@ -814,6 +844,75 @@
             }
             .budget-box-lbl { margin-top: 6px; }
 
+            /* ─── §VI Hypothèses : suppression des boxes ──────────────
+               Les 6 hypothèses passent sur fond noir, sans bordure ni
+               rayon. On garde la grille (forcée à 1 colonne par la
+               règle générale @900px) avec un gap correct. Le grand
+               numéro H1..H6 en Orbitron neon reste intact comme repère
+               visuel — il continue à structurer la lecture sans box. */
+            .hyp-item {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+            }
+            .hyp-grid { gap: 48px; }
+
+            /* §VII Risques : plus d'air entre les deux groupes empilés */
+            .risques-layout { gap: 48px; }
+
+            /* ─── §VIII Livrables : disposition 2/2/1 mobile ──────────
+               Sur mobile, les wrappers .livrables-band et .livrables-row
+               redeviennent visibles (override du display: contents
+               desktop). On obtient :
+                 - Niveau 1 (.livrables-band)        : bande grise
+                   full-width, Prototype + Présentation
+                 - Niveau 2 (.livrables-row)         : 2 items sur fond
+                   noir, Revues + Soutenance
+                 - Niveau 3 (.livrables-band single) : bande grise
+                   full-width, Site Web centré
+               Les bandes utilisent calc(-50vw + 50%) pour atteindre les
+               bords du viewport — protégé par body { overflow-x: clip }. */
+            .livrables-grid {
+                display: flex !important;
+                flex-direction: column;
+                gap: 24px;
+                grid-template-columns: none !important;
+            }
+            .livrables-band {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: center;
+                gap: 20px;
+                width: 100vw;
+                margin-left: calc(-50vw + 50%);
+                background: var(--bg-card);
+                padding: 36px 24px;
+                box-sizing: border-box;
+            }
+            .livrables-band.band-single {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+            .livrables-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 8px 0;
+            }
+            /* Items mobile : plus de box, juste icône + titre */
+            .livrable-item {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 16px;
+            }
+            /* Les `order` desktop sont neutralisés sur mobile pour que
+               les items suivent l'ordre du DOM dans leur wrapper. */
+            .livrables-band > .livrable-item,
+            .livrables-row > .livrable-item,
+            .band-single > .livrable-item { order: 0; }
+
             /* ─── §IX Synthèse : suppression sélective des boxes ──────
                1. .synthese-perimetre (la grande box gauche) → de-boxed
                2. Titre "Périmètre Système" → mêmes propriétés que les
@@ -1177,23 +1276,20 @@
             <span class="section-tag">VII — Risques Identifiés</span>
             <h2 class="section-title">Ce qui peut<br>mal tourner.</h2>
         </div>
-        <div class="risques-layout carousel-wrap reveal" data-carousel>
-            <div class="carousel-track">
-                <div>
-                    <div class="risque-group-title">Risques liés au déroulement du projet</div>
-                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Expérience limitée</strong> du chef de projet et du PMO susceptible d'impacter les décisions.</p></div>
-                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Manque de vision à long terme</strong> pouvant entraîner des retards sur les jalons planifiés.</p></div>
-                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Compétences en programmation</strong> actuellement insuffisantes dans l'équipe.</p></div>
-                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Intermédiaire de livraison</strong> imposé par le client : risque de retard sur la chaîne de livraison.</p></div>
-                </div>
-                <div>
-                    <div class="risque-group-title">Risques techniques & qualitatifs</div>
-                    <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Défaillance du capteur optique</strong> entraînant une perte de reconnaissance des couleurs.</p></div>
-                    <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Problème d'adhérence de la pince</strong> générant un risque de chute des cubes en cours de manipulation.</p></div>
-                    <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Usure prématurée des moteurs</strong> pouvant dégrader la précision ou stopper le système.</p></div>
-                </div>
+        <div class="risques-layout reveal">
+            <div>
+                <div class="risque-group-title">Risques liés au déroulement du projet</div>
+                <div class="risque-item"><div class="risque-dot"></div><p><strong>Expérience limitée</strong> du chef de projet et du PMO susceptible d'impacter les décisions.</p></div>
+                <div class="risque-item"><div class="risque-dot"></div><p><strong>Manque de vision à long terme</strong> pouvant entraîner des retards sur les jalons planifiés.</p></div>
+                <div class="risque-item"><div class="risque-dot"></div><p><strong>Compétences en programmation</strong> actuellement insuffisantes dans l'équipe.</p></div>
+                <div class="risque-item"><div class="risque-dot"></div><p><strong>Intermédiaire de livraison</strong> imposé par le client : risque de retard sur la chaîne de livraison.</p></div>
             </div>
-            <div class="carousel-dots"></div>
+            <div>
+                <div class="risque-group-title">Risques techniques & qualitatifs</div>
+                <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Défaillance du capteur optique</strong> entraînant une perte de reconnaissance des couleurs.</p></div>
+                <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Problème d'adhérence de la pince</strong> générant un risque de chute des cubes en cours de manipulation.</p></div>
+                <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Usure prématurée des moteurs</strong> pouvant dégrader la précision ou stopper le système.</p></div>
+            </div>
         </div>
     </div>
 </section>
@@ -1206,11 +1302,57 @@
             <h2 class="section-title">Ce que l'on<br>livrera.</h2>
         </div>
         <div class="livrables-grid">
-            <div class="livrable-item reveal"><div class="livrable-icon">🤖</div><h4>Prototype Fonctionnel</h4></div>
-            <div class="livrable-item reveal reveal-delay-1"><div class="livrable-icon">🎤</div><h4>Présentation Finale</h4></div>
-            <div class="livrable-item reveal reveal-delay-2"><div class="livrable-icon">🌐</div><h4>Site Web</h4></div>
-            <div class="livrable-item reveal reveal-delay-3"><div class="livrable-icon">📋</div><h4>Revues de Projet Intermédiaires</h4></div>
-            <div class="livrable-item reveal reveal-delay-4"><div class="livrable-icon">🏆</div><h4>Soutenance S1</h4></div>
+            <!-- Niveau 1 — bande grise pleine largeur -->
+            <div class="livrables-band">
+                <div class="livrable-item reveal">
+                    <div class="livrable-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+                        </svg>
+                    </div>
+                    <h4>Prototype Fonctionnel</h4>
+                </div>
+                <div class="livrable-item reveal reveal-delay-1">
+                    <div class="livrable-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>
+                        </svg>
+                    </div>
+                    <h4>Présentation Finale</h4>
+                </div>
+            </div>
+
+            <!-- Niveau 2 — ligne simple sans bande -->
+            <div class="livrables-row">
+                <div class="livrable-item reveal reveal-delay-2">
+                    <div class="livrable-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>
+                        </svg>
+                    </div>
+                    <h4>Revues de Projet Intermédiaires</h4>
+                </div>
+                <div class="livrable-item reveal reveal-delay-3">
+                    <div class="livrable-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                        </svg>
+                    </div>
+                    <h4>Soutenance S1</h4>
+                </div>
+            </div>
+
+            <!-- Niveau 3 — bande grise pleine largeur, item unique centré -->
+            <div class="livrables-band band-single">
+                <div class="livrable-item reveal reveal-delay-4">
+                    <div class="livrable-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
+                        </svg>
+                    </div>
+                    <h4>Site Web</h4>
+                </div>
+            </div>
         </div>
     </div>
 </section>
