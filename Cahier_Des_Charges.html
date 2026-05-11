@@ -314,6 +314,13 @@
         }
         .critere-item p { font-size: 0.95rem; color: var(--text-sub); }
         .critere-item p strong { color: var(--text-main); }
+        /* Nouveau markup en deux spans : sur desktop, ils flow inline avec
+           un " — " auto-injecté avant la description → rend exactement
+           comme l'ancien "<strong>X</strong> — Y" en termes visuels. */
+        .critere-body { font-size: 0.95rem; color: var(--text-sub); margin: 0; line-height: 1.6; }
+        .critere-title { color: var(--text-main); font-weight: 700; }
+        .critere-desc { color: var(--text-sub); }
+        .critere-desc::before { content: " — "; color: var(--text-sub); }
 
         /* HYPOTHESES */
         .hyp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -666,6 +673,107 @@
                 max-width: 92vw;
                 max-height: 82vh;
             }
+
+            /* ─── §V Critères : layout Apple Tech-Specs ───────────────
+               Pattern repris de la page iPhone d'Apple : titre bold blanc
+               (~1.25rem 700), fine ligne de séparation à distance modérée
+               (~20px de chaque côté), description grise, et le contenu
+               est légèrement inset des bords du viewport (~24px en plus
+               du padding container) — c'est ce qui donne le look "Tech
+               Specs" aéré d'Apple, où la zone de texte ne touche pas le
+               cadre de l'écran. */
+            .critere-item {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 24px 24px;
+                display: grid;
+                grid-template-columns: auto 1fr;
+                grid-template-areas:
+                    "check title"
+                    "desc  desc";
+                column-gap: 14px;
+                align-items: center;
+            }
+            .critere-check { grid-area: check; }
+            .critere-body { display: contents; }
+            .critere-title {
+                grid-area: title;
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--text-main);
+                line-height: 1.25;
+                letter-spacing: -0.2px;
+            }
+            .critere-desc {
+                grid-area: desc;
+                margin-top: 10px;
+                padding-top: 24px;
+                border-top: 1px solid rgba(255, 255, 255, 0.12);
+                color: var(--text-sub);
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+            /* Neutralise le " — " du flow desktop */
+            .critere-desc::before { content: ""; }
+
+            /* ─── §IX Synthèse : suppression sélective des boxes ──────
+               1. .synthese-perimetre (la grande box gauche) → de-boxed
+               2. Titre "Périmètre Système" → mêmes propriétés que les
+                  titres .synthese-card h3 (orange neon, marge 16px)
+                  pour uniformiser visuellement
+               3. Les 2 premières .synthese-card (Ressources Disponibles
+                  + Limite Imposée) → de-boxed. La 3e (Résumé Exécutif),
+                  ciblée par :last-child, garde sa box au look spécial.
+               4. "Budget ≤ 1 500 €" passe en blanc (override de l'inline
+                  style="color:var(--neon)" — !important nécessaire car
+                  l'inline gagne en spécificité naturelle). */
+            .synthese-perimetre {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+            }
+            .synthese-perimetre h3 {
+                color: var(--neon);
+                margin-bottom: 16px;
+            }
+            .synthese-right .synthese-card:not(:last-child) {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+            }
+            /* "Budget ≤ 1 500 €" : passer du neon orange au blanc */
+            .synthese-card:nth-child(2) > p:nth-of-type(1) {
+                color: var(--text-main) !important;
+            }
+            /* Sans les box, les sections paraissent collées sur mobile.
+               On augmente les gaps verticaux pour aérer la lecture entre :
+               - Périmètre Système ↔ Ressources Disponibles (via synthese-grid)
+               - Ressources ↔ Limite ↔ Résumé Exécutif (via synthese-right) */
+            .synthese-grid { gap: 64px; }
+            .synthese-right { gap: 64px; }
+
+            /* ─── §IX Résumé Exécutif : bande full-width sur mobile ───
+               Le 3e (et dernier) .synthese-card garde son gradient et sa
+               bordure neon, mais s'étend bord-à-bord du viewport façon
+               "bande". Mêmes margins négatifs que le carrousel pour
+               annuler le padding 18px du container. Les bordures
+               latérales sont retirées (un trait vertical exactement au
+               bord d'écran est moche) ; les bordures top/bottom restent
+               et forment un "neon divider" élégant. */
+            .synthese-card:last-child {
+                margin-left: -18px;
+                margin-right: -18px;
+                width: 100vw;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                padding-left: 24px;
+                padding-right: 24px;
+                box-sizing: border-box;
+            }
         }
 
         /* ─── Accessibilité : respect de prefers-reduced-motion ───
@@ -678,6 +786,110 @@
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
             }
+        }
+
+        /* ─── CAROUSEL (Fonctions §III + Risques §VII) ──────────────
+           Architecture copiée de la page ACV.
+
+           Desktop : .carousel-wrap est la même div que la grid parente
+           (.fonctions-layout ou .risques-layout). .carousel-track utilise
+           display: contents → ses enfants remontent comme enfants directs
+           de la grid. Aucune influence sur le layout.
+
+           Mobile : .carousel-wrap bascule en scroll container horizontal
+           avec scroll-snap. .carousel-track devient flex horizontal.
+           Chaque item a une largeur fixée en JS (window.innerWidth - 48).
+           Un .carousel-spacer (élément DOM réel — Safari ignore le
+           padding/margin sur scroll containers) est ajouté à la fin
+           pour que la dernière carte puisse se centrer. */
+
+        .carousel-wrap { position: relative; }
+
+        /* Desktop: track is transparent, grid parent drives layout */
+        @media (min-width: 901px) {
+            .carousel-track { display: contents; }
+            .carousel-dots { display: none; }
+        }
+
+        /* Mobile: carousel — full viewport width, Apple style */
+        @media (max-width: 900px) {
+            .carousel-wrap {
+                display: block !important;
+                overflow-x: auto !important;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                overscroll-behavior-x: contain;
+                margin-left: -18px !important;
+                margin-right: -18px !important;
+                width: 100vw !important;
+                /* pan-x pan-y : autorise scroll horizontal du carousel ET
+                   scroll vertical de la page. Le navigateur détecte la
+                   direction du swipe. */
+                touch-action: pan-x pan-y;
+            }
+            .carousel-wrap::-webkit-scrollbar { display: none; }
+            .carousel-track {
+                display: flex !important;
+                gap: 12px;
+                padding-left: 24px;
+            }
+            .carousel-track > * {
+                flex: 0 0 auto;
+                scroll-snap-align: center;
+                box-sizing: border-box;
+                min-width: 0;
+            }
+            .carousel-spacer {
+                flex: 0 0 24px !important;
+                width: 24px !important;
+                pointer-events: none;
+                scroll-snap-align: none !important;
+            }
+
+            /* Dots — pilule liquid glass centrée */
+            .carousel-dots {
+                display: flex;
+                justify-content: center;
+                margin-top: 14px;
+            }
+            .carousel-dots-inner {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                            0 4px 16px rgba(0, 0, 0, 0.3);
+                transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+                            box-shadow 0.18s ease,
+                            background 0.18s ease;
+            }
+            .carousel-dots-inner.scrub-active {
+                transform: scale(1.08);
+                background: rgba(255, 255, 255, 0.12);
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25),
+                            0 8px 24px rgba(0, 0, 0, 0.3);
+            }
+            .carousel-dot {
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.25);
+                cursor: pointer;
+                border: none; padding: 0;
+                flex-shrink: 0;
+                transition: none;
+                position: relative;
+            }
+            /* Zone de tap élargie invisible (~28px) — visuel 7px */
+            .carousel-dot::after {
+                content: '';
+                position: absolute;
+                inset: -10px;
+            }
+            .carousel-dot.active { background: #ffffff; }
         }
     </style>
 </head>
@@ -754,27 +966,30 @@
             Le diagramme de pieuvre est un outil d'analyse fonctionnelle qui représente les <strong>interactions entre un produit et son environnement</strong>. Le produit est placé au centre, et chaque "tentacule" le relie à un acteur ou élément extérieur (utilisateur, alimentation, normes…). Il permet de recenser toutes les <strong>fonctions contraintes (FC)</strong> — des exigences non négociables imposées au système de l'extérieur — et de s'assurer qu'aucune interaction essentielle n'est oubliée dans la conception.
         </p>
 
-        <div class="fonctions-layout">
-            <div class="card reveal">
-                <div class="fonction-group-title">Fonctions Principales</div>
-                <div class="fonction-item"><div class="fonction-badge">FP1</div><div class="fonction-content"><h4>Manipuler un cube</h4><p>Attraper, déplacer et déposer les cubes vers la zone de tri selon la configuration demandée.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge">FP2</div><div class="fonction-content"><h4>Identifier la couleur</h4><p>Reconnaître la couleur de chaque cube pour décider de son emplacement final.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge">FP3</div><div class="fonction-content"><h4>Trier les cubes</h4><p>Classer les cubes selon leur teinte pour constituer des paquets homogènes.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge">FP4</div><div class="fonction-content"><h4>Communiquer la fin de tâche</h4><p>Signaler la fin du cycle au convoyeur et à l'opérateur.</p></div></div>
+        <div class="fonctions-layout carousel-wrap" data-carousel>
+            <div class="carousel-track">
+                <div class="card reveal">
+                    <div class="fonction-group-title">Fonctions Principales</div>
+                    <div class="fonction-item"><div class="fonction-badge">FP1</div><div class="fonction-content"><h4>Manipuler un cube</h4><p>Attraper, déplacer et déposer les cubes vers la zone de tri selon la configuration demandée.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge">FP2</div><div class="fonction-content"><h4>Identifier la couleur</h4><p>Reconnaître la couleur de chaque cube pour décider de son emplacement final.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge">FP3</div><div class="fonction-content"><h4>Trier les cubes</h4><p>Classer les cubes selon leur teinte pour constituer des paquets homogènes.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge">FP4</div><div class="fonction-content"><h4>Communiquer la fin de tâche</h4><p>Signaler la fin du cycle au convoyeur et à l'opérateur.</p></div></div>
+                </div>
+                <div class="card reveal reveal-delay-2">
+                    <div class="fonction-group-title" style="color:var(--text-sub);border-bottom-color:rgba(134,134,139,0.2);">Fonctions Secondaires</div>
+                    <div class="fonction-item"><div class="fonction-badge secondary">Fs1</div><div class="fonction-content"><h4>Paramétrage en direct</h4><p>L'utilisateur peut ajuster les critères de tri sans interrompre le processus.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge secondary">Fs2</div><div class="fonction-content"><h4>Indicateur lumineux</h4><p>Un voyant signale la fin d'un cycle ou l'état courant du système.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge secondary">Fs3</div><div class="fonction-content"><h4>Manipulation multi-cubes</h4><p>Le bras peut saisir plusieurs cubes simultanément pour optimiser le débit.</p></div></div>
+                </div>
+                <div class="card reveal reveal-delay-4">
+                    <div class="fonction-group-title" style="color:#ff3b30;border-bottom-color:rgba(255,59,48,0.2);">Fonctions Contraintes</div>
+                    <div class="fonction-item"><div class="fonction-badge constraint">FC1</div><div class="fonction-content"><h4>Normes de sécurité</h4><p>Conformité aux normes de sécurité pour éviter tout risque d'accident.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge constraint">FC2</div><div class="fonction-content"><h4>Stabilité mécanique</h4><p>Stable sur surface plane pour garantir la précision des mouvements.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge constraint">FC3</div><div class="fonction-content"><h4>Alimentation secteur</h4><p>Le bras doit être alimenté sur secteur en permanence.</p></div></div>
+                    <div class="fonction-item"><div class="fonction-badge constraint">FC4</div><div class="fonction-content"><h4>Connexion Bras ↔ Convoyeur</h4><p>Communication directe pour synchroniser les actions entre les deux systèmes.</p></div></div>
+                </div>
             </div>
-            <div class="card reveal reveal-delay-2">
-                <div class="fonction-group-title" style="color:var(--text-sub);border-bottom-color:rgba(134,134,139,0.2);">Fonctions Secondaires</div>
-                <div class="fonction-item"><div class="fonction-badge secondary">Fs1</div><div class="fonction-content"><h4>Paramétrage en direct</h4><p>L'utilisateur peut ajuster les critères de tri sans interrompre le processus.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge secondary">Fs2</div><div class="fonction-content"><h4>Indicateur lumineux</h4><p>Un voyant signale la fin d'un cycle ou l'état courant du système.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge secondary">Fs3</div><div class="fonction-content"><h4>Manipulation multi-cubes</h4><p>Le bras peut saisir plusieurs cubes simultanément pour optimiser le débit.</p></div></div>
-            </div>
-            <div class="card reveal reveal-delay-4">
-                <div class="fonction-group-title" style="color:#ff3b30;border-bottom-color:rgba(255,59,48,0.2);">Fonctions Contraintes</div>
-                <div class="fonction-item"><div class="fonction-badge constraint">FC1</div><div class="fonction-content"><h4>Normes de sécurité</h4><p>Conformité aux normes de sécurité pour éviter tout risque d'accident.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge constraint">FC2</div><div class="fonction-content"><h4>Stabilité mécanique</h4><p>Stable sur surface plane pour garantir la précision des mouvements.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge constraint">FC3</div><div class="fonction-content"><h4>Alimentation secteur</h4><p>Le bras doit être alimenté sur secteur en permanence.</p></div></div>
-                <div class="fonction-item"><div class="fonction-badge constraint">FC4</div><div class="fonction-content"><h4>Connexion Bras ↔ Convoyeur</h4><p>Communication directe pour synchroniser les actions entre les deux systèmes.</p></div></div>
-            </div>
+            <div class="carousel-dots"></div>
         </div>
     </div>
 </section>
@@ -820,10 +1035,22 @@
             <h2 class="section-title">Comment valider<br>le succès ?</h2>
         </div>
         <div class="criteres-grid">
-            <div class="critere-item reveal"><div class="critere-check">✓</div><p><strong>Déplacement fluide</strong> — Les saccades ne doivent pas décaler la prise du cube en cours de cycle.</p></div>
-            <div class="critere-item reveal reveal-delay-1"><div class="critere-check">✓</div><p><strong>Précision de ±2 mm</strong> — Aucun décalage toléré lors de la pose du cube dans la zone de tri.</p></div>
-            <div class="critere-item reveal reveal-delay-2"><div class="critere-check">✓</div><p><strong>Zéro chute</strong> — Le robot ne doit à aucun moment faire tomber un cube durant sa manipulation.</p></div>
-            <div class="critere-item reveal reveal-delay-3"><div class="critere-check">✓</div><p><strong>Placement correct</strong> — Le robot ne doit pas déposer un cube hors de l'emplacement prévu à cet effet.</p></div>
+            <div class="critere-item reveal">
+                <div class="critere-check">✓</div>
+                <p class="critere-body"><span class="critere-title">Déplacement fluide</span><span class="critere-desc">Les saccades ne doivent pas décaler la prise du cube en cours de cycle.</span></p>
+            </div>
+            <div class="critere-item reveal reveal-delay-1">
+                <div class="critere-check">✓</div>
+                <p class="critere-body"><span class="critere-title">Précision de ±2 mm</span><span class="critere-desc">Aucun décalage toléré lors de la pose du cube dans la zone de tri.</span></p>
+            </div>
+            <div class="critere-item reveal reveal-delay-2">
+                <div class="critere-check">✓</div>
+                <p class="critere-body"><span class="critere-title">Zéro chute</span><span class="critere-desc">Le robot ne doit à aucun moment faire tomber un cube durant sa manipulation.</span></p>
+            </div>
+            <div class="critere-item reveal reveal-delay-3">
+                <div class="critere-check">✓</div>
+                <p class="critere-body"><span class="critere-title">Placement correct</span><span class="critere-desc">Le robot ne doit pas déposer un cube hors de l'emplacement prévu à cet effet.</span></p>
+            </div>
         </div>
     </div>
 </section>
@@ -853,20 +1080,23 @@
             <span class="section-tag">VII — Risques Identifiés</span>
             <h2 class="section-title">Ce qui peut<br>mal tourner.</h2>
         </div>
-        <div class="risques-layout reveal">
-            <div>
-                <div class="risque-group-title">Risques liés au déroulement du projet</div>
-                <div class="risque-item"><div class="risque-dot"></div><p><strong>Expérience limitée</strong> du chef de projet et du PMO susceptible d'impacter les décisions.</p></div>
-                <div class="risque-item"><div class="risque-dot"></div><p><strong>Manque de vision à long terme</strong> pouvant entraîner des retards sur les jalons planifiés.</p></div>
-                <div class="risque-item"><div class="risque-dot"></div><p><strong>Compétences en programmation</strong> actuellement insuffisantes dans l'équipe.</p></div>
-                <div class="risque-item"><div class="risque-dot"></div><p><strong>Intermédiaire de livraison</strong> imposé par le client : risque de retard sur la chaîne de livraison.</p></div>
+        <div class="risques-layout carousel-wrap reveal" data-carousel>
+            <div class="carousel-track">
+                <div>
+                    <div class="risque-group-title">Risques liés au déroulement du projet</div>
+                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Expérience limitée</strong> du chef de projet et du PMO susceptible d'impacter les décisions.</p></div>
+                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Manque de vision à long terme</strong> pouvant entraîner des retards sur les jalons planifiés.</p></div>
+                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Compétences en programmation</strong> actuellement insuffisantes dans l'équipe.</p></div>
+                    <div class="risque-item"><div class="risque-dot"></div><p><strong>Intermédiaire de livraison</strong> imposé par le client : risque de retard sur la chaîne de livraison.</p></div>
+                </div>
+                <div>
+                    <div class="risque-group-title">Risques techniques & qualitatifs</div>
+                    <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Défaillance du capteur optique</strong> entraînant une perte de reconnaissance des couleurs.</p></div>
+                    <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Problème d'adhérence de la pince</strong> générant un risque de chute des cubes en cours de manipulation.</p></div>
+                    <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Usure prématurée des moteurs</strong> pouvant dégrader la précision ou stopper le système.</p></div>
+                </div>
             </div>
-            <div>
-                <div class="risque-group-title">Risques techniques & qualitatifs</div>
-                <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Défaillance du capteur optique</strong> entraînant une perte de reconnaissance des couleurs.</p></div>
-                <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Problème d'adhérence de la pince</strong> générant un risque de chute des cubes en cours de manipulation.</p></div>
-                <div class="risque-item"><div class="risque-dot" style="background:rgba(255,122,0,0.7);box-shadow:0 0 8px rgba(255,122,0,0.4);"></div><p><strong>Usure prématurée des moteurs</strong> pouvant dégrader la précision ou stopper le système.</p></div>
-            </div>
+            <div class="carousel-dots"></div>
         </div>
     </div>
 </section>
@@ -1285,6 +1515,252 @@
         document.addEventListener('gesturechange', (e) => {
             if (document.querySelector('.img-modal-overlay.open')) e.preventDefault();
         });
+    })();
+
+    /* ─── CAROUSEL (Fonctions §III + Risques §VII) ──────────────────
+       Architecture copiée à l'identique de la page ACV :
+        1. matchMedia caché pour isMobile (évite layout reflow)
+        2. attachDragScrub : press-and-drag sur la pilule des dots pour
+           sauter à n'importe quel slide (haptique Android + pulse visuel)
+        3. initCarousels : pour chaque [data-carousel]
+           - détache les dots hors du wrap (pour qu'ils n'aient pas le
+             padding-x négatif du wrap)
+           - ajoute un .carousel-spacer en fin de track (Safari ignore
+             padding-right/margin-right sur scroll containers)
+           - dimensionne chaque item à window.innerWidth - 48px en JS
+             (résiste aux resizes)
+           - dots clickables → goTo(i)
+           - scroll listener → opacité progressive des dots (fade entre
+             deux dots adjacents selon la position de scroll)
+       Sur desktop, le wrap reste un grid normal, les dots sont cachés
+       par CSS, attachDragScrub n'est pas appelé. */
+    (function () {
+        /* Cached matchMedia listener — évite window.innerWidth lookups
+           dans les scroll handlers (force des layout reflows). */
+        const _mqMobile = matchMedia('(max-width: 900px)');
+        let _isMobile = _mqMobile.matches;
+        if (_mqMobile.addEventListener) _mqMobile.addEventListener('change', e => { _isMobile = e.matches; });
+        else if (_mqMobile.addListener)  _mqMobile.addListener(e => { _isMobile = e.matches; }); // Safari < 14
+        const isMobile = () => _isMobile;
+
+        /* ─── DRAG-SCRUB on dots pill ─────────────────────────────────
+           Press-and-drag horizontal sur la pilule pour sauter à
+           n'importe quel slide directement. Un tap court fonctionne
+           toujours comme un click normal sur un dot.
+
+           Haptique : navigator.vibrate fonctionne sur Android, est
+           ignoré sur iOS Safari (Apple n'expose pas le Taptic Engine au
+           web). On compense avec un pulse visuel sur la pilule. */
+        function attachDragScrub(pillEl, count, goTo) {
+            if (!pillEl || count < 2) return;
+
+            let dragging = false;
+            let startX = 0, startY = 0;
+            let pillRect = null;
+            let lastIdx = -1;
+            let pressTimer = null;
+            let pointerId = null;
+            let suppressNextClick = false;
+
+            const SCRUB_DELAY = 500;     // ms held before scrub starts (matches iOS Haptic Touch)
+            const SCRUB_THRESHOLD = 8;   // px de mouvement horizontal pour démarrer
+
+            const haptic = (ms) => {
+                if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (_) {} }
+            };
+
+            function idxFromX(clientX) {
+                const pad = 12;
+                const left = pillRect.left + pad;
+                const usable = pillRect.width - pad * 2;
+                const ratio = (clientX - left) / Math.max(usable, 1);
+                const i = Math.round(ratio * (count - 1));
+                return Math.max(0, Math.min(count - 1, i));
+            }
+
+            function startScrub(clientX) {
+                dragging = true;
+                pillEl.style.cursor = 'grabbing';
+                haptic(15);
+                pillEl.classList.add('scrub-active');
+                scrubTo(clientX);
+            }
+
+            function scrubTo(clientX) {
+                const i = idxFromX(clientX);
+                if (i !== lastIdx) {
+                    if (lastIdx !== -1) haptic(8);
+                    lastIdx = i;
+                    goTo(i, true);
+                }
+            }
+
+            pillEl.addEventListener('pointerdown', (e) => {
+                if (e.button && e.button !== 0) return;
+                pointerId = e.pointerId;
+                startX = e.clientX;
+                startY = e.clientY;
+                pillRect = pillEl.getBoundingClientRect();
+                lastIdx = -1;
+                dragging = false;
+
+                pressTimer = setTimeout(() => {
+                    if (pointerId !== null) {
+                        try { pillEl.setPointerCapture(pointerId); } catch (_) {}
+                        startScrub(startX);
+                    }
+                }, SCRUB_DELAY);
+            });
+
+            pillEl.addEventListener('pointermove', (e) => {
+                if (pointerId === null || e.pointerId !== pointerId) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                if (!dragging) {
+                    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+                        clearTimeout(pressTimer);
+                        pointerId = null;
+                        return;
+                    }
+                    if (Math.abs(dx) > SCRUB_THRESHOLD) {
+                        clearTimeout(pressTimer);
+                        try { pillEl.setPointerCapture(e.pointerId); } catch (_) {}
+                        startScrub(e.clientX);
+                    }
+                } else {
+                    e.preventDefault();
+                    scrubTo(e.clientX);
+                }
+            });
+
+            function endDrag(e) {
+                if (pointerId === null || e.pointerId !== pointerId) return;
+                clearTimeout(pressTimer);
+                try { pillEl.releasePointerCapture(pointerId); } catch (_) {}
+                if (dragging) {
+                    pillEl.style.cursor = '';
+                    pillEl.classList.remove('scrub-active');
+                    if (lastIdx >= 0) goTo(lastIdx, false);
+                    suppressNextClick = true;
+                    setTimeout(() => { suppressNextClick = false; }, 350);
+                }
+                dragging = false;
+                pointerId = null;
+                lastIdx = -1;
+            }
+            pillEl.addEventListener('pointerup', endDrag);
+            pillEl.addEventListener('pointercancel', endDrag);
+
+            pillEl.addEventListener('click', (e) => {
+                if (suppressNextClick) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }, true);
+
+            pillEl.style.touchAction = 'pan-y';
+            pillEl.style.userSelect = 'none';
+            pillEl.style.webkitUserSelect = 'none';
+        }
+
+        /* ─── INIT CAROUSELS ─── */
+        function initCarousels() {
+            document.querySelectorAll('[data-carousel]').forEach(wrap => {
+                const track = wrap.querySelector('.carousel-track');
+                const dotsEl = wrap.querySelector('.carousel-dots');
+                if (!track || !dotsEl) return;
+
+                // Détache les dots hors du wrap (sinon ils héritent
+                // du scroll horizontal et du margin négatif)
+                if (!wrap.dataset.dotsDetached) {
+                    wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
+                    wrap.dataset.dotsDetached = 'true';
+                }
+
+                // Retire un ancien spacer s'il existe
+                const old = track.querySelector('.carousel-spacer');
+                if (old) old.remove();
+
+                // Ajoute un trailing spacer (élément DOM réel —
+                // Safari ignore padding-right/margin-right sur
+                // scroll containers)
+                const spacer = document.createElement('div');
+                spacer.className = 'carousel-spacer';
+                spacer.setAttribute('aria-hidden', 'true');
+                track.appendChild(spacer);
+
+                const items = Array.from(track.children).filter(el => !el.classList.contains('carousel-spacer'));
+                const count = items.length;
+                let cur = 0;
+
+                const itemW = () => window.innerWidth - 48;
+                const step  = () => itemW() + 12; // itemWidth + gap
+
+                function sizeItems() {
+                    if (!isMobile()) {
+                        items.forEach(it => it.style.width = '');
+                        return;
+                    }
+                    items.forEach(it => it.style.width = itemW() + 'px');
+                }
+                sizeItems();
+                window.addEventListener('resize', sizeItems);
+                window.addEventListener('load', sizeItems);
+
+                // Dots — pilule liquid glass sur mobile
+                dotsEl.innerHTML = '';
+                const dotsContainer = isMobile() ? (() => {
+                    const inner = document.createElement('div');
+                    inner.className = 'carousel-dots-inner';
+                    dotsEl.appendChild(inner);
+                    return inner;
+                })() : dotsEl;
+
+                items.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'carousel-dot';
+                    btn.addEventListener('click', () => goTo(i));
+                    dotsContainer.appendChild(btn);
+                });
+
+                // Drag-scrub sur la pilule (mobile uniquement)
+                if (isMobile()) attachDragScrub(dotsContainer, count, goTo);
+
+                function goTo(idx, instant) {
+                    cur = Math.max(0, Math.min(count - 1, idx));
+                    wrap.scrollTo({ left: cur * step(), behavior: instant ? 'auto' : 'smooth' });
+                }
+
+                wrap.addEventListener('scroll', () => {
+                    const s = Math.max(step(), 1);
+                    const progress = wrap.scrollLeft / s;
+                    const left = Math.min(Math.floor(progress), count - 1);
+                    const frac = progress - left;
+                    dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                        let op;
+                        if      (i === left)     op = 1 - frac * 0.75;
+                        else if (i === left + 1) op = 0.25 + frac * 0.75;
+                        else                     op = 0.25;
+                        d.style.background = `rgba(255,255,255,${op})`;
+                        d.classList.remove('active');
+                    });
+                    cur = Math.round(progress);
+                }, { passive: true });
+
+                requestAnimationFrame(() => {
+                    sizeItems();
+                    // Force au 1er item — iOS Safari restaure parfois le scroll
+                    wrap.scrollLeft = 0;
+                    setTimeout(() => { wrap.scrollLeft = 0; }, 100);
+                    dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                        d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
+                    });
+                });
+            });
+        }
+
+        initCarousels();
     })();
 </script>
 </body>
