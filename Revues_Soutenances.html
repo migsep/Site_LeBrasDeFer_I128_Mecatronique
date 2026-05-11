@@ -426,6 +426,22 @@
 
         /* Responsive */
         @media (max-width: 900px) {
+            /* ─── Header mobile : même style que le hero du Cahier des Charges ─── */
+            header {
+                padding: 80px 18px;
+            }
+            header h1 {
+                font-size: clamp(2.2rem, 11vw, 5rem);
+                letter-spacing: -1px;
+                font-weight: 900;
+            }
+            header p {
+                font-size: 1.05rem;
+                max-width: 100%;
+                padding: 0 4px;
+            }
+            header p br { display: none; }
+
             .timeline-line {
                 left: 30px;
                 /* box-shadow trop coûteux à repaint à chaque frame de scroll sur mobile */
