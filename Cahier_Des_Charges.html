@@ -717,6 +717,103 @@
             /* Neutralise le " — " du flow desktop */
             .critere-desc::before { content: ""; }
 
+            /* ─── §II Objectifs : même pattern Apple Tech-Specs ───────
+               Identique aux .critere-item, sauf que le marqueur à gauche
+               est le numéro "01/02/03/04" en orange neon (au lieu du
+               check vert). Le HTML existant a déjà h4 + p séparés dans
+               un wrapper .obj-text → on utilise display: contents pour
+               les remonter dans la grille. */
+            .obj-item {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 24px 24px;
+                display: grid;
+                grid-template-columns: auto 1fr;
+                grid-template-areas:
+                    "num   title"
+                    "desc  desc";
+                column-gap: 20px;
+                align-items: center;
+                gap: 0 20px;
+            }
+            .obj-num {
+                grid-area: num;
+                min-width: 0;
+            }
+            .obj-text { display: contents; }
+            .obj-text h4 {
+                grid-area: title;
+                font-family: "Inter", sans-serif;
+                font-size: 1.15rem;
+                font-weight: 700;
+                color: var(--text-main);
+                line-height: 1.25;
+                letter-spacing: -0.2px;
+                margin: 0;
+            }
+            .obj-text p {
+                grid-area: desc;
+                margin-top: 20px;
+                padding-top: 24px;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                color: var(--text-sub);
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+
+            /* ─── §IV Contraintes — version mobile ────────────────────
+
+               1) Contraintes Qualitatives : suppression des 4 box, et
+                  disposition en 2×2. La règle générale précédente force
+                  .contraintes-hero à grid-template-columns: 1fr → on
+                  override avec repeat(2, 1fr) et !important.
+
+                  "Croix au milieu" : on utilise des bordures sélectives
+                  sur chaque card pour ne dessiner que les 2 traits
+                  centraux de la grille 2×2.
+                  - card 1 (top-left)     : right + bottom
+                  - card 2 (top-right)    : bottom seulement
+                  - card 3 (bottom-left)  : right seulement
+                  - card 4 (bottom-right) : aucune
+                  Le résultat visuel = un "+" parfait au centre.
+
+               2) Contraintes Financières : suppression de la box, et
+                  inversion de l'ordre (1 500 € au-dessus du texte).
+                  flex-direction: column-reverse fait ça en CSS pur sans
+                  toucher au HTML — le DOM reste accessible dans l'ordre
+                  logique (texte explicatif d'abord). */
+            .contraintes-hero {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0 !important;
+            }
+            .stat-card {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 28px 12px;
+            }
+            .stat-card:nth-child(1),
+            .stat-card:nth-child(2) {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            }
+            .stat-card:nth-child(1),
+            .stat-card:nth-child(3) {
+                border-right: 1px solid rgba(255, 255, 255, 0.15);
+            }
+
+            .budget-layout {
+                flex-direction: column-reverse;
+            }
+            .budget-box {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+                text-align: center;
+            }
+            .budget-box-lbl { margin-top: 6px; }
+
             /* ─── §IX Synthèse : suppression sélective des boxes ──────
                1. .synthese-perimetre (la grande box gauche) → de-boxed
                2. Titre "Périmètre Système" → mêmes propriétés que les
