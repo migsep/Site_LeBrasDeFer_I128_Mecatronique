@@ -624,6 +624,20 @@
             }
             .hero-sub br { display: none; } /* laisser le texte respirer naturellement */
 
+            /* ─── Filet de sécurité global ───
+               Empêche tout élément (image, table, code, mot très long…)
+               de dépasser la largeur du viewport et de recréer du scroll
+               horizontal. Approche identique à celle utilisée sur ACV. */
+            img, svg, video, canvas, iframe, table, pre {
+                max-width: 100%;
+                height: auto;
+            }
+            /* Coupe les mots qui ne rentrent vraiment pas (URLs longues, etc.) */
+            p, h1, h2, h3, h4, h5, h6, li, td, th, a, span, strong {
+                overflow-wrap: break-word;
+                word-wrap: break-word;
+            }
+
             /* ─── Perf : désactivation du backdrop-filter sur mobile ───
                C'est l'effet GPU le plus coûteux, surtout iOS Safari qui
                re-paint à chaque frame de scroll. On compense en bumpant
