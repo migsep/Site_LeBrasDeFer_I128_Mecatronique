@@ -382,10 +382,21 @@
         .reveal.active .stagger-children > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.53s; }
         .reveal.active .stagger-children > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.65s; }
 
-        /* Sur mobile : translation plus courte */
+        /* Sur mobile : pas de transform sur les .reveal (économie GPU).
+           Les animations transform sont sujettes à jank sur les GPU mobiles,
+           surtout iOS Safari. Une fade opacity-only est aussi élégante
+           et nettement moins coûteuse. */
         @media (max-width: 900px) {
-            .reveal { transform: translateY(22px); }
-            .reveal.active { transform: translateY(0); }
+            .reveal {
+                transform: none;
+                transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1);
+            }
+            .reveal.active { transform: none; }
+            .stagger-children > * {
+                transform: none;
+                transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1);
+            }
+            .reveal.active .stagger-children > * { transform: none; }
         }
 
         /* ─── APPLE-STYLE FLOATING BOTTOM BAR ─── */
@@ -586,10 +597,49 @@
             .livrables-grid { grid-template-columns: repeat(2, 1fr); }
             .nav-bubble-wrapper { top: 16px; right: 16px; }
 
+            /* ─── Densité : plus d'espace utile sur petits écrans ─── */
+            .container { padding: 0 18px; }
+            section { padding: 80px 0; }
+
+            /* ─── Perf : désactivation du backdrop-filter sur mobile ───
+               C'est l'effet GPU le plus coûteux, surtout iOS Safari qui
+               re-paint à chaque frame de scroll. On compense en bumpant
+               l'opacité du fond pour garder un rendu lisible. */
+            .nav-bubble-toggle {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                background: rgba(28, 28, 30, 0.85);
+            }
+            .nav-bubble-menu {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                background: rgba(20, 20, 22, 0.95);
+            }
+            .apple-bar {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                background: rgba(22, 22, 24, 0.92);
+            }
+
+            /* ─── Cosmétique : scrollbar masquée sur mobile ─── */
+            ::-webkit-scrollbar { width: 0; height: 0; }
+
             /* Mobile-specific lightbox tweak: leave more room for the hint */
             .img-modal-box img {
                 max-width: 92vw;
                 max-height: 82vh;
+            }
+        }
+
+        /* ─── Accessibilité : respect de prefers-reduced-motion ───
+           Désactive (quasi totalement) les animations pour les utilisateurs
+           sensibles au mouvement (vestibulaire, migraine, etc.). */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
             }
         }
     </style>
