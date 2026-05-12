@@ -1771,15 +1771,36 @@
             }
 
             function updateTransform() {
-                /* Bornes calculées sur la zone visible réelle (pas la box).
-                   À scale=4 sur image 346×195, on peut translater jusqu'à
-                   ±(346×4 - 346)/2 = ±519px en X et ±(195×4 - 195)/2 =
-                   ±292px en Y. Au-delà, l'image réelle quitte l'écran. */
+                /* Bornes calculées sur la zone visible réelle */
                 const maxX = Math.max(0, (visibleW * scale - visibleW) / 2);
                 const maxY = Math.max(0, (visibleH * scale - visibleH) / 2);
 
+                /* CLAMP DUR sur les variables logiques pointX/pointY.
+
+                   Bug iOS Safari 26 corrigé ici : quand pointX divergeait
+                   vers des valeurs énormes (300+ au-delà des bornes par
+                   accumulation au cours du drag), iOS refusait de
+                   render le translate3d correspondant — l'image
+                   devenait totalement invisible pendant tout le drag.
+                   En clampant pointX/pointY directement (pas seulement
+                   la valeur affichée), on garantit que la valeur
+                   logique reste toujours dans des limites raisonnables.
+
+                   On garde le rubber band visuel (zone élastique au
+                   rendu, +60px max au-delà du clamp), mais à l'intérieur
+                   d'un range strict pour pointX/Y eux-mêmes. */
+                const RUBBER_OVERFLOW = 60; // max élasticité visible
+                pointX = Math.max(-maxX - RUBBER_OVERFLOW,
+                          Math.min(maxX + RUBBER_OVERFLOW, pointX));
+                pointY = Math.max(-maxY - RUBBER_OVERFLOW,
+                          Math.min(maxY + RUBBER_OVERFLOW, pointY));
+
+                /* Rubber band cosmétique : compression progressive du
+                   pan au rendu. La valeur logique est dans [-maxX-60, maxX+60],
+                   et au rendu on l'écrase asymptotiquement pour qu'à
+                   l'extrême le débord visuel reste ~20px. */
                 const RUBBER = 0.35;
-                function rubberClamp(v, max) {
+                function rubberCompress(v, max) {
                     if (max === 0) return 0;
                     if (Math.abs(v) <= max) return v;
                     const sign = v < 0 ? -1 : 1;
@@ -1787,9 +1808,8 @@
                     return sign * (max + overflow * RUBBER / (1 + overflow / 80));
                 }
 
-                /* Pixel-perfect + GPU layer permanent (cf. CSS) */
-                const px = Math.round(rubberClamp(pointX, maxX));
-                const py = Math.round(rubberClamp(pointY, maxY));
+                const px = Math.round(rubberCompress(pointX, maxX));
+                const py = Math.round(rubberCompress(pointY, maxY));
                 const s = Math.round(scale * 1000) / 1000;
 
                 img.style.transform =
