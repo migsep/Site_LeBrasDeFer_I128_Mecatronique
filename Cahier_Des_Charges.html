@@ -665,7 +665,76 @@
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
                 background: rgba(0, 0, 0, 0.96);
+                /* Sur mobile, on n'a plus besoin de touch-action: none
+                   car le zoom/pan est géré nativement par .img-modal-box.
+                   On laisse touch-action: pan-y pour que le tap soit
+                   détecté correctement par le handler de fermeture. */
+                touch-action: auto;
+                -ms-touch-action: auto;
+                overscroll-behavior: contain;
             }
+            /* ─── IMAGE ZOOM/PAN NATIF MOBILE ────────────────────────
+               Au lieu de gérer touch events + transforms en JS (qui
+               causait le bug iOS 26 d'image invisible pendant le drag),
+               on fait confiance au navigateur :
+                 - .img-modal-box devient un scroll container
+                 - touch-action: pinch-zoom autorise le pinch natif
+                 - overflow: auto autorise le pan via scroll natif
+                 - l'image en taille naturelle (object-fit retiré)
+                   déborde du container quand zoomée → scroll naturel
+               Le navigateur gère bornes, momentum, élasticité tout seul.
+               Zéro code custom = zéro bug possible. */
+            .img-modal-box {
+                width: 100vw;
+                height: 100vh;
+                max-width: 100vw;
+                max-height: 100vh;
+                overflow: auto;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pinch-zoom;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+                /* Centre l'image quand elle n'est pas zoomée */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                /* Pas de transform sur la box (sinon ça casse le scroll) */
+                transform: none !important;
+                will-change: auto;
+            }
+            .img-modal-overlay.open .img-modal-box {
+                transform: none !important;
+            }
+            .img-modal-box img {
+                /* Image en taille intrinsèque limitée au viewport.
+                   max-width: none + max-height: 100vh + width: auto =
+                   l'image affiche en grand mais reste dans le viewport
+                   au repos. Quand l'utilisateur pinch-zoom natif, le
+                   navigateur scale visuellement la couche entière. */
+                max-width: 100%;
+                max-height: 100vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                /* Toutes les bidouilles touch sont retirées : le
+                   navigateur s'en occupe nativement. */
+                touch-action: auto;
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-touch-callout: none;
+                transition: none;
+                transform: none;
+                will-change: auto;
+                cursor: default;
+                border-radius: 0;
+                /* flex-shrink: 0 pour que l'image puisse dépasser le
+                   container une fois zoomée (sinon flex la rétrécirait
+                   pour rentrer) → c'est ce qui crée le scroll natif. */
+                flex-shrink: 0;
+            }
+            .img-modal-close { display: none; }
         }
 
         /* FOOTER */
@@ -1688,9 +1757,12 @@
         if (!overlay) return;
         overlay.classList.remove('open');
         document.body.style.overflow = '';
-        // Reset image transform (zoom/pan on mobile)
+        // Reset image transform (desktop zoom/pan)
         const img = overlay.querySelector('img');
         if (img) img.style.transform = '';
+        // Reset scroll position of native mobile zoom container
+        const box = overlay.querySelector('.img-modal-box');
+        if (box) { box.scrollLeft = 0; box.scrollTop = 0; }
     }
     function closeModalOnBg(e, id) {
         const overlay = document.getElementById(id);
@@ -1713,6 +1785,7 @@
     /* ─── LIGHTBOX BEHAVIOR (desktop wheel/drag + mobile pinch/drag + click/tap to close) ─── */
     (function () {
         const mqMobile = window.matchMedia('(max-width: 900px)');
+        const isMobile = () => mqMobile.matches;
 
         function hintText() {
             return mqMobile.matches
@@ -1871,95 +1944,42 @@
                 isDragging = false;
             });
 
-            /* ─── MOBILE: PINCH + DRAG + TAP ─── */
-            overlay.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 2) {
-                    e.preventDefault();
-                    const dx = e.touches[0].clientX - e.touches[1].clientX;
-                    const dy = e.touches[0].clientY - e.touches[1].clientY;
-                    lastTouchDist = Math.hypot(dx, dy);
-                    isDragging = false;
-                    movedSignificantly = true;
-                } else if (e.touches.length === 1) {
-                    /* iOS back-swipe prévention :
-                       Le geste "swipe-back" se déclenche quand le doigt
-                       part de l'extrémité gauche (~20px) ou droite. En
-                       appelant preventDefault dès le touchstart, on
-                       signale à iOS qu'on consomme le touch — il
-                       n'initie plus son geste de navigation. */
-                    e.preventDefault();
-                    startX = e.touches[0].clientX - pointX;
-                    startY = e.touches[0].clientY - pointY;
-                    touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                    isDragging = true;
-                    movedSignificantly = false;
-                }
-            }, { passive: false });
+            /* ─── MOBILE: pinch-zoom + pan NATIFS via .img-modal-box ─
+               Plus aucun handler touch custom. Le navigateur gère :
+                 - pinch-zoom via touch-action: pinch-zoom (CSS)
+                 - pan via overflow: auto sur .img-modal-box (CSS)
+                 - bornes, momentum, élasticité : natifs
+               On ajoute juste un tap-to-close qui ne se déclenche
+               QUE si l'utilisateur n'a pas zoomé ni scrollé. */
+            if (isMobile()) {
+                const box = overlay.querySelector('.img-modal-box');
+                let tapStartX = 0, tapStartY = 0, tapStartScroll = 0;
+                let multiTouch = false;
 
-            overlay.addEventListener('touchmove', (e) => {
-                /* preventDefault systématique pendant un drag en cours,
-                   qu'on soit zoomé ou pas — autrement, en touchant le
-                   bord latéral, iOS Safari reprend la main et envoie
-                   un touchcancel qui interrompt notre transform.
-                   Visuellement, ça donne l'effet de clignotement. */
-                if (isDragging || e.touches.length === 2) {
-                    e.preventDefault();
-                }
+                overlay.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 1) { multiTouch = true; return; }
+                    multiTouch = false;
+                    tapStartX = e.touches[0].clientX;
+                    tapStartY = e.touches[0].clientY;
+                    tapStartScroll = box ? (box.scrollLeft + box.scrollTop) : 0;
+                }, { passive: true });
 
-                if (e.touches.length === 1 && isDragging) {
-                    const dx = e.touches[0].clientX - touchStartX;
-                    const dy = e.touches[0].clientY - touchStartY;
-                    if (Math.hypot(dx, dy) > 10) movedSignificantly = true;
-                    if (scale > 1) {
-                        pointX = e.touches[0].clientX - startX;
-                        pointY = e.touches[0].clientY - startY;
-                        updateTransform();
-                    }
-                } else if (e.touches.length === 2) {
-                    movedSignificantly = true;
-                    const dx = e.touches[0].clientX - e.touches[1].clientX;
-                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                overlay.addEventListener('touchend', (e) => {
+                    if (multiTouch) { multiTouch = false; return; }
+                    if (e.touches.length > 0) return;
+                    if (!e.changedTouches || !e.changedTouches[0]) return;
+                    const dx = e.changedTouches[0].clientX - tapStartX;
+                    const dy = e.changedTouches[0].clientY - tapStartY;
                     const dist = Math.hypot(dx, dy);
-                    if (lastTouchDist) {
-                        const delta = (dist - lastTouchDist) * 0.01;
-                        scale = Math.min(Math.max(1, scale + delta), 5);
-                        if (scale === 1) { pointX = 0; pointY = 0; }
-                        updateTransform();
-                    }
-                    lastTouchDist = dist;
-                }
-            }, { passive: false });
-
-            overlay.addEventListener('touchend', (e) => {
-                if (e.touches.length === 0) {
-                    // Tap (no drag, no pinch) → close
-                    if (!movedSignificantly) {
+                    const scrollDelta = box ? Math.abs((box.scrollLeft + box.scrollTop) - tapStartScroll) : 0;
+                    // Tap = bougé < 10px ET pas de scroll → ferme
+                    if (dist < 10 && scrollDelta < 5) {
                         closeModal(overlay.id);
-                    } else if (scale > 1) {
-                        // Snap-back élastique : si l'utilisateur a panné
-                        // au-delà des bornes (zone rubber band), on revient
-                        // proprement dans les limites avec une transition
-                        // douce — exactement comme iOS Photos.
-                        snapBackToBounds();
+                        overlay._touchHandled = true;
+                        setTimeout(() => { overlay._touchHandled = false; }, 400);
                     }
-                    // Flag to prevent the synthetic click from re-firing close
-                    overlay._touchHandled = true;
-                    setTimeout(() => { overlay._touchHandled = false; }, 400);
-                    isDragging = false;
-                    lastTouchDist = null;
-                }
-            }, { passive: false });
-
-            /* touchcancel : iOS l'envoie quand un geste système prend
-               le dessus (back-swipe, App Switcher, notif drawer, etc).
-               Si on ne gère pas ce cas, isDragging reste à true, et le
-               prochain touchstart se comportera bizarrement. */
-            overlay.addEventListener('touchcancel', () => {
-                isDragging = false;
-                lastTouchDist = null;
-                movedSignificantly = false;
-            }, { passive: false });
+                }, { passive: true });
+            }
         });
 
         /* Refresh hint text when viewport crosses the mobile breakpoint */
@@ -1972,14 +1992,6 @@
         } else if (mqMobile.addListener) {
             mqMobile.addListener(refreshHints); // Safari < 14
         }
-
-        /* iOS Safari : block double-tap-zoom & page pinch when a modal is open */
-        document.addEventListener('gesturestart', (e) => {
-            if (document.querySelector('.img-modal-overlay.open')) e.preventDefault();
-        });
-        document.addEventListener('gesturechange', (e) => {
-            if (document.querySelector('.img-modal-overlay.open')) e.preventDefault();
-        });
     })();
 
     /* ─── CAROUSEL (Fonctions §III + Risques §VII) ──────────────────
