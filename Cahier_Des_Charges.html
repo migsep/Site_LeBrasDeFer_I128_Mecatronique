@@ -1722,33 +1722,43 @@
             let touchStartX = 0, touchStartY = 0;
             let movedSignificantly = false;
 
-            /* Taille de référence (scale=1) cachée pour éviter les
-               erreurs de précision flottante à fort zoom. Sans ça,
-               getBoundingClientRect() retournait des valeurs scalées,
-               et calculer "baseW = rect.width / scale" introduisait des
-               microvariations qui s'accumulaient à scale=5 — d'où les
-               flashs aux extrémités à très fort zoom. */
-            let baseW = 0, baseH = 0;
+            /* Taille de référence cachée. À cause de object-fit: contain,
+               la box <img> peut être bien plus grande que l'image visible
+               réelle (ex: image 16:9 dans une box 88vw × 88vh sur mobile
+               portrait = beaucoup de vide transparent en haut/bas). On
+               doit calculer les bornes de pan sur la zone VISIBLE de
+               l'image, pas la box. Sinon, à pan max, l'image réelle
+               sort de l'écran mais la box est encore "dedans" → iOS
+               désalloue le layer GPU → flash.
+
+               Cette différence est ENORME pour les images rectangulaires
+               (horizontales) sur mobile portrait : box 346×750 mais
+               image visible 346×195 si ratio 16:9. */
+            let visibleW = 0, visibleH = 0;
             function refreshBaseSize() {
-                // Mesure la taille naturelle à scale=1, transform reset
-                const savedTransform = img.style.transform;
-                const savedTransition = img.style.transition;
-                img.style.transition = 'none';
-                img.style.transform = 'none';
-                const r = img.getBoundingClientRect();
-                baseW = r.width;
-                baseH = r.height;
-                img.style.transform = savedTransform;
-                // restore transition au prochain frame (sinon snap-back instantané)
-                requestAnimationFrame(() => { img.style.transition = savedTransition; });
+                // Dimensions naturelles de l'image (résolution source)
+                const natW = img.naturalWidth;
+                const natH = img.naturalHeight;
+                if (!natW || !natH) return; // image pas encore chargée
+
+                // Dimensions max de la box dans le viewport actuel
+                const maxBoxW = window.innerWidth * 0.88;
+                const maxBoxH = window.innerHeight * 0.88;
+
+                // Calcul object-fit: contain — l'image est scalée pour
+                // entrer dans la box en préservant son ratio.
+                const ratio = Math.min(maxBoxW / natW, maxBoxH / natH);
+                visibleW = natW * ratio;
+                visibleH = natH * ratio;
             }
 
             function updateTransform() {
-                /* Bornes calculées depuis la taille de référence cachée :
-                   à scale=4 avec image de 350px, on peut translater de
-                   ±(350×4 - 350)/2 = ±525px. Au-delà, rubber band. */
-                const maxX = Math.max(0, (baseW * scale - baseW) / 2);
-                const maxY = Math.max(0, (baseH * scale - baseH) / 2);
+                /* Bornes calculées sur la zone visible réelle (pas la box).
+                   À scale=4 sur image 346×195, on peut translater jusqu'à
+                   ±(346×4 - 346)/2 = ±519px en X et ±(195×4 - 195)/2 =
+                   ±292px en Y. Au-delà, l'image réelle quitte l'écran. */
+                const maxX = Math.max(0, (visibleW * scale - visibleW) / 2);
+                const maxY = Math.max(0, (visibleH * scale - visibleH) / 2);
 
                 const RUBBER = 0.35;
                 function rubberClamp(v, max) {
@@ -1759,16 +1769,10 @@
                     return sign * (max + overflow * RUBBER / (1 + overflow / 80));
                 }
 
-                /* Arrondi sous-pixel + translateZ(0) :
-                   - Math.round() élimine le sous-pixel jitter qui force
-                     iOS Safari à repaint partiel à chaque frame quand
-                     scale est élevé (5x amplifie chaque sous-pixel).
-                   - translateZ(0) force la création d'un compositing
-                     layer GPU dédié et persistant → pas de désallocation
-                     même si l'image dépasse temporairement le viewport. */
+                /* Pixel-perfect + GPU layer permanent (cf. CSS) */
                 const px = Math.round(rubberClamp(pointX, maxX));
                 const py = Math.round(rubberClamp(pointY, maxY));
-                const s = Math.round(scale * 1000) / 1000; // 3 décimales max
+                const s = Math.round(scale * 1000) / 1000;
 
                 img.style.transform =
                     `translate3d(${px}px, ${py}px, 0) scale(${s})`;
@@ -1777,8 +1781,8 @@
             /* Snap-back : remet les valeurs dans les bornes strictes
                quand le drag se termine, avec une transition douce. */
             function snapBackToBounds() {
-                const maxX = Math.max(0, (baseW * scale - baseW) / 2);
-                const maxY = Math.max(0, (baseH * scale - baseH) / 2);
+                const maxX = Math.max(0, (visibleW * scale - visibleW) / 2);
+                const maxY = Math.max(0, (visibleH * scale - visibleH) / 2);
                 const targetX = Math.max(-maxX, Math.min(maxX, pointX));
                 const targetY = Math.max(-maxY, Math.min(maxY, pointY));
                 if (targetX !== pointX || targetY !== pointY) {
@@ -1793,7 +1797,7 @@
             }
 
             // Mesure initiale au load de l'image, ré-mesure au resize
-            if (img.complete) refreshBaseSize();
+            if (img.complete && img.naturalWidth) refreshBaseSize();
             else img.addEventListener('load', refreshBaseSize, { once: true });
             window.addEventListener('resize', refreshBaseSize);
 
