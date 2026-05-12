@@ -151,6 +151,72 @@
             .bento-grid:not(.carousel-wrap) { display: flex; flex-direction: column; }
         }
 
+        /* Critères card — layout desktop */
+        .criteres-card {
+            flex-direction: row;
+            align-items: center;
+            padding: 20px 40px;
+        }
+        .criteres-badges {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
+
+        /* =============================================
+           MOBILE — correctifs généraux (≤ 768px)
+        ============================================= */
+        @media (max-width: 768px) {
+            /* Empêche tout débordement horizontal à la racine */
+            html, body { max-width: 100%; overflow-x: hidden; }
+
+            /* Respiration entre chapitres */
+            .chapter { margin-bottom: 72px; }
+
+            /* Titres de chapitres */
+            .chapter-header { margin-bottom: 32px; }
+            .chapter-header h2 { font-size: clamp(1.6rem, 8vw, 3rem); }
+            .chapter-header p  { font-size: clamp(0.95rem, 3.5vw, 1.3rem); }
+
+            /* Padding des cards réduit */
+            .card { padding: 20px; border-radius: 20px; }
+
+            /* Critères de filtrage — empilement vertical sur mobile */
+            .criteres-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+                gap: 14px;
+            }
+            .criteres-badges {
+                margin-left: 0;
+                gap: 10px;
+            }
+            .criteres-badges span { font-size: 0.8rem; padding: 6px 14px; }
+
+            /* Tableau de conclusion — scroll horizontal */
+            .compare-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -20px;
+                padding: 0 20px;
+            }
+            .compare-table { min-width: 460px; }
+            .compare-table th,
+            .compare-table td { font-size: 0.82rem; padding: 14px 8px; }
+
+            /* Conclusion h3 */
+            .conclusion-h3 { font-size: clamp(1.2rem, 6vw, 2rem) !important; }
+
+            /* Modal texte */
+            #text-card { padding: 24px 20px; }
+
+            /* Hover désactivé (les appareils tactiles ne font pas :hover correctement) */
+            .card:hover        { transform: none; }
+            .card-interactive:hover { transform: none; border-color: var(--border); box-shadow: none; }
+        }
+
         /* =============================================
            CARROUSEL MOBILE (style identique à ACV)
         ============================================= */
@@ -371,15 +437,14 @@
             </div>
 
             <div class="bento-grid" style="margin-bottom: 24px;">
-                <div class="card col-12 card-interactive" 
-                     style="flex-direction: row; align-items: center; padding: 20px 40px;"
+                <div class="card col-12 card-interactive criteres-card"
                      onclick="openTextModal('content-criteres')">
                     
                     <div style="display: flex; align-items: center;">
                         <span class="tech-font" style="margin-right: 15px;">CRITÈRES DE FILTRAGE :</span>
                     </div>
 
-                    <div style="display: flex; gap: 20px; margin-left: auto;">
+                    <div class="criteres-badges">
                         <span style="background: #222; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem;">Limite Élastique > 35 MPa</span>
                         <span style="background: #222; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem;">Masse < 200g</span>
                     </div>
@@ -439,6 +504,7 @@
             </div>
 
             <div class="card col-12 neon-border" style="background: rgba(255, 122, 0, 0.02);">
+                <div class="compare-table-wrap">
                 <table class="compare-table">
                     <thead>
                         <tr>
@@ -480,10 +546,11 @@
                         </tr>
                     </tbody>
                 </table>
+                </div><!-- /.compare-table-wrap -->
 
                 <div style="margin-top: 40px; text-align: center;">
                     <span class="section-tag">CONCLUSION FINALE</span>
-                    <h3 style="font-size: 2rem; color: white;">ALUMINIUM 6061</h3>
+                    <h3 class="conclusion-h3" style="font-size: 2rem; color: white;">ALUMINIUM 6061</h3>
                     <p style="color: var(--text-sub); max-width: 700px; margin: 10px auto;">
                         Malgré un poids légèrement supérieur, l'aluminium est retenu. Il est <strong>13x moins cher</strong>, disponible immédiatement à l'école, et son <strong>impact environnemental global</strong> est meilleur grâce à sa recyclabilité totale.
                     </p>
