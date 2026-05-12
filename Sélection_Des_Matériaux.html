@@ -147,7 +147,90 @@
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255, 122, 0, 0.5); }
 
-        @media (max-width: 900px) { .bento-grid { display: flex; flex-direction: column; } }
+        @media (max-width: 900px) {
+            .bento-grid:not(.carousel-wrap) { display: flex; flex-direction: column; }
+        }
+
+        /* =============================================
+           CARROUSEL MOBILE (style identique à ACV)
+        ============================================= */
+        .carousel-wrap { position: relative; }
+
+        @media (min-width: 769px) {
+            .carousel-track { display: contents; }
+            .carousel-dots  { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .carousel-wrap {
+                display: block !important;
+                overflow-x: auto !important;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                overscroll-behavior-x: contain;
+                margin-left: -16px !important;
+                margin-right: -16px !important;
+                width: 100vw !important;
+                touch-action: pan-x pan-y;
+                opacity: 0;
+                transition: opacity 1s ease;
+            }
+            .carousel-wrap.visible { opacity: 1; }
+            .carousel-wrap::-webkit-scrollbar { display: none; }
+
+            .carousel-track {
+                display: flex !important;
+                gap: 12px;
+                padding-left: 24px;
+            }
+            .carousel-track > * {
+                flex: 0 0 auto;
+                scroll-snap-align: center;
+                box-sizing: border-box;
+                min-width: 0;
+            }
+            .carousel-spacer {
+                flex: 0 0 24px !important;
+                width: 24px !important;
+                pointer-events: none;
+                scroll-snap-align: none !important;
+            }
+            /* Liquid Glass dots pill */
+            .carousel-dots {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 16px;
+                padding: 4px 0;
+            }
+            .carousel-dots-inner {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.08);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255,255,255,0.15);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.3);
+            }
+            .carousel-dot {
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.25);
+                cursor: pointer;
+                border: none; padding: 0;
+                flex-shrink: 0;
+                position: relative;
+            }
+            .carousel-dot::after {
+                content: '';
+                position: absolute;
+                inset: -10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -157,11 +240,11 @@
     <header style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;" class="reveal">
         <span class="section-tag">Analyse Structurelle</span>
         
-        <h1 style="font-size: 5rem; margin: 20px 0; color: #ff7a00; text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3); letter-spacing: -2px; line-height: 1.1;">
+        <h1 style="font-size: clamp(2.2rem, 12vw, 5rem); margin: 20px 0; color: #ff7a00; text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3); letter-spacing: -2px; line-height: 1.1;">
             SÉLECTION<br>MATÉRIAUX
         </h1>
 <!-- /*Optimisation masse/rigidité -->
-        <p style="font-size: 1.5rem; color: var(--text-sub); max-width: 600px;">
+        <p style="font-size: clamp(1rem, 4vw, 1.5rem); color: var(--text-sub); max-width: 600px; padding: 0 16px;">
             Basée sur les données de Granta EduPack et les stocks ICAM.
         </p>
     </header>
@@ -174,7 +257,8 @@
                 <p>Trois solutions disponibles au magasin ICAM pour une poutre de 250mm.</p>
             </div>
 
-            <div class="bento-grid">
+            <div class="bento-grid carousel-wrap" data-carousel>
+                <div class="carousel-track">
                 <div class="card col-4">
                     <div>
                         <span class="section-tag">Impression 3D</span>
@@ -213,6 +297,8 @@
                         <div class="data-row"><span>Moment d'inertie</span> <span>16 278 mm⁴</span></div>
                     </div>
                 </div>
+                </div><!-- /.carousel-track -->
+                <div class="carousel-dots"></div>
             </div>
         </div>
 
@@ -222,7 +308,8 @@
                 <p>Résultats des simulations de contrainte.</p>
             </div>
 
-            <div class="bento-grid">
+            <div class="bento-grid carousel-wrap" data-carousel>
+                <div class="carousel-track">
                 <div class="card col-4 card-interactive" 
                      onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-configuration')">
                     
@@ -272,6 +359,8 @@
                         Comparaison Alu (Violet) vs PLA (Bleu) vs Aciers (Vert). Le choix que nous retenons est donc les profilés en aluminium.
                     </p>
                 </div>
+                </div><!-- /.carousel-track -->
+                <div class="carousel-dots"></div>
             </div>
         </div>
 
@@ -297,7 +386,8 @@
                 </div>
             </div>
 
-            <div class="bento-grid">
+            <div class="bento-grid carousel-wrap" data-carousel>
+                <div class="carousel-track">
                 <div class="card col-6 card-interactive" 
                      onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape1')">
                     <span class="section-tag">Étape 1 : Vue Globale</span>
@@ -337,6 +427,8 @@
                         Sélection de la fibre de verre (QI) pour son équilibre performance/coût.
                     </p>
                 </div>
+                </div><!-- /.carousel-track -->
+                <div class="carousel-dots"></div>
             </div>
         </div>
 
@@ -835,5 +927,100 @@
     });
 </script>
 
+    <script>
+        /* ─── Carousel mobile (identique à ACV section 02) ─── */
+        function isMobile() { return window.innerWidth <= 768; }
+
+        function initCarousels() {
+            document.querySelectorAll('[data-carousel]').forEach(wrap => {
+                const track  = wrap.querySelector('.carousel-track');
+                const dotsEl = wrap.querySelector('.carousel-dots');
+                if (!track || !dotsEl) return;
+
+                // Déplace les dots hors du wrap pour éviter le clip
+                if (!wrap.dataset.dotsDetached) {
+                    wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
+                    wrap.dataset.dotsDetached = 'true';
+                }
+
+                // Spacer de fin (nécessaire sur Safari)
+                const old = track.querySelector('.carousel-spacer');
+                if (old) old.remove();
+                const spacer = document.createElement('div');
+                spacer.className = 'carousel-spacer';
+                spacer.setAttribute('aria-hidden', 'true');
+                track.appendChild(spacer);
+
+                const items = Array.from(track.children).filter(el => !el.classList.contains('carousel-spacer'));
+                const count = items.length;
+                let cur = 0;
+
+                const itemW = () => window.innerWidth - 48;
+                const step  = () => itemW() + 12;
+
+                function sizeItems() {
+                    if (!isMobile()) { items.forEach(it => it.style.width = ''); return; }
+                    items.forEach(it => it.style.width = itemW() + 'px');
+                }
+                sizeItems();
+                window.addEventListener('resize', sizeItems);
+
+                // Dots — pilule Liquid Glass sur mobile
+                dotsEl.innerHTML = '';
+                const dotsContainer = isMobile() ? (() => {
+                    const inner = document.createElement('div');
+                    inner.className = 'carousel-dots-inner';
+                    dotsEl.appendChild(inner);
+                    return inner;
+                })() : dotsEl;
+
+                items.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'carousel-dot';
+                    btn.addEventListener('click', () => goTo(i));
+                    dotsContainer.appendChild(btn);
+                });
+
+                function goTo(idx, instant) {
+                    cur = Math.max(0, Math.min(count - 1, idx));
+                    wrap.scrollTo({ left: cur * step(), behavior: instant ? 'auto' : 'smooth' });
+                }
+
+                wrap.addEventListener('scroll', () => {
+                    const s = Math.max(step(), 1);
+                    const progress = wrap.scrollLeft / s;
+                    const left = Math.min(Math.floor(progress), count - 1);
+                    const frac  = progress - left;
+                    dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                        let op;
+                        if      (i === left)     op = 1 - frac * 0.75;
+                        else if (i === left + 1) op = 0.25 + frac * 0.75;
+                        else                     op = 0.25;
+                        d.style.background = `rgba(255,255,255,${op})`;
+                    });
+                    cur = Math.round(progress);
+                }, { passive: true });
+
+                requestAnimationFrame(() => {
+                    sizeItems();
+                    wrap.scrollLeft = 0;
+                    setTimeout(() => { wrap.scrollLeft = 0; }, 100);
+                    dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                        d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
+                    });
+                });
+
+                // Fade-in via IntersectionObserver
+                if (isMobile()) {
+                    const io = new IntersectionObserver(entries => {
+                        entries.forEach(e => { if (e.isIntersecting) { wrap.classList.add('visible'); io.unobserve(wrap); } });
+                    }, { threshold: 0.15 });
+                    io.observe(wrap);
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initCarousels);
+    </script>
 </body>
 </html>
