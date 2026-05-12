@@ -328,7 +328,7 @@
                 <div class="card col-4">
                     <div>
                         <span class="section-tag">Impression 3D</span>
-                        <h3 class="interactive-title" onclick="openTextModal('content-pla')">PLA (Plein) <span style="font-family: serif; font-style: italic; font-weight: 700;">i</span></h3>
+                        <h3 class="interactive-title" onclick="openTextModal('content-pla')">PLA (Plein) <span class="info-icon">i</span></h3>
                         <img src="cap1.png" class="graph-frame zoomable">
                     </div>
                     <div class="data-list">
@@ -341,7 +341,7 @@
                 <div class="card col-4">
                     <div>
                         <span class="section-tag">Profilé Métallique</span>
-                        <h3 class="interactive-title" onclick="openTextModal('content-alu')">Aluminium <span style="font-family: serif; font-style: italic; font-weight: 700;">i</span></h3>
+                        <h3 class="interactive-title" onclick="openTextModal('content-alu')">Aluminium <span class="info-icon">i</span></h3>
                         <img src="cap2.png" class="graph-frame zoomable">
                     </div>
                     <div class="data-list">
@@ -354,7 +354,7 @@
                 <div class="card col-4">
                     <div>
                         <span class="section-tag">Tube Métal</span>
-                        <h3 class="interactive-title" onclick="openTextModal('content-acier')">Acier <span style="font-family: serif; font-style: italic; font-weight: 700;">i</span></h3>
+                        <h3 class="interactive-title" onclick="openTextModal('content-acier')">Acier <span class="info-icon">i</span></h3>
                         <img src="cap3.png" class="graph-frame zoomable">
                     </div>
                     <div class="data-list">
@@ -877,14 +877,19 @@
         opacity: 0.8;
         transform: translateX(10px); /* Petit mouvement vers la droite */
     }
-    .interactive-title span {
-        font-size: 0.8rem;
-        border: 1px solid rgba(255,255,255,0.3);
+    .interactive-title span.info-icon {
+        font-size: 0.72rem;
+        font-family: serif;
+        font-style: italic;
+        font-weight: 700;
+        color: #ffd000;
+        border: 1.5px solid #ffd000;
         border-radius: 50%;
         width: 20px; height: 20px;
         display: flex; align-items: center; justify-content: center;
         margin-left: 10px;
-        opacity: 0.5;
+        flex-shrink: 0;
+        box-shadow: 0 0 8px rgba(255, 208, 0, 0.35);
     }
 
     /* L'arrière-plan flouté de la modale texte */
@@ -934,31 +939,21 @@
         transform: scale(1) translateY(0);
     }
 
-    /* --- SCROLLBAR PREMIUM CORRIGÉE --- */
-    
-    /* La barre globale */
-    #text-card::-webkit-scrollbar {
-        width: 6px; /* Plus fine pour l'élégance */
+    /* --- SCROLLBARS ORANGE FINES (globales) --- */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #ff7a00 #000;
     }
+    *::-webkit-scrollbar { width: 4px; height: 4px; }
+    *::-webkit-scrollbar-track { background: #000; }
+    *::-webkit-scrollbar-thumb { background: #ff7a00; border-radius: 2px; }
+    *::-webkit-scrollbar-thumb:hover { background: #ffaa44; }
+    *::-webkit-scrollbar-button { display: none; }
+    *::-webkit-scrollbar-corner { background: #000; }
 
-    /* Le fond de la barre (La piste) */
-    #text-card::-webkit-scrollbar-track {
-        background: transparent; 
-        /* 2. L'astuce : on ajoute une marge en haut et en bas 
-           égale au rayon de courbure (border-radius) */
-        margin-block: 30px; 
-    }
-
-    /* Le curseur (La partie qui bouge) */
-    #text-card::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-radius: 10px;
-    }
-
-    /* Interaction au survol */
-    #text-card::-webkit-scrollbar-thumb:hover {
-        background-color: var(--neon);
-    }
+    /* Exception : les carrousels restent sans scrollbar visible */
+    .carousel-wrap { scrollbar-width: none; }
+    .carousel-wrap::-webkit-scrollbar { display: none; }
 </style>
 
 <div id="text-overlay">
