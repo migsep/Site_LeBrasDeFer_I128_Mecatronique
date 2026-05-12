@@ -1753,15 +1753,41 @@
     });
 
     /* ─── MODAL HELPERS ─── */
+    /* iOS Safari lock : overflow: hidden seul ne bloque pas le scroll
+       de la page sur iOS (le viewport <html> reste scrollable, et
+       l'inertie de swipe peut traverser un modal). La solution fiable :
+       position: fixed sur le body avec son scroll-Y mémorisé, ce qui
+       fige complètement le viewport. À la fermeture, on restaure
+       précisément la position. Technique utilisée par Apple Photos,
+       Instagram, etc. */
+    let _savedScrollY = 0;
+    function lockBodyScroll() {
+        _savedScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${_savedScrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+    }
+    function unlockBodyScroll() {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        // Restaure le scroll Y précédent (scrollTo instantané, pas smooth)
+        window.scrollTo(0, _savedScrollY);
+    }
+
     function openModal(id) {
         document.getElementById(id).classList.add('open');
-        document.body.style.overflow = 'hidden';
+        lockBodyScroll();
     }
     function closeModal(id) {
         const overlay = document.getElementById(id);
         if (!overlay) return;
         overlay.classList.remove('open');
-        document.body.style.overflow = '';
+        unlockBodyScroll();
         // Reset image transform (desktop zoom/pan)
         const img = overlay.querySelector('img');
         if (img) img.style.transform = '';
