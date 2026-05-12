@@ -461,10 +461,18 @@
             border-radius: 50px;
             box-shadow:
                 0 12px 48px rgba(0, 0, 0, 0.6),
-                inset 0 1.5px 0 rgba(255, 255, 255, 0.13),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.12);
-            transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-                        opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+                inset 0 1.5px 0 rgba(255, 255, 255, 0.13);
+            /* Entry/exit : spring léger iOS 17-style (overshoot subtil ~3%).
+               Hover/press : transition séparée plus rapide pour la
+               réactivité. transform-origin centré bas pour que le
+               scale-down sur press donne l'impression que la pilule
+               "s'appuie" naturellement contre le sol. */
+            transition:
+                transform 0.55s cubic-bezier(0.34, 1.42, 0.64, 1),
+                opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s ease;
+            transform-origin: 50% 100%;
+            will-change: transform, opacity;
             opacity: 0;
             pointer-events: none;
             white-space: nowrap;
@@ -477,12 +485,28 @@
             opacity: 1;
             pointer-events: all;
         }
-        .apple-bar:hover .apple-bar-btn {
-            transform: scale(1.1);
+        /* Hover : toute la pilule lift de 3px + ombre renforcée
+           (le bouton n'est plus le seul à réagir → feel iOS moderne) */
+        .apple-bar.visible:hover {
+            transform: translateX(-50%) translateY(-3px);
+            box-shadow:
+                0 18px 56px rgba(0, 0, 0, 0.65),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1.5px 0 rgba(255, 255, 255, 0.18);
+        }
+        .apple-bar.visible:hover .apple-bar-btn {
+            transform: scale(1.08);
             box-shadow: 0 0 24px rgba(255, 122, 0, 0.75);
         }
-        .apple-bar:active {
-            transform: translateX(-50%) translateY(2px);
+        /* Press : scale-down global sur la pilule entière, transition
+           courte pour réactivité immédiate (180ms). Le translateX -50%
+           est préservé pour éviter le micro-saut horizontal. */
+        .apple-bar.visible:active {
+            transform: translateX(-50%) translateY(0) scale(0.97);
+            transition:
+                transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.18s ease;
         }
         .apple-bar-label {
             font-size: 0.8rem;
@@ -503,10 +527,10 @@
             border-radius: 50%;
             background: var(--neon);
             border: none;
-            cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            transition: transform 0.22s cubic-bezier(0.34, 1.42, 0.64, 1),
+                        box-shadow 0.22s ease;
             box-shadow: 0 0 14px rgba(255, 122, 0, 0.45);
             pointer-events: none;
         }
@@ -1522,15 +1546,55 @@
             }
         });
 
-        // Show only the winner, hide everything else
+        // Find currently visible bar (if any)
+        const currentlyVisible = barMap
+            .map(({ barId }) => document.getElementById(barId))
+            .find(bar => bar && bar.classList.contains('visible'));
+
+        const currentId = currentlyVisible ? currentlyVisible.id : null;
+
+        // Cas 1 — pas de changement : ne rien faire
+        if (currentId === winnerBarId) return;
+
+        // Cas 2 — transition relais 200ms
+        //  a) Cacher d'abord la bar courante
+        //  b) Attendre 200ms (laisse le temps à l'exit anim de se jouer
+        //     en grande partie — 0.55s au total mais visuellement la
+        //     pilule est déjà à mi-chemin à 200ms grâce au spring)
+        //  c) Montrer la nouvelle bar
+        //
+        // Si aucune bar n'est actuellement visible, on saute (a) et (b)
+        // pour montrer la nouvelle immédiatement.
         barMap.forEach(({ barId }) => {
-            const bar = document.getElementById(barId);
-            if (barId === winnerBarId) {
-                bar.classList.add('visible');
-            } else {
-                bar.classList.remove('visible');
+            if (barId !== currentId) {
+                const bar = document.getElementById(barId);
+                if (bar) bar.classList.remove('visible');
             }
         });
+
+        // Annule un éventuel relais en cours (cas où l'utilisateur
+        // scrolle vite et déclenche plusieurs changements en chaîne)
+        if (window._barRelayTimer) {
+            clearTimeout(window._barRelayTimer);
+            window._barRelayTimer = null;
+        }
+
+        if (currentId && winnerBarId) {
+            // Bar → Bar : on cache la courante, puis on affiche la nouvelle après 200ms
+            if (currentlyVisible) currentlyVisible.classList.remove('visible');
+            window._barRelayTimer = setTimeout(() => {
+                const winner = document.getElementById(winnerBarId);
+                if (winner) winner.classList.add('visible');
+                window._barRelayTimer = null;
+            }, 200);
+        } else if (winnerBarId) {
+            // Rien → Bar : pas de relais, on affiche immédiatement
+            const winner = document.getElementById(winnerBarId);
+            if (winner) winner.classList.add('visible');
+        } else if (currentlyVisible) {
+            // Bar → Rien : on cache simplement
+            currentlyVisible.classList.remove('visible');
+        }
     }
 
     // Collect all unique section IDs to observe (triggers + blockers)
