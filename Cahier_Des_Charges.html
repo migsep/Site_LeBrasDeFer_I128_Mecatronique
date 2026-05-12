@@ -1770,13 +1770,28 @@
         document.body.style.width = '100%';
     }
     function unlockBodyScroll() {
+        /* Désactive temporairement scroll-behavior: smooth (défini
+           globalement sur <html>) pour que le window.scrollTo de
+           restauration soit instantané — sinon iOS Safari animait
+           la page depuis le scroll 0 jusqu'à la position cible, ce
+           qui donnait l'impression que la page remonte rapidement
+           du haut à la fermeture du modal. */
+        const html = document.documentElement;
+        const prevBehavior = html.style.scrollBehavior;
+        html.style.scrollBehavior = 'auto';
+
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.left = '';
         document.body.style.right = '';
         document.body.style.width = '';
-        // Restaure le scroll Y précédent (scrollTo instantané, pas smooth)
         window.scrollTo(0, _savedScrollY);
+
+        // Restaure scroll-behavior au frame suivant pour qu'il
+        // n'affecte pas le scrollTo de restauration ci-dessus.
+        requestAnimationFrame(() => {
+            html.style.scrollBehavior = prevBehavior;
+        });
     }
 
     function openModal(id) {
