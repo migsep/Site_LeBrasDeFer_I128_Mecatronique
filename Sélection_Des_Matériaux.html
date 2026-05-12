@@ -215,6 +215,55 @@
             /* Hover désactivé (les appareils tactiles ne font pas :hover correctement) */
             .card:hover        { transform: none; }
             .card-interactive:hover { transform: none; border-color: var(--border); box-shadow: none; }
+
+            /* ── Bulles "Voir plus" ── */
+            .voir-plus-bar {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 14px;
+                height: 42px;
+                position: relative;
+            }
+            .voir-plus-pill {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 20px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.07);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 16px rgba(0,0,0,0.3);
+                color: #fff;
+                font-family: "Inter", sans-serif;
+                font-size: 0.88rem;
+                font-weight: 500;
+                cursor: pointer;
+                letter-spacing: 0.3px;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+                white-space: nowrap;
+            }
+            .voir-plus-pill.vp-active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .vp-plus {
+                width: 22px; height: 22px;
+                border-radius: 50%;
+                border: 1.5px solid rgba(255, 255, 255, 0.4);
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1rem;
+                line-height: 1;
+                flex-shrink: 0;
+            }
+        }
+        @media (min-width: 769px) {
+            .voir-plus-bar { display: none; }
         }
 
         /* =============================================
@@ -374,10 +423,10 @@
                 <p>Résultats des simulations de contrainte.</p>
             </div>
 
-            <div class="bento-grid carousel-wrap" data-carousel>
+            <div class="bento-grid carousel-wrap" data-carousel data-voir-plus>
                 <div class="carousel-track">
                 <div class="card col-4 card-interactive" 
-                     onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-configuration')">
+                     onclick="if(!isMobile() && !event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-configuration')">
                     
                     <span class="section-tag">Modèle Poutre</span>
                     <h3>Configuration</h3>
@@ -388,7 +437,7 @@
                 </div>
 
                 <div class="card col-4 card-interactive" 
-                    onclick="openTextModal('content-simulations')">
+                    onclick="if(!isMobile()) openTextModal('content-simulations')">
     
                     <span class="section-tag">Résultats</span>
     
@@ -416,7 +465,7 @@
                 </div>
 
                 <div class="card col-4 card-interactive" 
-                     onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-analyse')">
+                     onclick="if(!isMobile() && !event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-analyse')">
                     
                     <span class="section-tag">Analyse Comparative</span>
                     <h3>Sécurité vs Écologie</h3>
@@ -428,7 +477,12 @@
                 </div><!-- /.carousel-track -->
                 <div class="carousel-dots"></div>
             </div>
-        </div>
+            <!-- Bulles "Voir plus" mobile — Performance -->
+            <div class="voir-plus-bar">
+                <button class="voir-plus-pill vp-active" onclick="openTextModal('content-configuration')">Voir plus <span class="vp-plus">+</span></button>
+                <button class="voir-plus-pill" onclick="openTextModal('content-simulations')">Voir plus <span class="vp-plus">+</span></button>
+                <button class="voir-plus-pill" onclick="openTextModal('content-analyse')">Voir plus <span class="vp-plus">+</span></button>
+            </div>
 
         <div class="chapter reveal">
             <div class="chapter-header">
@@ -451,10 +505,10 @@
                 </div>
             </div>
 
-            <div class="bento-grid carousel-wrap" data-carousel>
+            <div class="bento-grid carousel-wrap" data-carousel data-voir-plus>
                 <div class="carousel-track">
                 <div class="card col-6 card-interactive" 
-                     onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape1')">
+                     onclick="if(!isMobile() && !event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape1')">
                     <span class="section-tag">Étape 1 : Vue Globale</span>
                     <h3>Première comparaison</h3>
                     <img src="cap6.png" class="graph-frame zoomable">
@@ -464,7 +518,7 @@
                 </div>
 
                 <div class="card col-6 card-interactive" 
-                     onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape2')">
+                     onclick="if(!isMobile() && !event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape2')">
                     <span class="section-tag">Étape 2 : Le Duel</span>
                     <h3>Composite vs Magnésium</h3>
                     <img src="cap7.png" class="graph-frame zoomable">
@@ -474,7 +528,7 @@
                 </div>
 
                 <div class="card col-6 card-interactive" 
-                     onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape3')">
+                     onclick="if(!isMobile() && !event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape3')">
                     <span class="section-tag">Étape 3 : Focus</span>
                     <h3>Composite QI</h3>
                     <img src="cap8.png" class="graph-frame zoomable">
@@ -484,7 +538,7 @@
                 </div>
 
                 <div class="card col-6 card-interactive" 
-                     onclick="if(!event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape4')">
+                     onclick="if(!isMobile() && !event.target.classList.contains('graph-frame') && !event.target.classList.contains('zoomable') && event.target.tagName !== 'IMG') openTextModal('content-etape4')">
                     <span class="section-tag">Étape 4 : Réalité Économique</span>
                     <h3>Analyse des Coûts</h3>
                     <img src="cap9.png" class="graph-frame zoomable">
@@ -495,7 +549,13 @@
                 </div><!-- /.carousel-track -->
                 <div class="carousel-dots"></div>
             </div>
-        </div>
+            <!-- Bulles "Voir plus" mobile — L'Idéal Théorique -->
+            <div class="voir-plus-bar">
+                <button class="voir-plus-pill vp-active" onclick="openTextModal('content-etape1')">Voir plus <span class="vp-plus">+</span></button>
+                <button class="voir-plus-pill" onclick="openTextModal('content-etape2')">Voir plus <span class="vp-plus">+</span></button>
+                <button class="voir-plus-pill" onclick="openTextModal('content-etape3')">Voir plus <span class="vp-plus">+</span></button>
+                <button class="voir-plus-pill" onclick="openTextModal('content-etape4')">Voir plus <span class="vp-plus">+</span></button>
+            </div>
 
         <div class="chapter reveal">
             <div class="chapter-header">
@@ -939,17 +999,10 @@
         transform: scale(1) translateY(0);
     }
 
-    /* --- SCROLLBARS ORANGE FINES (globales) --- */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: #ff7a00 #000;
-    }
-    *::-webkit-scrollbar { width: 4px; height: 4px; }
-    *::-webkit-scrollbar-track { background: #000; }
-    *::-webkit-scrollbar-thumb { background: #ff7a00; border-radius: 2px; }
-    *::-webkit-scrollbar-thumb:hover { background: #ffaa44; }
-    *::-webkit-scrollbar-button { display: none; }
-    *::-webkit-scrollbar-corner { background: #000; }
+    /* --- SCROLLBARS ORANGE FINES (identique à ACV) --- */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #ff7a00; border-radius: 2px; }
 
     /* Exception : les carrousels restent sans scrollbar visible */
     .carousel-wrap { scrollbar-width: none; }
@@ -999,9 +1052,15 @@
                 const dotsEl = wrap.querySelector('.carousel-dots');
                 if (!track || !dotsEl) return;
 
-                // Déplace les dots hors du wrap pour éviter le clip
+                // Récupère la voir-plus-bar si elle existe (next sibling dans le HTML)
+                const vpBar = wrap.nextElementSibling?.classList.contains('voir-plus-bar')
+                    ? wrap.nextElementSibling : null;
+                const vpPills = vpBar ? Array.from(vpBar.querySelectorAll('.voir-plus-pill')) : [];
+
+                // Déplace les dots après la voir-plus-bar (ou directement après wrap)
                 if (!wrap.dataset.dotsDetached) {
-                    wrap.parentNode.insertBefore(dotsEl, wrap.nextSibling);
+                    const insertAfter = vpBar || wrap;
+                    insertAfter.parentNode.insertBefore(dotsEl, insertAfter.nextSibling);
                     wrap.dataset.dotsDetached = 'true';
                 }
 
@@ -1026,6 +1085,14 @@
                 }
                 sizeItems();
                 window.addEventListener('resize', sizeItems);
+
+                // Mise à jour des bulles voir-plus
+                function updateVpPills(idx) {
+                    if (!isMobile()) return;
+                    vpPills.forEach((p, i) => {
+                        p.classList.toggle('vp-active', i === idx);
+                    });
+                }
 
                 // Dots — pilule Liquid Glass sur mobile
                 dotsEl.innerHTML = '';
@@ -1060,7 +1127,11 @@
                         else                     op = 0.25;
                         d.style.background = `rgba(255,255,255,${op})`;
                     });
-                    cur = Math.round(progress);
+                    const newCur = Math.round(progress);
+                    if (newCur !== cur) {
+                        cur = newCur;
+                        updateVpPills(cur);
+                    }
                 }, { passive: true });
 
                 requestAnimationFrame(() => {
@@ -1070,6 +1141,7 @@
                     dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
                         d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
                     });
+                    updateVpPills(0);
                 });
 
                 // Fade-in via IntersectionObserver
