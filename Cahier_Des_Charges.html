@@ -597,6 +597,15 @@
             transition: transform 0.1s ease-out;
             cursor: grab;
             border-radius: 14px;
+            /* Promotion GPU permanente : will-change + backface-visibility
+               garantissent à iOS Safari que ce layer doit rester en RAM
+               GPU même quand il dépasse temporairement le viewport. Sans
+               ces hints, à fort zoom (×4 et plus), Safari pouvait
+               désallouer le layer dès qu'une partie sortait de l'écran,
+               provoquant un flash blanc au repaint suivant. */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         .img-modal-box img:active { cursor: grabbing; }
         .img-modal-placeholder {
@@ -1713,61 +1722,61 @@
             let touchStartX = 0, touchStartY = 0;
             let movedSignificantly = false;
 
+            /* Taille de référence (scale=1) cachée pour éviter les
+               erreurs de précision flottante à fort zoom. Sans ça,
+               getBoundingClientRect() retournait des valeurs scalées,
+               et calculer "baseW = rect.width / scale" introduisait des
+               microvariations qui s'accumulaient à scale=5 — d'où les
+               flashs aux extrémités à très fort zoom. */
+            let baseW = 0, baseH = 0;
+            function refreshBaseSize() {
+                // Mesure la taille naturelle à scale=1, transform reset
+                const savedTransform = img.style.transform;
+                const savedTransition = img.style.transition;
+                img.style.transition = 'none';
+                img.style.transform = 'none';
+                const r = img.getBoundingClientRect();
+                baseW = r.width;
+                baseH = r.height;
+                img.style.transform = savedTransform;
+                // restore transition au prochain frame (sinon snap-back instantané)
+                requestAnimationFrame(() => { img.style.transition = savedTransition; });
+            }
+
             function updateTransform() {
-                /* Pan-bounds clamp : empêche l'image de quitter l'écran.
-                   Sans ce clamp, l'utilisateur pouvait dragger l'image
-                   très loin du viewport → iOS Safari finissait par
-                   désallouer le rendu de l'élément hors-écran, puis le
-                   ré-allouer quand il revenait, ce qui donnait l'effet
-                   "clignotement" décrit par l'utilisateur quand on
-                   atteignait les extrémités de l'image zoomée.
+                /* Bornes calculées depuis la taille de référence cachée :
+                   à scale=4 avec image de 350px, on peut translater de
+                   ±(350×4 - 350)/2 = ±525px. Au-delà, rubber band. */
+                const maxX = Math.max(0, (baseW * scale - baseW) / 2);
+                const maxY = Math.max(0, (baseH * scale - baseH) / 2);
 
-                   On calcule la taille effective de l'image après scale
-                   (rect du wrapper × scale ≈ taille rendue), puis on
-                   limite pointX/pointY pour qu'au moins une portion de
-                   l'image reste visible à l'écran.
-
-                   Rubber band : on autorise un dépassement élastique
-                   (~30 px) qui rétrécit progressivement → feel iOS
-                   Photos. Quand l'utilisateur lâche, on snap-back
-                   gentiment dans les bornes via touchend. */
-                const rect = img.getBoundingClientRect();
-                // Taille intrinsèque rendue (avant transform)
-                const baseW = rect.width / scale;
-                const baseH = rect.height / scale;
-                // Taille après zoom
-                const scaledW = baseW * scale;
-                const scaledH = baseH * scale;
-
-                // Demi-débordement autorisé de chaque côté
-                const maxX = Math.max(0, (scaledW - baseW) / 2);
-                const maxY = Math.max(0, (scaledH - baseH) / 2);
-
-                // Rubber band : si on dépasse, on applique une compression
-                // progressive (asymptote douce) au lieu de couper net.
-                const RUBBER = 0.35; // 0 = clamp dur, 1 = pas de résistance
+                const RUBBER = 0.35;
                 function rubberClamp(v, max) {
                     if (max === 0) return 0;
                     if (Math.abs(v) <= max) return v;
                     const sign = v < 0 ? -1 : 1;
                     const overflow = Math.abs(v) - max;
-                    // Compression logarithmique : 30px → ~17px, 60px → ~22px
                     return sign * (max + overflow * RUBBER / (1 + overflow / 80));
                 }
 
-                const px = rubberClamp(pointX, maxX);
-                const py = rubberClamp(pointY, maxY);
+                /* Arrondi sous-pixel + translateZ(0) :
+                   - Math.round() élimine le sous-pixel jitter qui force
+                     iOS Safari à repaint partiel à chaque frame quand
+                     scale est élevé (5x amplifie chaque sous-pixel).
+                   - translateZ(0) force la création d'un compositing
+                     layer GPU dédié et persistant → pas de désallocation
+                     même si l'image dépasse temporairement le viewport. */
+                const px = Math.round(rubberClamp(pointX, maxX));
+                const py = Math.round(rubberClamp(pointY, maxY));
+                const s = Math.round(scale * 1000) / 1000; // 3 décimales max
 
                 img.style.transform =
-                    `translate(${px}px, ${py}px) scale(${scale})`;
+                    `translate3d(${px}px, ${py}px, 0) scale(${s})`;
             }
 
             /* Snap-back : remet les valeurs dans les bornes strictes
                quand le drag se termine, avec une transition douce. */
             function snapBackToBounds() {
-                const rect = img.getBoundingClientRect();
-                const baseW = rect.width / scale;
-                const baseH = rect.height / scale;
                 const maxX = Math.max(0, (baseW * scale - baseW) / 2);
                 const maxY = Math.max(0, (baseH * scale - baseH) / 2);
                 const targetX = Math.max(-maxX, Math.min(maxX, pointX));
@@ -1775,13 +1784,18 @@
                 if (targetX !== pointX || targetY !== pointY) {
                     pointX = targetX;
                     pointY = targetY;
-                    // Transition douce vers la position clampée
                     img.style.transition = 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)';
+                    const s = Math.round(scale * 1000) / 1000;
                     img.style.transform =
-                        `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+                        `translate3d(${Math.round(pointX)}px, ${Math.round(pointY)}px, 0) scale(${s})`;
                     setTimeout(() => { img.style.transition = ''; }, 320);
                 }
             }
+
+            // Mesure initiale au load de l'image, ré-mesure au resize
+            if (img.complete) refreshBaseSize();
+            else img.addEventListener('load', refreshBaseSize, { once: true });
+            window.addEventListener('resize', refreshBaseSize);
 
             /* ─── DESKTOP: WHEEL ZOOM ─── */
             overlay.addEventListener('wheel', (e) => {
