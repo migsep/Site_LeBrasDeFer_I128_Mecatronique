@@ -577,9 +577,22 @@
             max-height: 88vh;
             transform: scale(0.92) translateY(20px);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            /* GPU compositing layer stable sur la BOX, pas sur l'image.
+               iOS Safari avait un bug : will-change + transform à fort
+               zoom sur une <img> dans un parent backdrop-filter faisait
+               temporairement disparaître l'image pendant le drag (le
+               compositor perdait le layer de l'image, le layer overlay
+               restait visible → image disparait sans son arrière-plan).
+               En promouvant la BOX au lieu de l'image, l'image hérite
+               d'un contexte de compositing stable. */
+            will-change: transform;
+            -webkit-transform: scale(0.92) translateY(20px) translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         .img-modal-overlay.open .img-modal-box {
             transform: scale(1) translateY(0);
+            -webkit-transform: scale(1) translateY(0) translateZ(0);
         }
         .img-modal-box img {
             display: block;
@@ -597,15 +610,8 @@
             transition: transform 0.1s ease-out;
             cursor: grab;
             border-radius: 14px;
-            /* Promotion GPU permanente : will-change + backface-visibility
-               garantissent à iOS Safari que ce layer doit rester en RAM
-               GPU même quand il dépasse temporairement le viewport. Sans
-               ces hints, à fort zoom (×4 et plus), Safari pouvait
-               désallouer le layer dès qu'une partie sortait de l'écran,
-               provoquant un flash blanc au repaint suivant. */
-            will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
+            /* PAS de will-change/backface-visibility ici — ils
+               provoquaient le bug iOS Safari décrit ci-dessus. */
         }
         .img-modal-box img:active { cursor: grabbing; }
         .img-modal-placeholder {
@@ -647,6 +653,18 @@
             .img-modal-hint {
                 bottom: 24px;
                 font-size: 0.78rem;
+            }
+            /* iOS Safari : backdrop-filter sur l'overlay créait un
+               conflit de compositing avec l'image qu'on transforme à
+               fort zoom — l'image disparaissait par moments pendant le
+               drag (le compositor perdait son layer pendant que le
+               layer backdrop-filter se recomposait à chaque frame). On
+               compense en bumpant l'opacité du fond noir pour garder
+               un effet "modal" visuellement comparable. */
+            .img-modal-overlay {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                background: rgba(0, 0, 0, 0.96);
             }
         }
 
