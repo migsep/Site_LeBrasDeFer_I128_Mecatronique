@@ -1021,25 +1021,34 @@
 <script>
     const textOverlay = document.getElementById('text-overlay');
     const textInjection = document.getElementById('text-injection-point');
+    let _modalScrollY = 0;
 
-    // Fonction d'ouverture
     window.openTextModal = function(contentId) {
-        // 1. Récupérer le contenu caché
         const sourceContent = document.getElementById(contentId);
-        if(sourceContent) {
-            // 2. Injecter dans la modale
+        if (sourceContent) {
             textInjection.innerHTML = sourceContent.innerHTML;
-            // 3. Afficher
             textOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Bloquer le scroll
+
+            // iOS Safari fix : verrouille le body à la position actuelle
+            _modalScrollY = window.scrollY || window.pageYOffset;
+            document.body.style.overflow   = 'hidden';
+            document.body.style.position   = 'fixed';
+            document.body.style.top        = `-${_modalScrollY}px`;
+            document.body.style.width      = '100%';
         }
     };
 
-    // Fonction de fermeture (clic n'importe où sur l'overlay)
-    textOverlay.addEventListener('click', function() {
+    function closeTextModal() {
         textOverlay.classList.remove('active');
-        document.body.style.overflow = ''; // Réactiver le scroll
-    });
+        // Restaure le scroll exactement où on était
+        document.body.style.overflow  = '';
+        document.body.style.position  = '';
+        document.body.style.top       = '';
+        document.body.style.width     = '';
+        window.scrollTo(0, _modalScrollY);
+    }
+
+    textOverlay.addEventListener('click', closeTextModal);
 </script>
 
     <script>
