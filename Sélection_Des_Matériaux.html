@@ -833,7 +833,7 @@
     function openLightbox(src) {
         lightboxImg.src = src;
         lightboxOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Bloque le scroll du site
+        bodyLock();
         
         // Reset des positions
         scale = 1;
@@ -845,7 +845,7 @@
     // 3. Fonction pour fermer la Lightbox
     function closeLightbox() {
         lightboxOverlay.classList.remove('active');
-        document.body.style.overflow = ''; // Réactive le scroll
+        bodyUnlock();
         // Petit délai pour nettoyer la source
         setTimeout(() => { lightboxImg.src = ''; }, 400);
     }
@@ -1020,6 +1020,23 @@
 </div>
 
 <script>
+    // ── Body-lock : empêche le scroll arrière-plan sur iOS Safari ──
+    let _lockScrollY = 0;
+    function bodyLock() {
+        _lockScrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${_lockScrollY}px`;
+        document.body.style.width = '100%';
+    }
+    function bodyUnlock() {
+        document.body.style.overflow  = '';
+        document.body.style.position  = '';
+        document.body.style.top       = '';
+        document.body.style.width     = '';
+        window.scrollTo(0, _lockScrollY);
+    }
+
     const textOverlay = document.getElementById('text-overlay');
     const textInjection = document.getElementById('text-injection-point');
 
@@ -1028,13 +1045,13 @@
         if(sourceContent) {
             textInjection.innerHTML = sourceContent.innerHTML;
             textOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            bodyLock();
         }
     };
 
     textOverlay.addEventListener('click', function() {
         textOverlay.classList.remove('active');
-        document.body.style.overflow = '';
+        bodyUnlock();
     });
 </script>
 
