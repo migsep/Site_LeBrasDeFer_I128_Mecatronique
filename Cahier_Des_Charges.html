@@ -325,7 +325,7 @@
         /* HYPOTHESES */
         .hyp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .hyp-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; }
-        .hyp-num { font-family: "Orbitron"; font-size: 3rem; font-weight: 900; color: var(--neon); opacity: 0.2; line-height: 1; margin-bottom: 12px; }
+        .hyp-num { font-family: "Orbitron"; font-size: 3rem; font-weight: 900; color: var(--neon); opacity: 0.4; line-height: 1; margin-bottom: 12px; }
         .hyp-item p { font-size: 0.9rem; color: var(--text-sub); line-height: 1.6; }
 
         /* RISQUES */
@@ -384,9 +384,10 @@
         .synthese-perimetre h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-sub); margin-bottom: 30px; }
         .perimetre-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .perimetre-item:last-child { border-bottom: none; }
-        .perimetre-tag { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
-        .perimetre-tag.in { background: rgba(76,217,100,0.15); }
-        .perimetre-tag.out { background: rgba(255,59,48,0.15); }
+        .perimetre-tag { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .perimetre-tag.in  { background: rgba(76,217,100,0.15); color: #4cd964; }
+        .perimetre-tag.out { background: rgba(255,59,48,0.15);  color: #ff3b30; }
+        .perimetre-tag svg { width: 15px; height: 15px; display: block; }
         .perimetre-item p { font-size: 0.85rem; color: var(--text-sub); }
         .synthese-right { display: flex; flex-direction: column; gap: 20px; }
         .synthese-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; flex: 1; }
@@ -1282,7 +1283,7 @@
     <div class="container">
         <div class="reveal">
             <span class="section-tag">II — Objectifs du Projet</span>
-            <h2 class="section-title">Ce que le robot<br>doit <span style="color:var(--neon);">accomplir.</span></h2>
+            <h2 class="section-title">Ce que le robot<br>doit <span style="color:inherit;">accomplir.</span></h2>
         </div>
 
         <p class="objectifs-intro reveal">
@@ -1515,10 +1516,10 @@
         <div class="synthese-grid reveal">
             <div class="synthese-perimetre">
                 <h3>Périmètre Système</h3>
-                <div class="perimetre-item"><div class="perimetre-tag in">✅</div><p><strong>Développement du bras robotique</strong> 3 axes complet avec prototype fonctionnel.</p></div>
-                <div class="perimetre-item"><div class="perimetre-tag in">✅</div><p><strong>Système de détection couleur</strong> et logique de tri automatisée.</p></div>
-                <div class="perimetre-item"><div class="perimetre-tag in">✅</div><p><strong>Interface de communication</strong> avec le convoyeur et l'opérateur.</p></div>
-                <div class="perimetre-item"><div class="perimetre-tag out">❌</div><p><strong>Ne comprend pas</strong> la fabrication du ou des convoyeurs interagissant avec le bras.</p></div>
+                <div class="perimetre-item"><div class="perimetre-tag in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div><p><strong>Développement du bras robotique</strong> 3 axes complet avec prototype fonctionnel.</p></div>
+                <div class="perimetre-item"><div class="perimetre-tag in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div><p><strong>Système de détection couleur</strong> et logique de tri automatisée.</p></div>
+                <div class="perimetre-item"><div class="perimetre-tag in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div><p><strong>Interface de communication</strong> avec le convoyeur et l'opérateur.</p></div>
+                <div class="perimetre-item"><div class="perimetre-tag out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><p><strong>Ne comprend pas</strong> la fabrication du ou des convoyeurs interagissant avec le bras.</p></div>
             </div>
             <div class="synthese-right">
                 <div class="synthese-card reveal">
@@ -1739,7 +1740,7 @@
 
             const ST = (trigger) => ({
                 trigger,
-                start: 'top 78%',
+                start: 'top 70%',
                 toggleActions: 'play none none none',
             });
 
@@ -1790,9 +1791,9 @@
                     stagger: STAG,
                     ease: 'expo.out'
                 }, '-=0.3')
-                // Glow pulse sur "accomplir." (le mot orange du titre)
+                // Glow pulse sur "accomplir." (mot-clé du titre)
                 .to('#objectifs .section-title span', {
-                    textShadow: '0 0 18px rgba(255,122,0,0.6), 0 0 36px rgba(255,122,0,0.35)',
+                    textShadow: '0 0 18px rgba(255,255,255,0.7), 0 0 36px rgba(255,255,255,0.35)',
                     duration: 0.55, yoyo: true, repeat: 1, ease: 'power2.inOut'
                 }, '-=1.2');
 
@@ -1930,7 +1931,7 @@
                 .to('#hypotheses .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
                 .to('#hypotheses .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
                 .to('#hypotheses .hyp-num', {
-                    opacity: 0.2, y: 0, scale: 1,
+                    opacity: 0.4, y: 0, scale: 1,
                     duration: isDesktop ? 0.85 : 0.6,
                     stagger: isDesktop ? 0.09 : 0.06,
                     ease: 'back.out(1.6)'
