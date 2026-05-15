@@ -401,6 +401,21 @@
         }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
+        /* ─── GSAP HANDLED ──────────────────────────────────────────
+           Les éléments dont GSAP prend le contrôle reçoivent cette
+           classe : on neutralise les transitions CSS et on remet
+           opacity:1 / transform:none par défaut. Les éléments que
+           GSAP cible directement via gsap.set() reçoivent des
+           inline-styles qui écrasent ce défaut (plus prioritaires
+           qu'une classe). Cela évite que les wrappers .reveal
+           (que GSAP n'anime pas directement) restent invisibles. */
+        .gsap-handled,
+        .gsap-handled .stagger-children > * {
+            transition: none !important;
+            opacity: 1;
+            transform: none;
+        }
+
         /* Délais de stagger */
         .reveal-delay-1 { transition-delay: 0.10s; }
         .reveal-delay-2 { transition-delay: 0.20s; }
@@ -1574,15 +1589,494 @@
     <a href="Details_Du_Projet.html" class="btn-back">← Retour au Menu Principal</a>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
 <script>
+    /* ─── SECTIONS GÉRÉES PAR GSAP ──────────────────────────────────
+       Les sections listées ici sont entièrement prises en charge par
+       les tweens GSAP plus bas. On marque toutes leurs .reveal avec
+       .gsap-handled (qui kill les transitions CSS) pour éviter tout
+       conflit avec l'IntersectionObserver générique. */
+    const GSAP_SECTION_IDS = ['contexte', 'objectifs', 'contraintes', 'criteres', 'hypotheses', 'risques', 'livrables', 'synthese'];
+    const gsapHandledEls = new Set();
+    GSAP_SECTION_IDS.forEach(id => {
+        const sec = document.getElementById(id);
+        if (!sec) return;
+        sec.querySelectorAll('.reveal').forEach(el => {
+            el.classList.add('gsap-handled');
+            gsapHandledEls.add(el);
+        });
+    });
+
     /* ─── REVEAL OBSERVER ─── */
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(e => {
             if (e.isIntersecting) { e.target.classList.add('active'); revealObserver.unobserve(e.target); }
         });
     }, { threshold: 0.08 });
-    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    /* On observe uniquement les .reveal qui ne sont PAS gérés par GSAP
+       — typiquement Hero (#hero) et la section III Fonctions, plus
+       toutes les .reveal hors des sections listées plus haut. */
+    document.querySelectorAll('.reveal').forEach(el => {
+        if (!gsapHandledEls.has(el)) revealObserver.observe(el);
+    });
     setTimeout(() => document.querySelectorAll('#hero.reveal').forEach(el => el.classList.add('active')), 100);
+
+    /* ════════════════════════════════════════════════════════════════
+       GSAP ANIMATIONS — Parties I, II, IV, V, VI, VII, VIII, IX
+       ════════════════════════════════════════════════════════════════
+       Chaque section a une chorégraphie pensée pour son contenu :
+       — I Contexte    : titre split en 2 lignes (problème / réponse),
+                         glow sur "réponse", paragraphes en relais
+       — II Objectifs  : cartes en 3D flip + compteurs 01/02/03/04 +
+                         glow pulse sur le mot "accomplir."
+       — IV Contraintes: COMPTEURS sur ±2mm, <30s, 200g, 80cm, 1500€ —
+                         le pattern data-viz qui colle au contenu chiffré
+       — V Critères    : checks verts qui "tamponnent" + items en slide
+       — VI Hypothèses : grand chiffre Hn qui scale-in en premier, puis
+                         le texte qui suit
+       — VII Risques   : dots qui pop avec glow + items en slide latéral
+       — VIII Livrables: DRAWING des SVG (stroke-dashoffset) — innovation
+                         qui colle aux icônes "outline"
+       — IX Synthèse   : périmètre items séquentiels, cards qui slide,
+                         résumé exécutif en bouquet final
+
+       Adaptations mobile :
+       — Pas de rotationX (GPU mobile faible, en accord avec la CSS
+         qui désactive déjà les transforms en @900px)
+       — Pas de slide horizontal (l'axe X est réservé au scroll mobile)
+       — Décalages Y réduits, durées légèrement raccourcies
+       — SVG drawing remplacé par simple scale+opacity sur l'icône
+       — Compteurs conservés (CPU, pas GPU)
+    ════════════════════════════════════════════════════════════════════ */
+    if (window.gsap && window.ScrollTrigger) {
+        gsap.registerPlugin(ScrollTrigger);
+
+        /* ─── Préparation : split du titre Contexte en 2 lignes ─── */
+        (function splitContexteTitle() {
+            const t = document.querySelector('#contexte .section-title');
+            if (!t || t.dataset.split === '1') return;
+            const html = t.innerHTML;
+            const parts = html.split(/<br\s*\/?>/i);
+            t.innerHTML = parts.map(p =>
+                `<span class="ctx-line" style="display:inline-block;will-change:transform;">${p.trim()}</span>`
+            ).join('<br>');
+            t.dataset.split = '1';
+        })();
+
+        /* ─── Préparation : split du paragraphe Contexte en 2 blocs ─── */
+        (function splitContextePara() {
+            const p = document.querySelector('#contexte .context-plain');
+            if (!p || p.dataset.split === '1') return;
+            const html = p.innerHTML;
+            // Sépare au double <br><br> qui sépare les 2 paragraphes
+            const blocks = html.split(/<br\s*\/?>\s*<br\s*\/?>/i);
+            p.innerHTML = blocks.map((b, i) =>
+                `<span class="ctx-block" style="display:block;margin-top:${i > 0 ? '1.2em' : '0'};">${b}</span>`
+            ).join('');
+            p.dataset.split = '1';
+        })();
+
+        /* ─── Préparation : SVG paths pour drawing animation (desktop) ─── */
+        function prepareSVGDrawing(svgs) {
+            svgs.forEach(svg => {
+                const drawable = svg.querySelectorAll('path, rect, circle, line, polyline, polygon');
+                drawable.forEach(el => {
+                    try {
+                        const len = el.getTotalLength();
+                        el.style.strokeDasharray = len;
+                        el.style.strokeDashoffset = len;
+                        el.style.opacity = '1';
+                    } catch (_) {
+                        el.style.opacity = '0';
+                    }
+                });
+            });
+        }
+
+        /* ─── Utilitaire : compteur numérique animé ─── */
+        function makeCounter(el, finalNum, opts = {}) {
+            const {
+                duration = 1.5,
+                ease = 'power2.out',
+                format = (v) => String(Math.round(v)),
+                prefix = '',
+                suffix = '',
+                trigger = el,
+                start = 'top 88%',
+            } = opts;
+            const counter = { val: 0 };
+            // Etat de départ visible (0 au lieu de la valeur finale)
+            el.innerHTML = prefix + format(0) + suffix;
+            ScrollTrigger.create({
+                trigger, start, once: true,
+                onEnter: () => {
+                    gsap.to(counter, {
+                        val: finalNum, duration, ease,
+                        onUpdate() {
+                            el.innerHTML = prefix + format(counter.val) + suffix;
+                        }
+                    });
+                }
+            });
+        }
+
+        /* ─── matchMedia : branches desktop / mobile ─── */
+        gsap.matchMedia().add({
+            isDesktop: '(min-width: 901px)',
+            isMobile:  '(max-width: 900px)',
+        }, (context) => {
+            const { isDesktop, isMobile } = context.conditions;
+
+            /* Paramètres adaptatifs */
+            const Y       = isDesktop ? 40 : 18;
+            const Y_SMALL = isDesktop ? 25 : 14;
+            const X       = isDesktop ? 50 : 0;        // pas de slide X sur mobile
+            const X_SMALL = isDesktop ? 30 : 0;
+            const STAG    = isDesktop ? 0.12 : 0.08;
+            const DUR     = isDesktop ? 0.85 : 0.65;
+
+            const ST = (trigger) => ({
+                trigger,
+                start: 'top 78%',
+                toggleActions: 'play none none none',
+            });
+
+            /* ════════════════════════════════════════════════════════
+               I. CONTEXTE — titre split (problème / réponse) + paras
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#contexte .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#contexte .ctx-line', { opacity: 0, x: (i) => isDesktop ? (i === 0 ? -60 : 60) : 0, y: isMobile ? Y_SMALL : 0 });
+            gsap.set('#contexte .ctx-block', { opacity: 0, y: Y });
+
+            const tlCtx = gsap.timeline({ scrollTrigger: ST('#contexte') });
+            tlCtx
+                .to('#contexte .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#contexte .ctx-line', {
+                    opacity: 1, x: 0, y: 0,
+                    duration: DUR, stagger: 0.18, ease: 'expo.out'
+                }, '-=0.25')
+                // Glow flash sur "Notre réponse." (2ᵉ ligne) — souligne la résolution
+                .to('#contexte .ctx-line:nth-of-type(2)', {
+                    textShadow: '0 0 24px rgba(255,122,0,0.55), 0 0 48px rgba(255,122,0,0.25)',
+                    duration: 0.5, yoyo: true, repeat: 1, ease: 'power2.inOut'
+                }, '-=0.4')
+                .to('#contexte .ctx-block', {
+                    opacity: 1, y: 0, duration: DUR, stagger: 0.18, ease: 'power3.out'
+                }, '-=0.5');
+
+            /* ════════════════════════════════════════════════════════
+               II. OBJECTIFS — cards 3D flip (desktop) + compteurs 01-04
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#objectifs > .container > .reveal:first-child .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#objectifs > .container > .reveal:first-child .section-title', { opacity: 0, y: Y });
+            gsap.set('#objectifs .objectifs-intro', { opacity: 0, y: Y_SMALL });
+            gsap.set('#objectifs .obj-item', {
+                opacity: 0, y: Y,
+                rotationX: isDesktop ? 35 : 0,
+                transformPerspective: 900,
+                transformOrigin: '50% 100%',
+            });
+
+            const tlObj = gsap.timeline({ scrollTrigger: ST('#objectifs') });
+            tlObj
+                .to('#objectifs .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#objectifs .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#objectifs .objectifs-intro', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.4')
+                .to('#objectifs .obj-item', {
+                    opacity: 1, y: 0, rotationX: 0,
+                    duration: isDesktop ? 0.95 : 0.65,
+                    stagger: STAG,
+                    ease: 'expo.out'
+                }, '-=0.3')
+                // Glow pulse sur "accomplir." (le mot orange du titre)
+                .to('#objectifs .section-title span', {
+                    textShadow: '0 0 18px rgba(255,122,0,0.6), 0 0 36px rgba(255,122,0,0.35)',
+                    duration: 0.55, yoyo: true, repeat: 1, ease: 'power2.inOut'
+                }, '-=1.2');
+
+            /* Compteurs sur les numéros 01, 02, 03, 04 */
+            document.querySelectorAll('#objectifs .obj-num').forEach(el => {
+                if (el.dataset.counted === '1') return;
+                el.dataset.counted = '1';
+                const finalNum = parseInt(el.textContent, 10);
+                makeCounter(el, finalNum, {
+                    duration: 0.95,
+                    format: (v) => String(Math.round(v)).padStart(2, '0'),
+                });
+            });
+
+            /* ════════════════════════════════════════════════════════
+               IV. CONTRAINTES — COMPTEURS sur tous les chiffres
+               C'est le pattern le plus aligné avec la nature data du
+               contenu : ±2mm, <30s, 200g, 80cm, 1 500 € s'égrènent.
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#contraintes .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#contraintes .section-title', { opacity: 0, y: Y });
+            gsap.set('#contraintes .sub-section-label', { opacity: 0, y: Y_SMALL });
+            gsap.set('#contraintes .stat-card', { opacity: 0, y: Y, scale: isDesktop ? 0.92 : 1 });
+            gsap.set('#contraintes .budget-text', { opacity: 0, x: -X_SMALL, y: isMobile ? Y_SMALL : 0 });
+            gsap.set('#contraintes .budget-box', { opacity: 0, x: X_SMALL, y: isMobile ? Y_SMALL : 0, scale: isDesktop ? 0.9 : 1 });
+
+            const tlCtr = gsap.timeline({ scrollTrigger: ST('#contraintes') });
+            tlCtr
+                .to('#contraintes .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#contraintes .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#contraintes > .container > .reveal:nth-of-type(2) .sub-section-label', {
+                    opacity: 1, y: 0, duration: 0.5, ease: 'power2.out'
+                }, '-=0.3')
+                .to('#contraintes .stat-card', {
+                    opacity: 1, y: 0, scale: 1,
+                    duration: isDesktop ? 0.8 : 0.6,
+                    stagger: STAG,
+                    ease: 'back.out(1.3)'
+                }, '-=0.2');
+
+            /* Compteurs sur ±2, <30, 200, 80 — détection auto du préfixe et de l'unité */
+            document.querySelectorAll('#contraintes .stat-val').forEach(el => {
+                if (el.dataset.counted === '1') return;
+                el.dataset.counted = '1';
+                const span = el.querySelector('span');
+                const unitHTML = span ? span.outerHTML : '';
+                const fullText = el.textContent;       // ex: "±2mm" ou "<30s"
+                const numMatch = fullText.match(/\d+(?:\.\d+)?/);
+                if (!numMatch) return;
+                const finalNum = parseFloat(numMatch[0]);
+                const idx = fullText.search(/\d/);
+                // Préfixe HTML-safe (le "<" devient &lt; pour que innerHTML
+                // ne tente jamais de l'interpréter comme début de balise)
+                const rawPrefix = fullText.substring(0, idx);
+                const prefix = rawPrefix
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                makeCounter(el, finalNum, {
+                    duration: 1.6,
+                    prefix,
+                    suffix: unitHTML,
+                });
+            });
+
+            /* Budget block — animation latérale + compteur 0 → 1 500 € */
+            const tlBudget = gsap.timeline({
+                scrollTrigger: {
+                    trigger: '#contraintes .contraintes-financieres-block',
+                    start: 'top 82%',
+                    toggleActions: 'play none none none'
+                }
+            });
+            tlBudget
+                .to('#contraintes .contraintes-financieres-block .sub-section-label', {
+                    opacity: 1, y: 0, duration: 0.5, ease: 'power2.out'
+                })
+                .to('#contraintes .budget-text', {
+                    opacity: 1, x: 0, y: 0, duration: 0.8, ease: 'power3.out'
+                }, '-=0.2')
+                .to('#contraintes .budget-box', {
+                    opacity: 1, x: 0, y: 0, scale: 1,
+                    duration: 0.95, ease: 'back.out(1.4)'
+                }, '-=0.5');
+
+            /* Compteur 0 → 1500 sur le budget, avec espace tous les 3 chiffres */
+            const budgetEl = document.querySelector('#contraintes .budget-val');
+            if (budgetEl && budgetEl.dataset.counted !== '1') {
+                budgetEl.dataset.counted = '1';
+                const span = budgetEl.querySelector('span');
+                const suffix = span ? span.outerHTML : '';
+                makeCounter(budgetEl, 1500, {
+                    duration: 2,
+                    suffix,
+                    format: (v) => Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+                });
+            }
+
+            /* ════════════════════════════════════════════════════════
+               V. CRITÈRES — checks verts qui "tamponnent" + slide items
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#criteres .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#criteres .section-title', { opacity: 0, y: Y });
+            gsap.set('#criteres .critere-item', { opacity: 0, x: -X, y: isMobile ? Y_SMALL : 0 });
+            gsap.set('#criteres .critere-check', { scale: 0, rotation: isDesktop ? -90 : 0 });
+
+            const tlCrit = gsap.timeline({ scrollTrigger: ST('#criteres') });
+            tlCrit
+                .to('#criteres .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#criteres .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#criteres .critere-item', {
+                    opacity: 1, x: 0, y: 0,
+                    duration: isDesktop ? 0.75 : 0.6,
+                    stagger: STAG,
+                    ease: 'power3.out'
+                }, '-=0.3')
+                /* "Stamp" effect : le check vert apparait avec un over-
+                   shoot (back.out fort) — comme un cachet apposé. */
+                .to('#criteres .critere-check', {
+                    scale: 1, rotation: 0,
+                    duration: 0.55, stagger: STAG,
+                    ease: 'back.out(2.8)'
+                }, isDesktop ? '-=0.7' : '-=0.55');
+
+            /* ════════════════════════════════════════════════════════
+               VI. HYPOTHÈSES — grand Hn scale-in puis texte glisse
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#hypotheses .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#hypotheses .section-title', { opacity: 0, y: Y });
+            gsap.set('#hypotheses .hyp-num', { opacity: 0, y: isDesktop ? 30 : 14, scale: isDesktop ? 0.5 : 0.75 });
+            gsap.set('#hypotheses .hyp-item p', { opacity: 0, y: Y_SMALL });
+
+            const tlHyp = gsap.timeline({ scrollTrigger: ST('#hypotheses') });
+            tlHyp
+                .to('#hypotheses .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#hypotheses .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#hypotheses .hyp-num', {
+                    opacity: 0.2, y: 0, scale: 1,
+                    duration: isDesktop ? 0.85 : 0.6,
+                    stagger: isDesktop ? 0.09 : 0.06,
+                    ease: 'back.out(1.6)'
+                }, '-=0.3')
+                .to('#hypotheses .hyp-item p', {
+                    opacity: 1, y: 0,
+                    duration: isDesktop ? 0.6 : 0.5,
+                    stagger: isDesktop ? 0.09 : 0.06,
+                    ease: 'power2.out'
+                }, isDesktop ? '-=0.55' : '-=0.4');
+
+            /* ════════════════════════════════════════════════════════
+               VII. RISQUES — dots qui pop avec glow + items en slide
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#risques .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#risques .section-title', { opacity: 0, y: Y });
+            gsap.set('#risques .risque-group-title', { opacity: 0, y: Y_SMALL });
+            gsap.set('#risques .risque-item', {
+                opacity: 0,
+                x: isDesktop ? -30 : 0,
+                y: isMobile ? Y_SMALL : 0
+            });
+            gsap.set('#risques .risque-dot', { scale: 0 });
+
+            const tlRis = gsap.timeline({ scrollTrigger: ST('#risques') });
+            tlRis
+                .to('#risques .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#risques .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#risques .risque-group-title', {
+                    opacity: 1, y: 0, duration: 0.5,
+                    stagger: 0.15, ease: 'power2.out'
+                }, '-=0.3')
+                .to('#risques .risque-item', {
+                    opacity: 1, x: 0, y: 0,
+                    duration: isDesktop ? 0.65 : 0.5,
+                    stagger: isDesktop ? 0.08 : 0.06,
+                    ease: 'power3.out'
+                }, '-=0.3')
+                .to('#risques .risque-dot', {
+                    scale: 1,
+                    duration: 0.45,
+                    stagger: isDesktop ? 0.08 : 0.06,
+                    ease: 'back.out(2.5)'
+                }, isDesktop ? '-=0.75' : '-=0.55');
+
+            /* ════════════════════════════════════════════════════════
+               VIII. LIVRABLES — SVG drawing (desktop) ou scale (mobile)
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#livrables .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#livrables .section-title', { opacity: 0, y: Y });
+            gsap.set('#livrables .livrable-item', { opacity: 0, y: Y });
+
+            const tlLiv = gsap.timeline({ scrollTrigger: ST('#livrables') });
+            tlLiv
+                .to('#livrables .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#livrables .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#livrables .livrable-item', {
+                    opacity: 1, y: 0,
+                    duration: isDesktop ? 0.7 : 0.55,
+                    stagger: STAG,
+                    ease: 'power3.out'
+                }, '-=0.3');
+
+            if (isDesktop) {
+                /* DESKTOP : drawing des SVG (stroke-dashoffset 0 → length) */
+                const svgs = document.querySelectorAll('#livrables .livrable-icon svg');
+                prepareSVGDrawing(svgs);
+
+                document.querySelectorAll('#livrables .livrable-icon').forEach(icon => {
+                    if (icon.dataset.drawn === '1') return;
+                    icon.dataset.drawn = '1';
+                    const drawable = icon.querySelectorAll('svg path, svg rect, svg circle, svg line, svg polyline, svg polygon');
+                    ScrollTrigger.create({
+                        trigger: icon,
+                        start: 'top 88%',
+                        once: true,
+                        onEnter: () => {
+                            gsap.to(drawable, {
+                                strokeDashoffset: 0,
+                                duration: 1.1,
+                                ease: 'power2.inOut',
+                                stagger: 0.04
+                            });
+                        }
+                    });
+                });
+            } else {
+                /* MOBILE : scale + pop sur l'icône (drawing coûteux GPU) */
+                gsap.set('#livrables .livrable-icon', { scale: 0.5, opacity: 0 });
+                document.querySelectorAll('#livrables .livrable-icon').forEach(icon => {
+                    if (icon.dataset.drawn === '1') return;
+                    icon.dataset.drawn = '1';
+                    ScrollTrigger.create({
+                        trigger: icon,
+                        start: 'top 88%',
+                        once: true,
+                        onEnter: () => {
+                            gsap.to(icon, {
+                                scale: 1, opacity: 1,
+                                duration: 0.55,
+                                ease: 'back.out(2)'
+                            });
+                        }
+                    });
+                });
+            }
+
+            /* ════════════════════════════════════════════════════════
+               IX. SYNTHÈSE — périmètre séquentiel + cards en relais
+               ════════════════════════════════════════════════════════ */
+            gsap.set('#synthese .section-tag', { opacity: 0, y: Y_SMALL });
+            gsap.set('#synthese .section-title', { opacity: 0, y: Y });
+            gsap.set('#synthese .synthese-grid', { opacity: 1, y: 0 }); // parent visible
+            gsap.set('#synthese .synthese-perimetre', { opacity: 0, x: isDesktop ? -40 : 0, y: isMobile ? Y_SMALL : 0 });
+            gsap.set('#synthese .synthese-perimetre > h3', { opacity: 0, y: Y_SMALL });
+            gsap.set('#synthese .perimetre-item', { opacity: 0, x: isDesktop ? -20 : 0, y: isMobile ? 12 : 0 });
+            gsap.set('#synthese .perimetre-tag', { scale: 0 });
+            gsap.set('#synthese .synthese-card', { opacity: 0, x: isDesktop ? 40 : 0, y: isMobile ? Y_SMALL : 0 });
+
+            const tlSyn = gsap.timeline({ scrollTrigger: ST('#synthese') });
+            tlSyn
+                .to('#synthese .section-tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to('#synthese .section-title', { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }, '-=0.3')
+                .to('#synthese .synthese-perimetre', {
+                    opacity: 1, x: 0, y: 0,
+                    duration: isDesktop ? 0.8 : 0.6, ease: 'power3.out'
+                }, '-=0.3')
+                .to('#synthese .synthese-perimetre > h3', {
+                    opacity: 1, y: 0, duration: 0.5, ease: 'power2.out'
+                }, '-=0.5')
+                .to('#synthese .perimetre-item', {
+                    opacity: 1, x: 0, y: 0,
+                    duration: 0.55, stagger: 0.1, ease: 'power3.out'
+                }, '-=0.4')
+                .to('#synthese .perimetre-tag', {
+                    scale: 1, duration: 0.5,
+                    stagger: 0.1, ease: 'back.out(2.2)'
+                }, '-=0.65')
+                .to('#synthese .synthese-card', {
+                    opacity: 1, x: 0, y: 0,
+                    duration: isDesktop ? 0.7 : 0.55,
+                    stagger: 0.15,
+                    ease: 'power3.out'
+                }, isDesktop ? '-=0.6' : '-=0.4');
+        });
+    }
 
     /* ─── NAV BUBBLE ─── */
     const toggle = document.getElementById('navToggle');
