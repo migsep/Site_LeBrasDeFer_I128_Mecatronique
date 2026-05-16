@@ -3816,12 +3816,44 @@
         });
 
         // Init
-        requestAnimationFrame(() => {
+        // Multiple reset triggers to defeat mobile browsers' aggressive
+        // scroll-restoration on overflow-x containers + lazy-load timing.
+        function resetToFirstStep() {
             scroll.scrollLeft = 0;
-            setTimeout(() => { scroll.scrollLeft = 0; }, 100);
             applyProgress(0);
+            lastP = 0;
+            lastStep = -1;  // force updateUI to run
             updateUI(0);
+        }
+
+        requestAnimationFrame(() => {
+            resetToFirstStep();
+            setTimeout(resetToFirstStep, 100);
         });
+
+        // When the (lazy-loaded) image finishes decoding, layout becomes
+        // final — reset once more in case the browser snapped to a stale
+        // scroll position before the image had real dimensions.
+        if (img.complete && img.naturalWidth > 0) {
+            requestAnimationFrame(resetToFirstStep);
+        } else {
+            img.addEventListener('load', () => requestAnimationFrame(resetToFirstStep), { once: true });
+        }
+
+        // First time the viewer enters the viewport, force the first step.
+        // Fires exactly once per page load — catches the case where the
+        // user opens the page and scrolls down to this section.
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        resetToFirstStep();
+                        io.disconnect();
+                    }
+                });
+            }, { threshold: 0.1 });
+            io.observe(viewer);
+        }
     })();
 </script>
 <!-- Lightbox -->
