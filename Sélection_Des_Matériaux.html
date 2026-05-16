@@ -216,17 +216,27 @@
             .card:hover        { transform: none; }
             .card-interactive:hover { transform: none; border-color: var(--border); box-shadow: none; }
 
-            /* ── Bulles "Voir plus" — style image référence ── */
+            /* ── Bulles "Voir plus" — parallaxe ── */
             .voir-plus-bar {
-                display: flex;
-                justify-content: center;
-                align-items: center;
+                overflow: hidden;
                 margin-top: 18px;
                 height: 60px;
                 position: relative;
             }
+            .voir-plus-track {
+                display: flex;
+                align-items: center;
+                height: 100%;
+                will-change: transform;
+                transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+            .vp-slot {
+                flex: 0 0 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
             .voir-plus-pill {
-                position: absolute;
                 display: flex;
                 align-items: center;
                 gap: 16px;
@@ -237,13 +247,7 @@
                 cursor: pointer;
                 white-space: nowrap;
                 user-select: none;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease, transform 0.15s ease;
-            }
-            .voir-plus-pill.vp-active {
-                opacity: 1;
-                pointer-events: auto;
+                transition: transform 0.15s ease;
             }
             .voir-plus-pill:active { transform: scale(0.97); }
             .voir-plus-pill span.vp-label {
@@ -251,9 +255,7 @@
                 color: #fff;
                 font-family: "Inter";
                 font-weight: 600;
-                letter-spacing: 0px;
             }
-            /* Bouton rond jaune — inchangé */
             .vp-plus {
                 width: 36px; height: 36px;
                 border-radius: 50%;
@@ -488,9 +490,11 @@
             </div>
             <!-- Bulles "Voir plus" mobile — Performance -->
             <div class="voir-plus-bar">
-                <button class="voir-plus-pill vp-active" onclick="openTextModal('content-configuration')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
-                <button class="voir-plus-pill" onclick="openTextModal('content-simulations')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
-                <button class="voir-plus-pill" onclick="openTextModal('content-analyse')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
+                <div class="voir-plus-track">
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-configuration')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-simulations')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-analyse')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                </div>
             </div>
         </div><!-- /.chapter Performance -->
 
@@ -502,10 +506,12 @@
 
             <div class="bento-grid" style="margin-bottom: 24px;">
                 <div class="card col-12 card-interactive criteres-card"
-                     onclick="openTextModal('content-criteres')">
+                     onclick="if(!isMobile()) openTextModal('content-criteres')">
                     
-                    <div style="display: flex; align-items: center;">
-                        <span class="tech-font" style="margin-right: 15px;">CRITÈRES DE FILTRAGE :</span>
+                    <div class="interactive-title"
+                         onclick="event.stopPropagation(); openTextModal('content-criteres')">
+                        <span class="tech-font">CRITÈRES DE FILTRAGE :</span>
+                        <span class="info-icon">i</span>
                     </div>
 
                     <div class="criteres-badges">
@@ -561,10 +567,12 @@
             </div>
             <!-- Bulles "Voir plus" mobile — L'Idéal Théorique -->
             <div class="voir-plus-bar">
-                <button class="voir-plus-pill vp-active" onclick="openTextModal('content-etape1')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
-                <button class="voir-plus-pill" onclick="openTextModal('content-etape2')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
-                <button class="voir-plus-pill" onclick="openTextModal('content-etape3')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
-                <button class="voir-plus-pill" onclick="openTextModal('content-etape4')"><span class="vp-label">Voir plus</span> <span class="vp-plus"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button>
+                <div class="voir-plus-track">
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-etape1')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-etape2')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-etape3')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                    <div class="vp-slot"><button class="voir-plus-pill" onclick="openTextModal('content-etape4')"><span class="vp-label">Voir plus</span><span class="vp-plus"><svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg></span></button></div>
+                </div>
             </div>
         </div><!-- /.chapter L'Idéal Théorique -->
 
@@ -948,7 +956,7 @@
         opacity: 0.8;
         transform: translateX(10px); /* Petit mouvement vers la droite */
     }
-    .interactive-title span.info-icon {
+    .info-icon {
         font-size: 0.72rem;
         font-family: serif;
         font-style: italic;
@@ -1077,6 +1085,7 @@
                 // Récupère la voir-plus-bar si elle existe (next sibling dans le HTML)
                 const vpBar = wrap.nextElementSibling?.classList.contains('voir-plus-bar')
                     ? wrap.nextElementSibling : null;
+                const vpTrack = vpBar ? vpBar.querySelector('.voir-plus-track') : null;
                 const vpPills = vpBar ? Array.from(vpBar.querySelectorAll('.voir-plus-pill')) : [];
 
                 // Déplace les dots après la voir-plus-bar (ou directement après wrap)
@@ -1107,14 +1116,6 @@
                 }
                 sizeItems();
                 window.addEventListener('resize', sizeItems);
-
-                // Mise à jour des bulles voir-plus
-                function updateVpPills(idx) {
-                    if (!isMobile()) return;
-                    vpPills.forEach((p, i) => {
-                        p.classList.toggle('vp-active', i === idx);
-                    });
-                }
 
                 // Dots — pilule Liquid Glass sur mobile
                 dotsEl.innerHTML = '';
@@ -1149,21 +1150,24 @@
                         else                     op = 0.25;
                         d.style.background = `rgba(255,255,255,${op})`;
                     });
-                    const newCur = Math.round(progress);
-                    if (newCur !== cur) {
-                        cur = newCur;
-                        updateVpPills(cur);
+                    // Parallaxe voir-plus — saute au slot suivant dès 50% de scroll
+                    if (vpTrack && isMobile()) {
+                        const vpIdx = Math.round(progress);
+                        vpTrack.style.transform = `translateX(-${vpIdx * vpBar.offsetWidth}px)`;
                     }
+
+                    const newCur = Math.round(progress);
+                    if (newCur !== cur) { cur = newCur; }
                 }, { passive: true });
 
                 requestAnimationFrame(() => {
                     sizeItems();
                     wrap.scrollLeft = 0;
                     setTimeout(() => { wrap.scrollLeft = 0; }, 100);
+                    if (vpTrack) vpTrack.style.transform = 'translateX(0)';
                     dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
                         d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
                     });
-                    updateVpPills(0);
                 });
 
                 // Fade-in via IntersectionObserver
