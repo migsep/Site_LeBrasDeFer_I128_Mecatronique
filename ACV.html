@@ -726,7 +726,14 @@
                 left: 0;
                 right: 0;
             }
-            .kv-image { max-height: 62vh; max-width: 92vw; }
+            .kv-image {
+                max-height: 62vh;
+                max-width: 92vw;
+                /* Drop-shadow on a heavily scaled image (up to 4.8x) is extremely
+                   expensive on mobile GPUs — disable it here to keep the device
+                   responsive while scrolling/zooming. The desktop version keeps it. */
+                filter: none;
+            }
             .kv-bottom-bar { padding: 12px 0 0; gap: 10px; }
             .kv-caption { font-size: 0.78rem; }
             .kv-description { font-size: 0.82rem; padding: 4px 6px 0; }
@@ -1851,7 +1858,7 @@
             <div class="kv-layout">
                 <div class="kv-viewer" id="kvViewer" tabindex="0">
                     <div class="kv-image-stage">
-                        <img class="kv-image" id="kvImage" src="SC.png" alt="Schéma cinématique du Bras de Fer" draggable="false">
+                        <img class="kv-image" id="kvImage" src="SC.png" alt="Schéma cinématique du Bras de Fer" draggable="false" loading="lazy" decoding="async">
                         <div class="kv-scroll" id="kvScroll" aria-hidden="true"></div>
                     </div>
                     <div class="kv-bottom-bar">
@@ -3757,13 +3764,22 @@
         // ─── Drive zoom/pan from native scroll position ──────────────
         // The browser handles inertia, snap, and edge-resistance. We just
         // read scrollLeft and apply the corresponding transform every frame.
+        // Throttled via rAF: scroll events can fire faster than the compositor
+        // can keep up (especially on mobile during inertial scroll), so we
+        // coalesce them and only update transform once per animation frame.
+        let scrollRafPending = false;
         scroll.addEventListener('scroll', () => {
-            const p = currentProgress();
-            if (p !== lastP) {
-                applyProgress(p);
-                updateUI(p);
-                lastP = p;
-            }
+            if (scrollRafPending) return;
+            scrollRafPending = true;
+            requestAnimationFrame(() => {
+                scrollRafPending = false;
+                const p = currentProgress();
+                if (p !== lastP) {
+                    applyProgress(p);
+                    updateUI(p);
+                    lastP = p;
+                }
+            });
         }, { passive: true });
 
         // ─── Arrow buttons ───────────────────────────────────────────
@@ -3787,9 +3803,16 @@
         });
 
         // ─── Resize: keep current step centered after viewport changes ─
+        // Debounced — Chrome Android fires resize constantly as the URL bar
+        // hides/shows during scroll, which without debouncing would trigger
+        // a scrollTo() on every pixel and crush the GPU.
+        let resizeTimer = null;
         window.addEventListener('resize', () => {
-            const step = Math.round(currentProgress());
-            requestAnimationFrame(() => goTo(step, true));
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const step = Math.round(currentProgress());
+                goTo(step, true);
+            }, 120);
         });
 
         // Init
