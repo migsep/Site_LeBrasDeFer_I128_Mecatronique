@@ -223,7 +223,7 @@
         /* Sous-systèmes — Apple style */
         .subsys-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 14px;
             margin-top: 20px;
         }
@@ -235,7 +235,7 @@
         /* Visual / image card */
         .subsys-visual {
             width: 100%;
-            aspect-ratio: 4/3;
+            aspect-ratio: 9/16;
             position: relative;
             overflow: hidden;
             border-radius: 20px;
@@ -468,6 +468,30 @@
             line-height: 0;
             z-index: 1;
             border-radius: 24px;
+        }
+        /* Invisible scroll-snap layer over the image — same tech as the
+           other carousels (overflow-x: auto + scroll-snap-type: x mandatory).
+           Native momentum/snap on every platform, no JS gesture engine. */
+        .kv-scroll {
+            position: absolute;
+            inset: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x pan-y;
+            z-index: 2;
+            display: flex;
+        }
+        .kv-scroll::-webkit-scrollbar { display: none; }
+        .kv-scroll-cell {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            scroll-snap-align: center;
+            pointer-events: none;
         }
         .kv-image {
             max-height: 70vh;
@@ -1828,6 +1852,7 @@
                 <div class="kv-viewer" id="kvViewer" tabindex="0">
                     <div class="kv-image-stage">
                         <img class="kv-image" id="kvImage" src="SC.png" alt="Schéma cinématique du Bras de Fer" draggable="false">
+                        <div class="kv-scroll" id="kvScroll" aria-hidden="true"></div>
                     </div>
                     <div class="kv-bottom-bar">
                         <div class="kv-text-slot">
@@ -3625,6 +3650,7 @@
         ];
 
         const img         = document.getElementById('kvImage');
+        const scroll      = document.getElementById('kvScroll');
         const progress    = document.getElementById('kvProgress');
         const caption     = document.getElementById('kvCaption');
         const descriptionEl = document.getElementById('kvDescription');
@@ -3633,10 +3659,16 @@
 
         // Sync hover-like state on the right-column text boxes (desktop only visually,
         // but the class toggle is harmless on mobile where the list is display:none).
-        // Mapping: viewer step's `solid` → index of .solide-item in the list.
         // S2 and S3 share the same box (index 2), so the box stays active during both steps.
         const solidToItemIdx = { 'S0': 0, 'S1': 1, 'S2': 2, 'S3': 2, 'S4': 3, 'S5': 4 };
         const solideItems = document.querySelectorAll('.kv-layout .solide-list .solide-item');
+
+        // Build snap cells inside the scroll layer — one per step
+        steps.forEach(() => {
+            const cell = document.createElement('div');
+            cell.className = 'kv-scroll-cell';
+            scroll.appendChild(cell);
+        });
 
         // Build dots
         steps.forEach((_, i) => {
@@ -3644,16 +3676,12 @@
             dot.type = 'button';
             dot.className = 'kv-dot' + (i === 0 ? ' kv-active' : '');
             dot.setAttribute('aria-label', 'Étape ' + i);
-            dot.addEventListener('click', () => snapTo(i));
+            dot.addEventListener('click', () => goTo(i));
             progress.appendChild(dot);
         });
         const getDots = () => progress.querySelectorAll('.kv-dot');
 
-        const STEP_HEIGHT = 300;  // virtual px per step
-        const LERP        = 0.11;
-
-        let vScroll = 0, aScroll = 0, lastStep = -1, lastP = -1, snapTimer = null;
-        let lastDescIdx = -2;
+        let lastStep = -1, lastP = -1, lastDescIdx = -2;
 
         function smoothStep(t) {
             t = Math.max(0, Math.min(1, t));
@@ -3671,19 +3699,18 @@
             img.style.transform = `scale(${S}) translate(${(0.5-fx)*100}%, ${(0.5-fy)*100}%)`;
         }
 
-        function tick() {
-            const diff = vScroll - aScroll;
-            if (Math.abs(diff) > 0.05) aScroll += diff * LERP;
-            else if (aScroll !== vScroll) aScroll = vScroll;
-            const p = aScroll / STEP_HEIGHT;
-            if (p !== lastP) {
-                applyProgress(p);
-                updateUI(p);
-                lastP = p;
-            }
-            requestAnimationFrame(tick);
+        function currentProgress() {
+            const w = scroll.clientWidth || 1;
+            return Math.max(0, Math.min(steps.length - 1, scroll.scrollLeft / w));
         }
-        requestAnimationFrame(tick);
+
+        function goTo(idx, instant) {
+            const i = Math.max(0, Math.min(steps.length - 1, idx));
+            scroll.scrollTo({
+                left: i * scroll.clientWidth,
+                behavior: instant ? 'auto' : 'smooth'
+            });
+        }
 
         function updateUI(p) {
             const step = Math.round(Math.max(0, Math.min(steps.length - 1, p)));
@@ -3727,105 +3754,51 @@
             }
         }
 
-        function scheduleSnap() {
-            clearTimeout(snapTimer);
-            snapTimer = setTimeout(() => {
-                vScroll = Math.round(vScroll / STEP_HEIGHT) * STEP_HEIGHT;
-                vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, vScroll));
-            }, 180);
-        }
-
-        function snapTo(idx) {
-            clearTimeout(snapTimer);
-            vScroll = idx * STEP_HEIGHT;
-        }
-
-        // ─── Wheel (horizontal only) — scoped to viewer ──────────────
-        viewer.addEventListener('wheel', (e) => {
-            // Vertical wheel → let the page scroll normally
-            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) return;
-            e.preventDefault();
-            const raw = e.deltaX;
-            const delta = Math.abs(raw) > 80
-                ? Math.sign(raw) * STEP_HEIGHT   // mouse wheel horizontal
-                : raw;                            // trackpad 1:1
-            vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, vScroll + delta));
-            scheduleSnap();
-        }, { passive: false });
-
-        // ─── Touch (horizontal swipe) — scoped to viewer ─────────────
-        let tStartX = 0, tStartV = 0, tLastX = 0, tVel = 0, tLastT = 0;
-        let tStartY = 0, tLocked = false, tIsHorizontal = false, tActive = false;
-
-        function isInteractive(el) {
-            return el.closest('button, .kv-dot, .kv-progress, .kv-nav-arrow');
-        }
-
-        viewer.addEventListener('touchstart', (e) => {
-            if (isInteractive(e.target)) return;
-            tActive = true;
-            tStartX = tLastX = e.touches[0].clientX;
-            tStartY = e.touches[0].clientY;
-            tStartV = vScroll;
-            tVel = 0;
-            tLastT = performance.now();
-            tLocked = false;
-            tIsHorizontal = false;
-            clearTimeout(snapTimer);
-        }, { passive: true });
-
-        viewer.addEventListener('touchmove', (e) => {
-            if (!tActive || isInteractive(e.target)) return;
-            const x = e.touches[0].clientX;
-            const y = e.touches[0].clientY;
-            if (!tLocked && (Math.abs(x - tStartX) > 5 || Math.abs(y - tStartY) > 5)) {
-                tIsHorizontal = Math.abs(x - tStartX) >= Math.abs(y - tStartY);
-                tLocked = true;
+        // ─── Drive zoom/pan from native scroll position ──────────────
+        // The browser handles inertia, snap, and edge-resistance. We just
+        // read scrollLeft and apply the corresponding transform every frame.
+        scroll.addEventListener('scroll', () => {
+            const p = currentProgress();
+            if (p !== lastP) {
+                applyProgress(p);
+                updateUI(p);
+                lastP = p;
             }
-            if (!tIsHorizontal) return; // vertical → page scrolls (touch-action: pan-y)
-            e.preventDefault();
-            const now = performance.now();
-            const dt = Math.max(1, now - tLastT);
-            tVel = (tLastX - x) / dt;
-            tLastX = x;
-            tLastT = now;
-            vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, tStartV + (tStartX - x) * 1.8));
-        }, { passive: false });
-
-        viewer.addEventListener('touchend', () => {
-            if (!tActive) return;
-            tActive = false;
-            if (!tIsHorizontal) return;
-            vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, vScroll + tVel * 80));
-            scheduleSnap();
-        }, { passive: true });
-
-        viewer.addEventListener('touchcancel', () => {
-            tActive = false;
         }, { passive: true });
 
         // ─── Arrow buttons ───────────────────────────────────────────
         btnPrev.addEventListener('click', () => {
-            vScroll = Math.max(0, (Math.round(vScroll / STEP_HEIGHT) - 1) * STEP_HEIGHT);
+            goTo(Math.round(currentProgress()) - 1);
         });
         btnNext.addEventListener('click', () => {
-            vScroll = Math.min((steps.length - 1) * STEP_HEIGHT, (Math.round(vScroll / STEP_HEIGHT) + 1) * STEP_HEIGHT);
+            goTo(Math.round(currentProgress()) + 1);
         });
 
         // ─── Keyboard — only when the viewer is focused ──────────────
         viewer.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 e.preventDefault();
-                vScroll = Math.min((steps.length - 1) * STEP_HEIGHT, (Math.round(vScroll / STEP_HEIGHT) + 1) * STEP_HEIGHT);
+                goTo(Math.round(currentProgress()) + 1);
             }
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 e.preventDefault();
-                vScroll = Math.max(0, (Math.round(vScroll / STEP_HEIGHT) - 1) * STEP_HEIGHT);
+                goTo(Math.round(currentProgress()) - 1);
             }
         });
 
+        // ─── Resize: keep current step centered after viewport changes ─
+        window.addEventListener('resize', () => {
+            const step = Math.round(currentProgress());
+            requestAnimationFrame(() => goTo(step, true));
+        });
+
         // Init
-        updateUI(0);
+        requestAnimationFrame(() => {
+            scroll.scrollLeft = 0;
+            setTimeout(() => { scroll.scrollLeft = 0; }, 100);
+            applyProgress(0);
+            updateUI(0);
+        });
     })();
 </script>
 <!-- Lightbox -->
