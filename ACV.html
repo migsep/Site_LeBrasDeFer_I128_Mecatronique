@@ -242,6 +242,12 @@
             flex-shrink: 0;
             border: 1px solid rgba(255,255,255,0.07);
         }
+        .subsys-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
         /* Text below — outside the card */
         .subsys-text {
             padding: 0 4px;
@@ -545,7 +551,6 @@
             border: 1px solid var(--border);
             background: rgba(255,255,255,0.04);
             color: var(--muted);
-            font-size: 0.95rem;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
             transition: background 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
@@ -553,11 +558,19 @@
             padding: 0;
             font-family: inherit;
         }
+        .kv-nav-arrow svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            transition: transform 0.22s cubic-bezier(0.16,1,0.3,1);
+        }
         .kv-nav-arrow:hover:not(:disabled) {
             background: var(--neon-dim);
             border-color: var(--border-neon);
             color: var(--neon);
         }
+        #kvBtnPrev:hover:not(:disabled) svg { transform: translateX(-2px); }
+        #kvBtnNext:hover:not(:disabled) svg { transform: translateX(2px); }
         .kv-nav-arrow:disabled {
             opacity: 0.25;
             cursor: default;
@@ -693,7 +706,8 @@
             .kv-bottom-bar { padding: 12px 0 0; gap: 10px; }
             .kv-caption { font-size: 0.78rem; }
             .kv-description { font-size: 0.82rem; padding: 4px 6px 0; }
-            .kv-nav-arrow { width: 30px; height: 30px; font-size: 0.85rem; }
+            .kv-nav-arrow { width: 30px; height: 30px; }
+            .kv-nav-arrow svg { width: 13px; height: 13px; }
             .kv-progress { padding: 7px 12px; gap: 7px; }
         }
 
@@ -1754,31 +1768,8 @@
                 <div class="carousel-track">
                     <!-- Card 1 — Mécanique -->
                     <div class="subsys-item">
-                        <div class="subsys-visual sv-meca">
-                            <div class="sv-meca-arm">
-                                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Base -->
-                                    <rect x="80" y="170" width="40" height="12" rx="4" fill="rgba(180,200,230,0.5)"/>
-                                    <rect x="90" y="158" width="20" height="14" rx="3" fill="rgba(160,185,215,0.45)"/>
-                                    <!-- Segment 1 -->
-                                    <rect x="94" y="105" width="12" height="55" rx="5" fill="rgba(200,215,235,0.55)" transform="rotate(-10 100 160)"/>
-                                    <!-- Joint A -->
-                                    <circle cx="100" cy="108" r="9" fill="rgba(255,122,0,0.7)" stroke="rgba(255,122,0,0.4)" stroke-width="2"/>
-                                    <!-- Segment 2 -->
-                                    <rect x="94" y="60" width="12" height="52" rx="5" fill="rgba(200,215,235,0.55)" transform="rotate(15 100 108)"/>
-                                    <!-- Joint B -->
-                                    <circle cx="108" cy="65" r="8" fill="rgba(255,122,0,0.7)" stroke="rgba(255,122,0,0.4)" stroke-width="2"/>
-                                    <!-- Segment 3 (forearm) -->
-                                    <rect x="104" y="28" width="10" height="40" rx="4" fill="rgba(200,215,235,0.50)" transform="rotate(-20 108 65)"/>
-                                    <!-- Joint C -->
-                                    <circle cx="97" cy="30" r="7" fill="rgba(255,122,0,0.6)" stroke="rgba(255,122,0,0.35)" stroke-width="2"/>
-                                    <!-- Gripper -->
-                                    <rect x="82" y="14" width="5" height="18" rx="2" fill="rgba(220,235,255,0.6)" transform="rotate(10 97 30)"/>
-                                    <rect x="108" y="14" width="5" height="18" rx="2" fill="rgba(220,235,255,0.6)" transform="rotate(-10 97 30)"/>
-                                    <!-- Glow highlight on arm -->
-                                    <line x1="100" y1="170" x2="108" y2="65" stroke="rgba(255,122,0,0.18)" stroke-width="14" stroke-linecap="round"/>
-                                </svg>
-                            </div>
+                        <div class="subsys-visual">
+                            <img src="Meca.png" alt="Mécanique" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Mécanique. </span>Structure en profilés aluminium 6061-T6 (20×20 mm) et pièces PLA imprimées en 3D. 5 axes rotatifs, pince en cours d'assemblage.</p>
@@ -1787,40 +1778,8 @@
 
                     <!-- Card 2 — Actionneurs -->
                     <div class="subsys-item">
-                        <div class="subsys-visual sv-act">
-                            <div class="sv-act-inner">
-                                <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Outer ring glow -->
-                                    <circle cx="90" cy="90" r="78" stroke="rgba(255,100,0,0.12)" stroke-width="1"/>
-                                    <circle cx="90" cy="90" r="68" stroke="rgba(255,100,0,0.18)" stroke-width="1"/>
-                                    <!-- Tick marks -->
-                                    <g stroke="rgba(255,120,0,0.35)" stroke-width="1.5" stroke-linecap="round">
-                                        <line x1="90" y1="16" x2="90" y2="26"/>
-                                        <line x1="90" y1="154" x2="90" y2="164"/>
-                                        <line x1="16" y1="90" x2="26" y2="90"/>
-                                        <line x1="154" y1="90" x2="164" y2="90"/>
-                                        <line x1="34.5" y1="34.5" x2="41.6" y2="41.6"/>
-                                        <line x1="138.4" y1="138.4" x2="145.5" y2="145.5"/>
-                                        <line x1="145.5" y1="34.5" x2="138.4" y2="41.6"/>
-                                        <line x1="41.6" y1="138.4" x2="34.5" y2="145.5"/>
-                                    </g>
-                                    <!-- Servo body -->
-                                    <rect x="56" y="62" width="68" height="56" rx="10" fill="rgba(40,40,40,0.9)" stroke="rgba(255,100,0,0.3)" stroke-width="1.5"/>
-                                    <!-- Servo label slots -->
-                                    <rect x="63" y="69" width="54" height="8" rx="3" fill="rgba(255,100,0,0.12)"/>
-                                    <rect x="63" y="81" width="38" height="5" rx="2" fill="rgba(255,255,255,0.06)"/>
-                                    <rect x="63" y="90" width="28" height="5" rx="2" fill="rgba(255,255,255,0.04)"/>
-                                    <!-- Servo horn -->
-                                    <circle cx="90" cy="90" r="14" fill="rgba(255,110,0,0.25)" stroke="rgba(255,110,0,0.55)" stroke-width="2"/>
-                                    <circle cx="90" cy="90" r="5" fill="rgba(255,130,0,0.8)"/>
-                                    <!-- Connector pins -->
-                                    <rect x="82" y="115" width="5" height="10" rx="1.5" fill="rgba(255,200,80,0.7)"/>
-                                    <rect x="90" y="115" width="5" height="10" rx="1.5" fill="rgba(255,255,255,0.4)"/>
-                                    <rect x="98" y="115" width="5" height="10" rx="1.5" fill="rgba(80,180,255,0.7)"/>
-                                    <!-- Arc of motion -->
-                                    <path d="M 40 90 A 50 50 0 0 1 140 90" stroke="rgba(255,100,0,0.22)" stroke-width="2" stroke-dasharray="4 4" fill="none"/>
-                                </svg>
-                            </div>
+                        <div class="subsys-visual">
+                            <img src="Act.png" alt="Actionneurs" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Actionneurs. </span>5 servomoteurs SCS15 pour les axes principaux, 1 servomoteur HS-422 pour la pince.</p>
@@ -1829,49 +1788,8 @@
 
                     <!-- Card 3 — Capteurs / Perception -->
                     <div class="subsys-item">
-                        <div class="subsys-visual sv-capt">
-                            <div class="sv-capt-chip">
-                                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- RGB beams from top -->
-                                    <defs>
-                                        <radialGradient id="rgb-r" cx="35%" cy="40%" r="55%">
-                                            <stop offset="0%" stop-color="rgba(255,40,40,0.7)"/>
-                                            <stop offset="100%" stop-color="transparent"/>
-                                        </radialGradient>
-                                        <radialGradient id="rgb-g" cx="50%" cy="35%" r="55%">
-                                            <stop offset="0%" stop-color="rgba(80,255,100,0.6)"/>
-                                            <stop offset="100%" stop-color="transparent"/>
-                                        </radialGradient>
-                                        <radialGradient id="rgb-b" cx="65%" cy="40%" r="55%">
-                                            <stop offset="0%" stop-color="rgba(60,120,255,0.7)"/>
-                                            <stop offset="100%" stop-color="transparent"/>
-                                        </radialGradient>
-                                    </defs>
-                                    <ellipse cx="70" cy="80" rx="55" ry="70" fill="url(#rgb-r)" opacity="0.8"/>
-                                    <ellipse cx="100" cy="75" rx="55" ry="70" fill="url(#rgb-g)" opacity="0.75"/>
-                                    <ellipse cx="130" cy="80" rx="55" ry="70" fill="url(#rgb-b)" opacity="0.8"/>
-                                    <!-- White centre overlap = white light -->
-                                    <ellipse cx="100" cy="90" rx="18" ry="22" fill="rgba(255,255,255,0.18)"/>
-                                    <!-- Sensor chip body -->
-                                    <rect x="74" y="120" width="52" height="42" rx="7" fill="rgba(20,20,20,0.95)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                                    <!-- Chip pins left -->
-                                    <rect x="62" y="126" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <rect x="62" y="133" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <rect x="62" y="140" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <rect x="62" y="147" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <!-- Chip pins right -->
-                                    <rect x="125" y="126" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <rect x="125" y="133" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <rect x="125" y="140" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <rect x="125" y="147" width="13" height="3" rx="1" fill="rgba(200,200,200,0.3)"/>
-                                    <!-- Lens centre -->
-                                    <circle cx="100" cy="141" r="10" fill="rgba(40,40,50,1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-                                    <circle cx="100" cy="141" r="5" fill="rgba(80,80,100,0.8)"/>
-                                    <circle cx="97" cy="138" r="1.5" fill="rgba(255,255,255,0.5)"/>
-                                    <!-- TCS label -->
-                                    <text x="100" y="155" text-anchor="middle" font-size="5" fill="rgba(255,255,255,0.3)" font-family="monospace">TCS34725</text>
-                                </svg>
-                            </div>
+                        <div class="subsys-visual">
+                            <img src="Cap.png" alt="Capteurs / Perception" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Capteurs / Perception. </span>Capteur de couleur TCS34725 intégré à l'effecteur pour l'identification des cubes.</p>
@@ -1880,66 +1798,8 @@
 
                     <!-- Card 4 — Commande & Informatique -->
                     <div class="subsys-item">
-                        <div class="subsys-visual sv-cmd">
-                            <div class="sv-cmd-board">
-                                <svg width="190" height="190" viewBox="0 0 190 190" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Arduino Mega body -->
-                                    <rect x="30" y="55" width="130" height="80" rx="6" fill="rgba(0,80,0,0.7)" stroke="rgba(34,197,94,0.35)" stroke-width="1.5"/>
-                                    <!-- USB connector -->
-                                    <rect x="24" y="70" width="10" height="18" rx="2" fill="rgba(100,100,100,0.6)" stroke="rgba(150,150,150,0.3)" stroke-width="1"/>
-                                    <!-- Power jack -->
-                                    <circle cx="24" cy="110" r="6" fill="rgba(60,60,60,0.7)" stroke="rgba(120,120,120,0.3)" stroke-width="1"/>
-                                    <!-- Pin headers top row -->
-                                    <g fill="rgba(220,220,200,0.55)">
-                                        <rect x="40" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="47" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="54" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="61" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="68" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="75" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="82" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="89" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="96" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="103" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="110" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="117" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="124" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="131" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="138" y="52" width="3" height="6" rx="0.5"/>
-                                        <rect x="145" y="52" width="3" height="6" rx="0.5"/>
-                                    </g>
-                                    <!-- MCU chip -->
-                                    <rect x="70" y="70" width="50" height="50" rx="4" fill="rgba(10,20,10,0.9)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5"/>
-                                    <!-- MCU pins -->
-                                    <g stroke="rgba(34,197,94,0.5)" stroke-width="1">
-                                        <line x1="75" y1="70" x2="75" y2="64"/><line x1="82" y1="70" x2="82" y2="64"/>
-                                        <line x1="89" y1="70" x2="89" y2="64"/><line x1="96" y1="70" x2="96" y2="64"/>
-                                        <line x1="103" y1="70" x2="103" y2="64"/><line x1="110" y1="70" x2="110" y2="64"/>
-                                        <line x1="75" y1="120" x2="75" y2="126"/><line x1="82" y1="120" x2="82" y2="126"/>
-                                        <line x1="89" y1="120" x2="89" y2="126"/><line x1="96" y1="120" x2="96" y2="126"/>
-                                        <line x1="103" y1="120" x2="103" y2="126"/><line x1="110" y1="120" x2="110" y2="126"/>
-                                    </g>
-                                    <!-- MCU label -->
-                                    <text x="95" y="94" text-anchor="middle" font-size="5" fill="rgba(34,197,94,0.5)" font-family="monospace">ATMEGA</text>
-                                    <text x="95" y="102" text-anchor="middle" font-size="5" fill="rgba(34,197,94,0.5)" font-family="monospace">2560</text>
-                                    <!-- Trace lines -->
-                                    <g stroke="rgba(34,197,94,0.2)" stroke-width="1" fill="none">
-                                        <path d="M 40 85 H 70"/>
-                                        <path d="M 40 95 H 58 V 85 H 70"/>
-                                        <path d="M 40 105 H 70"/>
-                                        <path d="M 120 85 H 150"/>
-                                        <path d="M 120 95 H 150"/>
-                                        <path d="M 120 105 H 142 V 115 H 150"/>
-                                    </g>
-                                    <!-- LED indicator -->
-                                    <circle cx="52" cy="125" r="4" fill="rgba(34,197,94,0.85)" filter="url(#glow)"/>
-                                    <circle cx="52" cy="125" r="6" fill="rgba(34,197,94,0.15)"/>
-                                    <!-- Raspberry Pi hint (small board top right) -->
-                                    <rect x="108" y="130" width="44" height="28" rx="4" fill="rgba(90,0,30,0.6)" stroke="rgba(200,50,80,0.3)" stroke-width="1"/>
-                                    <text x="130" y="148" text-anchor="middle" font-size="4.5" fill="rgba(255,100,120,0.5)" font-family="monospace">RPi 5</text>
-                                    <circle cx="118" cy="138" r="4" fill="rgba(200,50,80,0.3)" stroke="rgba(200,50,80,0.3)" stroke-width="1"/>
-                                </svg>
-                            </div>
+                        <div class="subsys-visual">
+                            <img src="Com.png" alt="Commande & Informatique" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Commande & Informatique. </span>Arduino MEGA 2560 (servomoteurs), Raspberry Pi 5 (traitement haut niveau, URDF/ROS), alimentation AC/DC 12V 10A.</p>
@@ -1976,9 +1836,13 @@
                             <div class="kv-description" id="kvDescription"></div>
                         </div>
                         <div class="kv-nav-row">
-                            <button type="button" class="kv-nav-arrow" id="kvBtnPrev" aria-label="Précédent">&#8592;</button>
+                            <button type="button" class="kv-nav-arrow" id="kvBtnPrev" aria-label="Précédent">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            </button>
                             <div class="kv-progress" id="kvProgress"></div>
-                            <button type="button" class="kv-nav-arrow" id="kvBtnNext" aria-label="Suivant">&#8594;</button>
+                            <button type="button" class="kv-nav-arrow" id="kvBtnNext" aria-label="Suivant">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3418,6 +3282,29 @@
         _cycleCloseTimers = [];
     }
 
+    /* Body-lock : empêche le scroll arrière-plan sur iOS Safari */
+    let _lockScrollY = 0;
+    function _lockBodyScroll() {
+        _lockScrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${_lockScrollY}px`;
+        document.body.style.width = '100%';
+    }
+    function _unlockBodyScroll() {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        // La page a `html { scroll-behavior: smooth }`, ce qui ferait
+        // animer scrollTo. On force un saut instantané pendant la restauration.
+        const html = document.documentElement;
+        const prev = html.style.scrollBehavior;
+        html.style.scrollBehavior = 'auto';
+        window.scrollTo(0, _lockScrollY);
+        html.style.scrollBehavior = prev;
+    }
+
     function selectPhase(n) {
         const d = cycleData[n];
         if (!d) return;
@@ -3435,6 +3322,7 @@
         activePhase = n;
 
         if (isMobile()) {
+            _lockBodyScroll();
             const node = document.querySelector(`.cycle-node[data-phase="${n}"]`);
             const bubble = document.getElementById('cycleBubble');
             const content = document.getElementById('cycleBubbleContent');
@@ -3540,6 +3428,7 @@
         const overlay = document.getElementById('cycleBgOverlay');
 
         if (isMobile()) {
+            _unlockBodyScroll();
             const bubble  = document.getElementById('cycleBubble');
             const content = document.getElementById('cycleBubbleContent');
 
