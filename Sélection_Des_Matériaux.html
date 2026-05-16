@@ -228,10 +228,9 @@
                 align-items: center;
                 height: 100%;
                 will-change: transform;
-                transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             }
             .vp-slot {
-                flex: 0 0 100%;
+                flex-shrink: 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -1087,6 +1086,25 @@
                     ? wrap.nextElementSibling : null;
                 const vpTrack = vpBar ? vpBar.querySelector('.voir-plus-track') : null;
                 const vpPills = vpBar ? Array.from(vpBar.querySelectorAll('.voir-plus-pill')) : [];
+                const M = 1.45; // multiplicateur parallaxe
+
+                // Dimensionne les slots à step() × M et positionne le track
+                function sizeVpSlots() {
+                    if (!vpTrack || !isMobile()) return;
+                    const slotW = step() * M;
+                    vpBar.querySelectorAll('.vp-slot').forEach(s => {
+                        s.style.width = slotW + 'px';
+                        s.style.flex = `0 0 ${slotW}px`;
+                    });
+                }
+
+                function vpTransform(scrollLeft) {
+                    if (!vpTrack || !isMobile()) return;
+                    const barW = vpBar.offsetWidth;
+                    const s = step();
+                    const T = -scrollLeft * M - (s * M) / 2 + barW / 2;
+                    vpTrack.style.transform = `translateX(${T}px)`;
+                }
 
                 // Déplace les dots après la voir-plus-bar (ou directement après wrap)
                 if (!wrap.dataset.dotsDetached) {
@@ -1113,6 +1131,7 @@
                 function sizeItems() {
                     if (!isMobile()) { items.forEach(it => it.style.width = ''); return; }
                     items.forEach(it => it.style.width = itemW() + 'px');
+                    sizeVpSlots();
                 }
                 sizeItems();
                 window.addEventListener('resize', sizeItems);
@@ -1150,11 +1169,8 @@
                         else                     op = 0.25;
                         d.style.background = `rgba(255,255,255,${op})`;
                     });
-                    // Parallaxe voir-plus — saute au slot suivant dès 50% de scroll
-                    if (vpTrack && isMobile()) {
-                        const vpIdx = Math.round(progress);
-                        vpTrack.style.transform = `translateX(-${vpIdx * vpBar.offsetWidth}px)`;
-                    }
+                    // Parallaxe voir-plus — aligné à chaque carte, plus rapide pendant le swipe
+                    vpTransform(wrap.scrollLeft);
 
                     const newCur = Math.round(progress);
                     if (newCur !== cur) { cur = newCur; }
@@ -1164,7 +1180,7 @@
                     sizeItems();
                     wrap.scrollLeft = 0;
                     setTimeout(() => { wrap.scrollLeft = 0; }, 100);
-                    if (vpTrack) vpTrack.style.transform = 'translateX(0)';
+                    if (vpTrack) vpTransform(0);
                     dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
                         d.style.background = i === 0 ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.25)';
                     });
