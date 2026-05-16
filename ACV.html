@@ -487,6 +487,20 @@
             max-width: 100%;
             z-index: 10;
         }
+        .kv-text-slot {
+            width: 100%;
+        }
+        .kv-text-ghost {
+            display: none;
+            visibility: hidden;
+            pointer-events: none;
+            user-select: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            line-height: 1.55;
+            text-align: center;
+            width: 100%;
+        }
         .kv-caption {
             font-family: 'Inter', sans-serif;
             font-size: 0.85rem;
@@ -498,6 +512,23 @@
             min-height: 1.2em;
             display: none;
         }
+        .kv-description {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 300;
+            line-height: 1.55;
+            color: var(--muted);
+            text-align: center;
+            width: 100%;
+            max-width: 92vw;
+            transition: opacity 0.35s, transform 0.35s;
+            display: none;
+        }
+        .kv-description.kv-changing {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        .kv-description strong { color: var(--text); }
         .kv-caption.kv-changing {
             opacity: 0;
             transform: translateY(6px);
@@ -643,9 +674,25 @@
             .kv-layout .solide-list { display: none; }
             .kv-viewer { margin: 0 auto; }
             .kv-caption { display: block; }
+            .kv-viewer.kv-has-description .kv-caption { display: none; }
+            .kv-viewer.kv-has-description .kv-description { display: block; }
+            .kv-text-slot { position: relative; }
+            .kv-text-ghost {
+                display: block;
+                font-size: 0.82rem;
+                padding: 4px 6px 0;
+            }
+            .kv-caption,
+            .kv-description {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+            }
             .kv-image { max-height: 62vh; max-width: 92vw; }
             .kv-bottom-bar { padding: 12px 0 0; gap: 10px; }
             .kv-caption { font-size: 0.78rem; }
+            .kv-description { font-size: 0.82rem; padding: 4px 6px 0; }
             .kv-nav-arrow { width: 30px; height: 30px; font-size: 0.85rem; }
             .kv-progress { padding: 7px 12px; gap: 7px; }
         }
@@ -1923,7 +1970,11 @@
                         <img class="kv-image" id="kvImage" src="SC.png" alt="Schéma cinématique du Bras de Fer" draggable="false">
                     </div>
                     <div class="kv-bottom-bar">
-                        <div class="kv-caption" id="kvCaption">Schéma cinématique</div>
+                        <div class="kv-text-slot">
+                            <div class="kv-text-ghost" aria-hidden="true"><strong>Base rotative</strong> — Pivot d'axe vertical sur la base fixe, entraîné par courroie depuis le SCS15 pour réduire la charge supportée. Relié au solide 2 par un autre SCS15 d'axe horizontal (pivot A).</div>
+                            <div class="kv-caption" id="kvCaption">Schéma cinématique</div>
+                            <div class="kv-description" id="kvDescription"></div>
+                        </div>
                         <div class="kv-nav-row">
                             <button type="button" class="kv-nav-arrow" id="kvBtnPrev" aria-label="Précédent">&#8592;</button>
                             <div class="kv-progress" id="kvProgress"></div>
@@ -3687,6 +3738,7 @@
         const img         = document.getElementById('kvImage');
         const progress    = document.getElementById('kvProgress');
         const caption     = document.getElementById('kvCaption');
+        const descriptionEl = document.getElementById('kvDescription');
         const btnPrev     = document.getElementById('kvBtnPrev');
         const btnNext     = document.getElementById('kvBtnNext');
 
@@ -3712,6 +3764,7 @@
         const LERP        = 0.11;
 
         let vScroll = 0, aScroll = 0, lastStep = -1, lastP = -1, snapTimer = null;
+        let lastDescIdx = -2;
 
         function smoothStep(t) {
             t = Math.max(0, Math.min(1, t));
@@ -3759,14 +3812,30 @@
                 item.classList.toggle('kv-active-solid', i === targetItemIdx);
             });
 
+            // Mobile description swap: only animate when the displayed content changes.
+            // S2 → S3 maps to the same box, so this guard skips the re-fade in that case.
+            const anyActive = targetItemIdx >= 0;
+            viewer.classList.toggle('kv-has-description', anyActive);
+            const newDescIdx = anyActive ? targetItemIdx : -1;
+
             btnPrev.disabled = step === 0;
             btnNext.disabled = step === steps.length - 1;
 
-            caption.classList.add('kv-changing');
-            setTimeout(() => {
-                caption.textContent = s.caption;
-                caption.classList.remove('kv-changing');
-            }, 350);
+            if (newDescIdx !== lastDescIdx) {
+                lastDescIdx = newDescIdx;
+                caption.classList.add('kv-changing');
+                descriptionEl.classList.add('kv-changing');
+                setTimeout(() => {
+                    if (anyActive) {
+                        const para = solideItems[targetItemIdx].querySelector('p');
+                        if (para) descriptionEl.innerHTML = para.innerHTML;
+                    } else {
+                        caption.textContent = s.caption;
+                    }
+                    caption.classList.remove('kv-changing');
+                    descriptionEl.classList.remove('kv-changing');
+                }, 350);
+            }
         }
 
         function scheduleSnap() {
