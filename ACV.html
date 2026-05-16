@@ -95,6 +95,7 @@
             min-height: 100vh;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
+            text-align: center;
              position: relative;
         }
 
@@ -376,15 +377,278 @@
             display: flex; align-items: flex-start; gap: 14px;
             background: var(--bg-card); border: 1px solid var(--border);
             border-radius: 14px; padding: 16px 18px;
+            transition: background 0.35s ease, border-color 0.35s ease,
+                        transform 0.35s ease, box-shadow 0.35s ease;
         }
         .solide-num {
             font-family: "Orbitron"; font-size: 0.6rem; color: var(--neon);
             background: var(--neon-dim); border: 1px solid var(--border-neon);
             border-radius: 6px; padding: 4px 8px; white-space: nowrap;
             flex-shrink: 0;
+            transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
         }
         .solide-item p { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
         .solide-item strong { color: var(--text); }
+
+        /* Active state — synced with kinematic viewer */
+        .solide-item.kv-active-solid {
+            background: rgba(255,122,0,0.07);
+            border-color: var(--border-neon);
+            box-shadow: 0 0 24px rgba(255,122,0,0.16);
+            transform: translateX(6px);
+        }
+        .solide-item.kv-active-solid .solide-num {
+            background: var(--neon);
+            border-color: var(--neon);
+            color: #000;
+        }
+
+        /* =============================================
+           KINEMATIC VIEWER (Décomposition en 6 solides)
+        ============================================= */
+        .kv-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: max(60px, calc((100vw - 1080px) / 2 + 24px));
+            align-items: start;
+        }
+        .kv-layout .solide-list { margin-top: 0; }
+
+        .kv-viewer {
+            position: relative;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            touch-action: pan-y;
+            outline: none;
+        }
+
+        .kv-top-bar {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 22px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .kv-step-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--neon);
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        .kv-step-label.kv-visible { opacity: 1; transform: translateY(0); }
+        .kv-step-counter {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+        }
+
+        .kv-image-stage {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            line-height: 0;
+            z-index: 1;
+            border-radius: 24px;
+        }
+        .kv-image {
+            max-height: 70vh;
+            max-width: 45vw;
+            width: auto;
+            height: auto;
+            display: block;
+            transform-origin: center center;
+            transform: scale(1) translate(0%, 0%);
+            will-change: transform;
+            user-select: none;
+            -webkit-user-drag: none;
+            filter: drop-shadow(0 0 60px rgba(255,122,0,0.08));
+        }
+
+        .kv-bottom-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0 0;
+            width: 100%;
+            max-width: 100%;
+            z-index: 10;
+        }
+        .kv-caption {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-align: center;
+            transition: opacity 0.35s, transform 0.35s;
+            min-height: 1.2em;
+            display: none;
+        }
+        .kv-caption.kv-changing {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        .kv-nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+        .kv-nav-arrow {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.04);
+            color: var(--muted);
+            font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
+            line-height: 1;
+            padding: 0;
+            font-family: inherit;
+        }
+        .kv-nav-arrow:hover:not(:disabled) {
+            background: var(--neon-dim);
+            border-color: var(--border-neon);
+            color: var(--neon);
+        }
+        .kv-nav-arrow:disabled {
+            opacity: 0.25;
+            cursor: default;
+        }
+        .kv-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+        }
+        .kv-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transition: background 0.35s, width 0.35s, border-radius 0.35s, box-shadow 0.35s;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        .kv-dot:hover { background: rgba(255,122,0,0.55); }
+        .kv-dot.kv-active {
+            background: var(--neon);
+            width: 22px;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(255,122,0,0.55);
+        }
+
+        .kv-scrubber {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.08);
+            z-index: 11;
+        }
+        .kv-scrubber-fill {
+            height: 100%;
+            background: var(--neon);
+            width: 0%;
+            box-shadow: 0 0 8px rgba(255,122,0,0.55);
+        }
+
+        .kv-hint {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.45rem;
+            opacity: 1;
+            transition: opacity 0.6s;
+            pointer-events: none;
+        }
+        .kv-hint.kv-hidden { opacity: 0; }
+        .kv-hint-arrow {
+            width: 26px; height: 26px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            animation: kv-bounce-x 1.4s ease-in-out infinite;
+            color: var(--muted);
+        }
+        .kv-hint-text {
+            font-size: 0.58rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            writing-mode: vertical-rl;
+            font-family: 'Orbitron', monospace;
+        }
+        @keyframes kv-bounce-x {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(4px); }
+        }
+
+        .kv-highlight {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        .kv-highlight.kv-visible { opacity: 1; }
+        .kv-hl-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--neon);
+            opacity: 0.13;
+            line-height: 1;
+            user-select: none;
+        }
+        .kv-hl-name {
+            font-size: 0.62rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 0.2rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .kv-layout { display: block; }
+            .kv-layout .solide-list { display: none; }
+            .kv-viewer { margin: 0 auto; }
+            .kv-caption { display: block; }
+            .kv-image { max-height: 62vh; max-width: 92vw; }
+            .kv-bottom-bar { padding: 12px 0 0; gap: 10px; }
+            .kv-caption { font-size: 0.78rem; }
+            .kv-nav-arrow { width: 30px; height: 30px; font-size: 0.85rem; }
+            .kv-progress { padding: 7px 12px; gap: 7px; }
+        }
 
         /* =============================================
            SECTION 3 — ACV PHASES
@@ -652,6 +916,20 @@
             from { opacity: 0; transform: scale(0.88); }
             to   { opacity: 1; transform: scale(1); }
         }
+        /* Desync: card (circle) appears first, then its content fades in after */
+        .cycle-center-card > * {
+            opacity: 0;
+            animation: ccContentIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        .cycle-center-card > *:nth-child(1) { animation-delay: 0.40s; }
+        .cycle-center-card > *:nth-child(2) { animation-delay: 0.46s; }
+        .cycle-center-card > *:nth-child(3) { animation-delay: 0.52s; }
+        .cycle-center-card > *:nth-child(4) { animation-delay: 0.58s; }
+        .cycle-center-card > *:nth-child(5) { animation-delay: 0.64s; }
+        @keyframes ccContentIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
         .cycle-center-badge {
             font-family: "Orbitron"; font-size: 0.68rem;
             letter-spacing: 1.5px; text-transform: uppercase;
@@ -884,6 +1162,7 @@
                 box-shadow: none !important;
                 border-radius: 0 !important;
                 text-align: left;
+                margin-top: 48px;
             }
             /* Section-tag becomes a gsap-titre lookalike */
             #card-conclusion .section-tag {
@@ -1638,28 +1917,43 @@
         <!-- Solides articulés -->
         <div class="reveal" style="margin-bottom:24px;">
             <h4 id="title-solides" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--neon);margin-bottom:18px;font-family:'Orbitron';font-weight:900;">DÉCOMPOSITION EN 6 SOLIDES</h4>
-            <ul class="solide-list">
-                <li class="solide-item">
-                    <span class="solide-num">S0</span>
-                    <p><strong>Base fixe</strong> — Structure en profilés aluminium 6061-T6, ancrée sur le plan de travail. Un servomoteur SCS15 entraîne la base rotative via un système de courroie.</p>
-                </li>
-                <li class="solide-item">
-                    <span class="solide-num">S1</span>
-                    <p><strong>Base rotative</strong> — Pivot d'axe vertical sur la base fixe, entraîné par courroie depuis le SCS15 pour réduire la charge supportée. Relié au solide 2 par un autre SCS15 d'axe horizontal (pivot A).</p>
-                </li>
-                <li class="solide-item">
-                    <span class="solide-num">S2 & S3</span>
-                    <p><strong>Segments du bras</strong> — Deux profilés aluminium 20×20 mm de 15 cm chacun, reliés par les moteurs SCS15 en pivots B et C.</p>
-                </li>
-                <li class="solide-item">
-                    <span class="solide-num">S4</span>
-                    <p><strong>Poignet</strong> — Dernier moteur SCS15, pivot D, supportant la pince.</p>
-                </li>
-                <li class="solide-item">
-                    <span class="solide-num">S5</span>
-                    <p><strong>Pince (en cours)</strong> — Mors, rail linéaire et support imprimés en PLA, entraînés par le servomoteur HS-422.</p>
-                </li>
-            </ul>
+            <div class="kv-layout">
+                <div class="kv-viewer" id="kvViewer" tabindex="0">
+                    <div class="kv-image-stage">
+                        <img class="kv-image" id="kvImage" src="SC.png" alt="Schéma cinématique du Bras de Fer" draggable="false">
+                    </div>
+                    <div class="kv-bottom-bar">
+                        <div class="kv-caption" id="kvCaption">Schéma cinématique</div>
+                        <div class="kv-nav-row">
+                            <button type="button" class="kv-nav-arrow" id="kvBtnPrev" aria-label="Précédent">&#8592;</button>
+                            <div class="kv-progress" id="kvProgress"></div>
+                            <button type="button" class="kv-nav-arrow" id="kvBtnNext" aria-label="Suivant">&#8594;</button>
+                        </div>
+                    </div>
+                </div>
+                <ul class="solide-list">
+                    <li class="solide-item">
+                        <span class="solide-num">S0</span>
+                        <p><strong>Base fixe</strong> — Structure en profilés aluminium 6061-T6, ancrée sur le plan de travail. Un servomoteur SCS15 entraîne la base rotative via un système de courroie.</p>
+                    </li>
+                    <li class="solide-item">
+                        <span class="solide-num">S1</span>
+                        <p><strong>Base rotative</strong> — Pivot d'axe vertical sur la base fixe, entraîné par courroie depuis le SCS15 pour réduire la charge supportée. Relié au solide 2 par un autre SCS15 d'axe horizontal (pivot A).</p>
+                    </li>
+                    <li class="solide-item">
+                        <span class="solide-num">S2 &amp; S3</span>
+                        <p><strong>Segments du bras</strong> — Deux profilés aluminium 20×20 mm de 15 cm chacun, reliés par les moteurs SCS15 en pivots B et C.</p>
+                    </li>
+                    <li class="solide-item">
+                        <span class="solide-num">S4</span>
+                        <p><strong>Poignet</strong> — Dernier moteur SCS15, pivot D, supportant la pince.</p>
+                    </li>
+                    <li class="solide-item">
+                        <span class="solide-num">S5</span>
+                        <p><strong>Pince (en cours)</strong> — Mors, rail linéaire et support imprimés en PLA, entraînés par le servomoteur HS-422.</p>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <!-- Matériaux -->
@@ -2961,6 +3255,11 @@
 
         // Animate label like h4 in section 01
         label.className = 'gsap-titre';
+        // The label is a <span> (inline by default). Once the .section-tag class
+        // is swapped out, display:block is lost and margin-bottom no longer applies.
+        // Force display:block AND the 18px margin to match section 01's h4.
+        label.style.display = 'block';
+        label.style.marginBottom = '18px';
 
         // Underline
         const underline = document.createElement('div');
@@ -3367,6 +3666,209 @@
         const isOpen = row.classList.contains('open');
         row.classList.toggle('open', !isOpen);
     }
+
+    /* ─── KINEMATIC VIEWER (Décomposition en 6 solides) ─── */
+    (function initKinematicViewer() {
+        const viewer = document.getElementById('kvViewer');
+        if (!viewer) return;
+
+        // Step definitions — coordinates calibrated from the reference layout.
+        // Adjust fx/fy/scale per step if focal points don't land on the right element of SC.png.
+        const steps = [
+            { label: 'Vue complète', caption: 'Schéma cinématique',         solid: null, scale: 1.0, fx: 0.500, fy: 0.500 },
+            { label: 'Solide 0',     caption: 'S0 — Base fixe',             solid: 'S0', scale: 3.2, fx: 0.390, fy: 0.852 },
+            { label: 'Solide 1',     caption: 'S1 — Base rotative',         solid: 'S1', scale: 3.5, fx: 0.480, fy: 0.670 },
+            { label: 'Solide 2',     caption: 'S2 — Segment AB',            solid: 'S2', scale: 2.6, fx: 0.800, fy: 0.416 },
+            { label: 'Solide 3',     caption: 'S3 — Segment BC',            solid: 'S3', scale: 3.2, fx: 0.616, fy: 0.172 },
+            { label: 'Solide 4',     caption: 'S4 — Poignet',               solid: 'S4', scale: 4.2, fx: 0.333, fy: 0.138 },
+            { label: 'Solide 5',     caption: 'S5 — Pince',                 solid: 'S5', scale: 4.8, fx: 0.132, fy: 0.095 }
+        ];
+
+        const img         = document.getElementById('kvImage');
+        const progress    = document.getElementById('kvProgress');
+        const caption     = document.getElementById('kvCaption');
+        const btnPrev     = document.getElementById('kvBtnPrev');
+        const btnNext     = document.getElementById('kvBtnNext');
+
+        // Sync hover-like state on the right-column text boxes (desktop only visually,
+        // but the class toggle is harmless on mobile where the list is display:none).
+        // Mapping: viewer step's `solid` → index of .solide-item in the list.
+        // S2 and S3 share the same box (index 2), so the box stays active during both steps.
+        const solidToItemIdx = { 'S0': 0, 'S1': 1, 'S2': 2, 'S3': 2, 'S4': 3, 'S5': 4 };
+        const solideItems = document.querySelectorAll('.kv-layout .solide-list .solide-item');
+
+        // Build dots
+        steps.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'kv-dot' + (i === 0 ? ' kv-active' : '');
+            dot.setAttribute('aria-label', 'Étape ' + i);
+            dot.addEventListener('click', () => snapTo(i));
+            progress.appendChild(dot);
+        });
+        const getDots = () => progress.querySelectorAll('.kv-dot');
+
+        const STEP_HEIGHT = 300;  // virtual px per step
+        const LERP        = 0.11;
+
+        let vScroll = 0, aScroll = 0, lastStep = -1, lastP = -1, snapTimer = null;
+
+        function smoothStep(t) {
+            t = Math.max(0, Math.min(1, t));
+            return t * t * (3 - 2 * t);
+        }
+
+        function applyProgress(p) {
+            p = Math.max(0, Math.min(steps.length - 1, p));
+            const a  = Math.min(Math.floor(p), steps.length - 2);
+            const b  = a + 1;
+            const t  = smoothStep(p - a);
+            const S  = steps[a].scale + (steps[b].scale - steps[a].scale) * t;
+            const fx = steps[a].fx    + (steps[b].fx    - steps[a].fx)    * t;
+            const fy = steps[a].fy    + (steps[b].fy    - steps[a].fy)    * t;
+            img.style.transform = `scale(${S}) translate(${(0.5-fx)*100}%, ${(0.5-fy)*100}%)`;
+        }
+
+        function tick() {
+            const diff = vScroll - aScroll;
+            if (Math.abs(diff) > 0.05) aScroll += diff * LERP;
+            else if (aScroll !== vScroll) aScroll = vScroll;
+            const p = aScroll / STEP_HEIGHT;
+            if (p !== lastP) {
+                applyProgress(p);
+                updateUI(p);
+                lastP = p;
+            }
+            requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+
+        function updateUI(p) {
+            const step = Math.round(Math.max(0, Math.min(steps.length - 1, p)));
+            if (step === lastStep) return;
+            lastStep = step;
+            const s = steps[step];
+
+            getDots().forEach((d, i) => d.classList.toggle('kv-active', i === step));
+
+            // Sync the right-column box (desktop). Step 0 = Vue complète → no active box.
+            const targetItemIdx = (s.solid && solidToItemIdx.hasOwnProperty(s.solid))
+                ? solidToItemIdx[s.solid]
+                : -1;
+            solideItems.forEach((item, i) => {
+                item.classList.toggle('kv-active-solid', i === targetItemIdx);
+            });
+
+            btnPrev.disabled = step === 0;
+            btnNext.disabled = step === steps.length - 1;
+
+            caption.classList.add('kv-changing');
+            setTimeout(() => {
+                caption.textContent = s.caption;
+                caption.classList.remove('kv-changing');
+            }, 350);
+        }
+
+        function scheduleSnap() {
+            clearTimeout(snapTimer);
+            snapTimer = setTimeout(() => {
+                vScroll = Math.round(vScroll / STEP_HEIGHT) * STEP_HEIGHT;
+                vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, vScroll));
+            }, 180);
+        }
+
+        function snapTo(idx) {
+            clearTimeout(snapTimer);
+            vScroll = idx * STEP_HEIGHT;
+        }
+
+        // ─── Wheel (horizontal only) — scoped to viewer ──────────────
+        viewer.addEventListener('wheel', (e) => {
+            // Vertical wheel → let the page scroll normally
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) return;
+            e.preventDefault();
+            const raw = e.deltaX;
+            const delta = Math.abs(raw) > 80
+                ? Math.sign(raw) * STEP_HEIGHT   // mouse wheel horizontal
+                : raw;                            // trackpad 1:1
+            vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, vScroll + delta));
+            scheduleSnap();
+        }, { passive: false });
+
+        // ─── Touch (horizontal swipe) — scoped to viewer ─────────────
+        let tStartX = 0, tStartV = 0, tLastX = 0, tVel = 0, tLastT = 0;
+        let tStartY = 0, tLocked = false, tIsHorizontal = false, tActive = false;
+
+        function isInteractive(el) {
+            return el.closest('button, .kv-dot, .kv-progress, .kv-nav-arrow');
+        }
+
+        viewer.addEventListener('touchstart', (e) => {
+            if (isInteractive(e.target)) return;
+            tActive = true;
+            tStartX = tLastX = e.touches[0].clientX;
+            tStartY = e.touches[0].clientY;
+            tStartV = vScroll;
+            tVel = 0;
+            tLastT = performance.now();
+            tLocked = false;
+            tIsHorizontal = false;
+            clearTimeout(snapTimer);
+        }, { passive: true });
+
+        viewer.addEventListener('touchmove', (e) => {
+            if (!tActive || isInteractive(e.target)) return;
+            const x = e.touches[0].clientX;
+            const y = e.touches[0].clientY;
+            if (!tLocked && (Math.abs(x - tStartX) > 5 || Math.abs(y - tStartY) > 5)) {
+                tIsHorizontal = Math.abs(x - tStartX) >= Math.abs(y - tStartY);
+                tLocked = true;
+            }
+            if (!tIsHorizontal) return; // vertical → page scrolls (touch-action: pan-y)
+            e.preventDefault();
+            const now = performance.now();
+            const dt = Math.max(1, now - tLastT);
+            tVel = (tLastX - x) / dt;
+            tLastX = x;
+            tLastT = now;
+            vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, tStartV + (tStartX - x) * 1.8));
+        }, { passive: false });
+
+        viewer.addEventListener('touchend', () => {
+            if (!tActive) return;
+            tActive = false;
+            if (!tIsHorizontal) return;
+            vScroll = Math.max(0, Math.min((steps.length - 1) * STEP_HEIGHT, vScroll + tVel * 80));
+            scheduleSnap();
+        }, { passive: true });
+
+        viewer.addEventListener('touchcancel', () => {
+            tActive = false;
+        }, { passive: true });
+
+        // ─── Arrow buttons ───────────────────────────────────────────
+        btnPrev.addEventListener('click', () => {
+            vScroll = Math.max(0, (Math.round(vScroll / STEP_HEIGHT) - 1) * STEP_HEIGHT);
+        });
+        btnNext.addEventListener('click', () => {
+            vScroll = Math.min((steps.length - 1) * STEP_HEIGHT, (Math.round(vScroll / STEP_HEIGHT) + 1) * STEP_HEIGHT);
+        });
+
+        // ─── Keyboard — only when the viewer is focused ──────────────
+        viewer.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                vScroll = Math.min((steps.length - 1) * STEP_HEIGHT, (Math.round(vScroll / STEP_HEIGHT) + 1) * STEP_HEIGHT);
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                vScroll = Math.max(0, (Math.round(vScroll / STEP_HEIGHT) - 1) * STEP_HEIGHT);
+            }
+        });
+
+        // Init
+        updateUI(0);
+    })();
 </script>
 <!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()">
