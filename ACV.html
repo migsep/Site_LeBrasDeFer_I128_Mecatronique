@@ -747,8 +747,19 @@
             .kv-bottom-bar { padding: 12px 0 0; gap: 10px; }
             .kv-caption { font-size: 0.78rem; }
             .kv-description { font-size: 0.82rem; padding: 4px 6px 0; }
-            .kv-nav-arrow { width: 30px; height: 30px; }
-            .kv-nav-arrow svg { width: 13px; height: 13px; }
+            .kv-nav-arrow {
+                width: 44px;
+                height: 44px;
+                border: none;
+                background: transparent;
+            }
+            .kv-nav-arrow svg { width: 16px; height: 16px; }
+            .kv-nav-arrow:hover:not(:disabled),
+            .kv-nav-arrow:active:not(:disabled) {
+                background: transparent;
+                border: none;
+                color: var(--neon);
+            }
             .kv-progress { padding: 7px 12px; gap: 7px; }
         }
 
@@ -1810,7 +1821,7 @@
                     <!-- Card 1 — Mécanique -->
                     <div class="subsys-item">
                         <div class="subsys-visual">
-                            <img src="Meca.PNG" alt="Mécanique" class="subsys-image">
+                            <img src="Meca.jpg" alt="Mécanique" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Mécanique. </span>Structure en profilés aluminium 6061-T6 (20×20 mm) et pièces PLA imprimées en 3D. 5 axes rotatifs, pince en cours d'assemblage.</p>
@@ -1820,7 +1831,7 @@
                     <!-- Card 2 — Actionneurs -->
                     <div class="subsys-item">
                         <div class="subsys-visual">
-                            <img src="Act.PNG" alt="Actionneurs" class="subsys-image">
+                            <img src="Act.jpg" alt="Actionneurs" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Actionneurs. </span>5 servomoteurs SCS15 pour les axes principaux, 1 servomoteur HS-422 pour la pince.</p>
@@ -1830,7 +1841,7 @@
                     <!-- Card 3 — Capteurs / Perception -->
                     <div class="subsys-item">
                         <div class="subsys-visual">
-                            <img src="Cap.PNG" alt="Capteurs / Perception" class="subsys-image">
+                            <img src="Cap.jpg" alt="Capteurs / Perception" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Capteurs / Perception. </span>Capteur de couleur TCS34725 intégré à l'effecteur pour l'identification des cubes.</p>
@@ -1840,7 +1851,7 @@
                     <!-- Card 4 — Commande & Informatique -->
                     <div class="subsys-item">
                         <div class="subsys-visual">
-                            <img src="Com.PNG" alt="Commande & Informatique" class="subsys-image">
+                            <img src="Com.jpg" alt="Commande & Informatique" class="subsys-image">
                         </div>
                         <div class="subsys-text">
                             <p><span class="subsys-title">Commande & Informatique. </span>Arduino MEGA 2560 (servomoteurs), Raspberry Pi 5 (traitement haut niveau, URDF/ROS), alimentation AC/DC 12V 10A.</p>
