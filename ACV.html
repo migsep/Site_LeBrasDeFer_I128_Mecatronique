@@ -3878,9 +3878,12 @@
     function openLightbox(img) {
         document.getElementById('lightboxImg').src = img.src;
         document.getElementById('lightbox').classList.add('open');
+        // Prevent background scroll while the image is expanded
+        if (typeof _lockBodyScroll === 'function') _lockBodyScroll();
     }
     function closeLightbox() {
         document.getElementById('lightbox').classList.remove('open');
+        if (typeof _unlockBodyScroll === 'function') _unlockBodyScroll();
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 </script>
