@@ -444,7 +444,7 @@
         }
         .var-symbol {
             font-family: "JetBrains Mono", monospace;
-            font-size: 1.1rem; font-weight: 500;
+            font-size: 1.1rem; font-weight: 700;
             color: #000000;
             text-align: center;
             line-height: 1.4;
@@ -1077,13 +1077,15 @@
             .vars-grid {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
+                gap: 14px;
                 justify-items: center;
-                width: 100%;
+                max-width: 320px;
+                margin-left: auto;
+                margin-right: auto;
             }
             .var-item {
-                width: 100%;
-                aspect-ratio: 1;
+                width: 88px;
+                height: 88px;
                 border-radius: 50%;
                 padding: 0;
                 display: flex;
@@ -1092,19 +1094,13 @@
                 border-width: 1.5px;
             }
             .var-symbol {
-                font-size: clamp(0.75rem, 4vw, 1.1rem);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 90%;
-                text-align: center;
+                font-size: 1.2rem;
             }
             .var-item.var-item-rect {
                 border-radius: 18px;
-                aspect-ratio: unset;
-                width: 100%;
-                height: calc((100vw - 48px - 20px) / 3);
-                padding: 0 10px;
+                width: auto;
+                height: 88px;
+                padding: 0 18px;
             }
         }
 
