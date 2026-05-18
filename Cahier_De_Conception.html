@@ -400,10 +400,16 @@
         .var-item:hover .var-symbol {
             color: #ffffff;
         }
-        .var-item:active {
-            transform: translateY(0px) scale(0.95);
+        .var-item:active,
+        .var-item.tapped {
+            transform: translateY(0px) scale(0.93);
             box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            background: #000000;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+        }
+        .var-item:active .var-symbol,
+        .var-item.tapped .var-symbol {
+            color: #ffffff;
         }
         .var-item.active {
             background: #000000;
@@ -2004,16 +2010,22 @@
     let activeVar = null;
 
     document.querySelectorAll('.var-item').forEach(item => {
+        // Feedback tactile mobile
+        item.addEventListener('touchstart', () => {
+            item.classList.add('tapped');
+            if (navigator.vibrate) navigator.vibrate(8);
+        }, { passive: true });
+        item.addEventListener('touchend',    () => setTimeout(() => item.classList.remove('tapped'), 150), { passive: true });
+        item.addEventListener('touchcancel', () => item.classList.remove('tapped'), { passive: true });
+
         item.addEventListener('click', () => {
             if (activeVar === item) {
-                // Refermer
                 item.classList.remove('active');
                 varViewer.classList.remove('open');
                 activeVar = null;
             } else {
                 document.querySelectorAll('.var-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
-                // Swap du contenu avec fade
                 varContent.style.opacity = '0';
                 setTimeout(() => {
                     varContent.innerHTML = item.querySelector('.var-def').innerHTML;
