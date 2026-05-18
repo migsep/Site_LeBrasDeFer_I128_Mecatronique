@@ -1077,15 +1077,13 @@
             .vars-grid {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 14px;
+                gap: 10px;
                 justify-items: center;
-                max-width: 320px;
-                margin-left: auto;
-                margin-right: auto;
+                width: 100%;
             }
             .var-item {
-                width: 88px;
-                height: 88px;
+                width: 100%;
+                aspect-ratio: 1;
                 border-radius: 50%;
                 padding: 0;
                 display: flex;
@@ -1094,13 +1092,19 @@
                 border-width: 1.5px;
             }
             .var-symbol {
-                font-size: 1.2rem;
+                font-size: clamp(0.75rem, 4vw, 1.1rem);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 90%;
+                text-align: center;
             }
             .var-item.var-item-rect {
                 border-radius: 18px;
-                width: auto;
-                height: 88px;
-                padding: 0 18px;
+                aspect-ratio: unset;
+                width: 100%;
+                height: calc((100vw - 48px - 20px) / 3);
+                padding: 0 10px;
             }
         }
 
