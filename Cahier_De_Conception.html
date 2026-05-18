@@ -243,6 +243,71 @@
         }
         .figure-caption strong { color: var(--neon); margin-right: 8px; }
 
+        /* COUPLES MOTEURS */
+        .couples-bubbles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .couple-bubble {
+            background: #ffffff;
+            color: #111;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 28px;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        }
+        .couple-bubble:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255,183,0,0.25);
+        }
+        .couple-bubble.active {
+            background: var(--neon);
+            color: #111;
+            box-shadow: 0 0 20px rgba(255,183,0,0.5);
+        }
+        .couples-viewer {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.45s ease;
+            margin-top: 1.5rem;
+            width: min(calc(100vw - 40px), 1500px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .couples-viewer.open {
+            grid-template-rows: 1fr;
+        }
+        .couples-viewer-inner {
+            overflow: hidden;
+        }
+        .couples-viewer-content {
+            background: #000000;
+            border: 1px solid #000000;
+            border-radius: 14px;
+            padding: 28px 48px;
+            overflow-x: auto;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+        .couples-viewer-content.fading {
+            opacity: 0;
+        }        .couples-viewer-content::-webkit-scrollbar { height: 4px; }
+        .couples-viewer-content::-webkit-scrollbar-track { background: #000; }
+        .couples-viewer-content::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
+        .couples-viewer-content .katex-display {
+            margin: 0;
+            color: #f0f0f0;
+            text-align: left;
+        }
+
         /* ZOOMABLE IMAGES (lightbox triggers) */
         .zoomable {
             cursor: zoom-in;
@@ -310,34 +375,62 @@
             max-width: 760px; margin-bottom: 40px;
         }
         .vars-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
         }
         .var-item {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 22px 26px;
-            display: flex; align-items: center; gap: 22px;
+            border-radius: 50px;
+            padding: 10px 22px;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .var-item:hover {
+            border-color: var(--border-neon);
+            background: rgba(255,122,0,0.04);
+        }
+        .var-item.active {
+            border-color: var(--neon);
+            background: rgba(255,122,0,0.10);
         }
         .var-symbol {
             font-family: "JetBrains Mono", monospace;
-            font-size: 1.6rem; font-weight: 500;
+            font-size: 1.1rem; font-weight: 500;
             color: var(--neon);
-            min-width: 60px; text-align: center;
-            padding: 6px 12px;
-            background: var(--neon-dim);
-            border: 1px solid var(--border-neon);
-            border-radius: 10px;
-            line-height: 1;
+            text-align: center;
+            line-height: 1.4;
+            white-space: nowrap;
         }
-        .var-def {
+        .var-def { display: none; }
+        .var-def strong { color: var(--text-main); }
+
+        /* Panneau définition sous la grille */
+        .var-viewer {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s cubic-bezier(0.16,1,0.3,1);
+            margin-top: 1rem;
+        }
+        .var-viewer.open { grid-template-rows: 1fr; }
+        .var-viewer-inner { overflow: hidden; }
+        .var-viewer-content {
+            background: rgba(255,122,0,0.06);
+            border: 1px solid var(--border-neon);
+            border-radius: 14px;
+            padding: 18px 28px;
             font-size: 0.92rem;
             color: var(--text-sub);
-            line-height: 1.55;
+            line-height: 1.6;
+            opacity: 0;
+            transition: opacity 0.25s ease;
         }
-        .var-def strong { color: var(--text-main); }
+        .var-viewer.open .var-viewer-content { opacity: 1; }
+        .var-viewer-content strong { color: var(--text-main); }
 
         /* ─────────────────────────────────────────
            SECTION II — TABLE
@@ -717,6 +810,163 @@
             transform: translateX(3px);
         }
 
+        /* ─── BOUTON CALCULS ANALYTIQUES ─── */
+        .ca-open-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 15px 40px;
+            background: transparent;
+            color: var(--neon);
+            border: 1px solid var(--neon);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: "Orbitron", sans-serif;
+            transition: all 0.3s ease, transform 0.1s ease;
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ca-open-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--neon);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+        @media (hover: hover) {
+            .ca-open-btn:hover::before { left: 0; }
+            .ca-open-btn:hover { color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
+        }
+        .ca-open-btn:active { transform: scale(0.96); }
+
+        /* ─── MODAL SLIDES CALCULS ─── */
+        .ca-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh; height: 100dvh;
+            background: #000000;
+            z-index: 10000;
+            animation: caFadeIn 0.3s ease;
+        }
+        .ca-modal.active { display: block; }
+        @keyframes caFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .close-btn {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,122,0,0.3);
+            color: white;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease, transform 0.1s ease;
+            z-index: 10001;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (hover: hover) {
+            .close-btn:hover {
+                background: rgba(255,122,0,0.2);
+                border-color: var(--neon);
+                transform: rotate(90deg);
+            }
+        }
+        .close-btn:active { transform: scale(0.92); }
+
+        .slides-container {
+            width: 100vw; height: 100vh; height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+        .slide.active    { opacity: 1; transform: translateX(0);     pointer-events: auto; }
+        .slide.exit-left { opacity: 0; transform: translateX(-100px); }
+
+        .slide-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .slide img {
+            display: block;
+            max-width: 100%;
+            max-height: 100dvh;
+            width: auto; height: auto;
+            object-fit: contain;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 0; right: 0;
+            width: clamp(30px, 5vmin, 45px);
+            height: clamp(30px, 5vmin, 45px);
+            font-size: clamp(0.65rem, 1.3vmin, 0.85rem);
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 12px;
+            border: 1px solid rgba(255,122,0,0.5);
+            border-right: none; border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Orbitron", sans-serif;
+            color: var(--neon);
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .nav-area {
+            position: fixed;
+            top: 0; bottom: 0;
+            width: 50%;
+            z-index: 10000;
+            cursor: default;
+        }
+        .nav-area-left  { left: 0; }
+        .nav-area-right { right: 0; }
+
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon), #ff5500);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--neon);
+            z-index: 10002;
+        }
+
         /* REVEAL */
         .reveal {
             opacity: 0;
@@ -764,7 +1014,6 @@
                 padding: 0 4px;
             }
             .hero-sub br { display: none; }
-            .vars-grid,
             .converters-grid,
             .liste-grid,
             .steps-grid,
@@ -778,6 +1027,38 @@
             .reveal.active { transform: translateY(0); }
         }
 
+        /* ─── PAVÉ NUMÉRIQUE — mobile uniquement ─── */
+        @media (max-width: 600px) {
+            .vars-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+                justify-items: center;
+                max-width: 320px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .var-item {
+                width: 88px;
+                height: 88px;
+                border-radius: 50%;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-width: 1.5px;
+            }
+            .var-symbol {
+                font-size: 1.2rem;
+            }
+            .var-item.var-item-rect {
+                border-radius: 18px;
+                width: auto;
+                height: 88px;
+                padding: 0 18px;
+            }
+        }
+
         @media (max-width: 540px) {
             .section-title { font-size: 1.8rem; }
             .converter-card,
@@ -786,6 +1067,16 @@
             .material-stats { grid-template-columns: 1fr; }
         }
     </style>
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\(', right: '\\)', display: false}
+            ]
+        });"></script>
 </head>
 <body>
 
@@ -872,12 +1163,8 @@
                     <div class="var-def">Angle entre la <strong>base 4</strong> et la <strong>base 5</strong></div>
                 </div>
                 <div class="var-item">
-                    <div class="var-symbol">m₄</div>
-                    <div class="var-def">Masse du <strong>composant 4</strong></div>
-                </div>
-                <div class="var-item">
-                    <div class="var-symbol">m₅</div>
-                    <div class="var-def">Masse du <strong>composant 5</strong></div>
+                    <div class="var-symbol">mᵢ</div>
+                    <div class="var-def">Masse du <strong>composant i</strong></div>
                 </div>
                 <div class="var-item">
                     <div class="var-symbol">x'</div>
@@ -888,23 +1175,101 @@
                     <div class="var-def">Distance entre <strong>C</strong> et <strong>G₄</strong> (centre d'inertie du composant 4)</div>
                 </div>
                 <div class="var-item">
+                    <div class="var-symbol">x'''</div>
+                    <div class="var-def">Distance entre <strong>B</strong> et <strong>G₃</strong> (centre d'inertie du composant 3) et entre <strong>A</strong> et <strong>G₂</strong> (centre d'inertie du composant 2)</div>
+                </div>
+                <div class="var-item">
                     <div class="var-symbol">l₄</div>
                     <div class="var-def">Distance entre <strong>C</strong> et <strong>D</strong>, longueur du composant 4</div>
+                </div>
+                <div class="var-item var-item-rect">
+                    <div class="var-symbol">Aᵢ, Bᵢ, Cᵢ</div>
+                    <div class="var-def">Moments principaux d'inertie de <strong>i</strong> au point <strong>Gᵢ</strong></div>
                 </div>
                 <div class="var-item">
                     <div class="var-symbol">b</div>
                     <div class="var-def">Longueur du <strong>composant 3</strong> et du <strong>composant 2</strong> (composants identiques)</div>
                 </div>
-                <div class="var-item">
-                    <div class="var-symbol">A₅, B₅, C₅</div>
-                    <div class="var-def">Moments principaux d'inertie de <strong>5</strong> au point <strong>G₅</strong></div>
-                </div>
-                <div class="var-item" style="grid-column: 1 / -1;">
-                    <div class="var-symbol">A₄, B₄, C₄</div>
-                    <div class="var-def">Moments principaux d'inertie de <strong>4</strong> au point <strong>G₄</strong></div>
+            </div>
+
+            <div class="var-viewer" id="varViewer">
+                <div class="var-viewer-inner">
+                    <div class="var-viewer-content" id="varViewerContent"></div>
                 </div>
             </div>
+
+            <!-- Figures CB1, CB2, CB3 -->
+            <div class="figure-frame" style="margin-top: 2rem;">
+                <div style="display: flex; gap: 1rem; justify-content: center; align-items: flex-start; flex-wrap: wrap;">
+                    <img src="CB1.jpg" alt="Schéma changement de base 1" style="flex: 1 1 0; min-width: 120px; max-width: 100%; object-fit: contain; border-radius: 6px;">
+                    <img src="CB2.jpeg" alt="Schéma changement de base 2" style="flex: 1 1 0; min-width: 120px; max-width: 100%; object-fit: contain; border-radius: 6px;">
+                    <img src="CB3.jpg" alt="Schéma changement de base 3" style="flex: 1 1 0; min-width: 120px; max-width: 100%; object-fit: contain; border-radius: 6px;">
+                </div>
+                <div class="figure-caption"><strong>FIGURE 3</strong>Schémas de changement de bases</div>
+            </div>
         </div>
+
+        <!-- 1.3 Couples Moteurs -->
+        <div class="reveal">
+            <div class="sub-title">
+                <span class="sub-title-num">1.3</span>
+                Couples Moteurs
+            </div>
+            <p class="text-plain" style="text-align: center; max-width: 100%; margin-left: auto; margin-right: auto;">
+                Pour piloter précisément le robot et anticiper ses mouvements, nous avons établi son <strong>Modèle Dynamique Inverse (MDI)</strong>. L'établissement du MDI permet d'obtenir les <strong>équations analytiques</strong> des <strong>cinq couples moteurs</strong> qui nous permettront par la suite d'obtenir, en faisant varier les paramètres selon les objectifs définis dans le cahier des charges, les <strong>valeurs numériques des couples moteurs</strong>.
+            </p>
+            <p class="text-plain" style="margin-top: 1.2rem; text-align: center; max-width: 100%; margin-left: auto; margin-right: auto;">
+                Le couple noté <strong>C<sub>ij</sub></strong> est donc le couple du moteur faisant tourner le <strong>solide <em>j</em></strong> par rapport au <strong>solide <em>i</em></strong>. Cliquez sur un couple moteur pour voir son <strong>équation analytique</strong>.
+            </p>
+
+            <div class="couples-bubbles">
+                <button class="couple-bubble" onclick="toggleViewer(this, 0)">C<sub>01</sub></button>
+                <button class="couple-bubble" onclick="toggleViewer(this, 1)">C<sub>12</sub></button>
+                <button class="couple-bubble" onclick="toggleViewer(this, 2)">C<sub>23</sub></button>
+                <button class="couple-bubble" onclick="toggleViewer(this, 3)">C<sub>34</sub></button>
+                <button class="couple-bubble" onclick="toggleViewer(this, 4)">C<sub>45</sub></button>
+            </div>
+        </div>
+    </div>
+    <div class="couples-viewer" id="couplesViewer">
+        <div class="couples-viewer-inner" id="couplesViewerInner"></div>
+    </div>
+
+    <div class="reveal" style="max-width: 1100px; margin: 60px auto 0; padding: 0 40px;">
+        <p class="text-plain" style="text-align: center; max-width: 100%; margin-left: auto; margin-right: auto;">
+            Pour l'application numérique, nous avons décidé de simuler le pire cas possible, c'est-à-dire : tous les angles à <strong>0°</strong> — <strong>bras tendu en position horizontale</strong>, toutes les vitesses angulaires à <strong>1,5 rad/s</strong> — <strong>chaque moteur effectue 86° en une seconde</strong>, toutes les accélérations angulaires à <strong>5 rad/s²</strong> — <strong>la vitesse de 1,5 rad/s est atteinte en 0,3 s</strong>. Nous obtenons donc les valeurs numériques suivantes.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 2rem; justify-content: center;">
+            <div style="background: #000000; border: 1px solid rgba(255,255,255,1); border-radius: 16px; padding: 20px 28px; display: flex; flex-direction: column; gap: 4px; min-width: 110px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--neon); letter-spacing: 0.5px;">C<sub>01</sub></span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 600; color: var(--text-main); line-height: 1.1;">4,99</span>
+                <span style="font-size: 0.78rem; color: var(--text-sub);">N.m</span>
+            </div>
+            <div style="background: #000000; border: 1px solid rgba(255,255,255,1); border-radius: 16px; padding: 20px 28px; display: flex; flex-direction: column; gap: 4px; min-width: 110px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--neon); letter-spacing: 0.5px;">C<sub>12</sub></span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 600; color: var(--text-main); line-height: 1.1;">9,93</span>
+                <span style="font-size: 0.78rem; color: var(--text-sub);">N.m</span>
+            </div>
+            <div style="background: #000000; border: 1px solid rgba(255,255,255,1); border-radius: 16px; padding: 20px 28px; display: flex; flex-direction: column; gap: 4px; min-width: 110px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--neon); letter-spacing: 0.5px;">C<sub>23</sub></span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 600; color: var(--text-main); line-height: 1.1;">5,65</span>
+                <span style="font-size: 0.78rem; color: var(--text-sub);">N.m</span>
+            </div>
+            <div style="background: #000000; border: 1px solid rgba(255,255,255,1); border-radius: 16px; padding: 20px 28px; display: flex; flex-direction: column; gap: 4px; min-width: 110px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--neon); letter-spacing: 0.5px;">C<sub>34</sub></span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 600; color: var(--text-main); line-height: 1.1;">1,6775</span>
+                <span style="font-size: 0.78rem; color: var(--text-sub);">N.m</span>
+            </div>
+            <div style="background: #000000; border: 1px solid rgba(255,255,255,1); border-radius: 16px; padding: 20px 28px; display: flex; flex-direction: column; gap: 4px; min-width: 110px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--neon); letter-spacing: 0.5px;">C<sub>45</sub></span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 600; color: var(--text-main); line-height: 1.1;">0,0322</span>
+                <span style="font-size: 0.78rem; color: var(--text-sub);">N.m</span>
+            </div>
+        </div>
+        <p class="text-plain" style="margin-top: 2rem; text-align: center; width: 100%; max-width: 100%; margin-left: auto; margin-right: auto;">
+            Retrouvez le détail complet des calculs analytiques dans la section <a href="#annexe" style="color: var(--neon); text-decoration: none; border-bottom: 1px solid rgba(255,122,0,0.4); transition: border-color 0.2s;" onmouseover="this.style.borderColor='rgba(255,122,0,1)'" onmouseout="this.style.borderColor='rgba(255,122,0,0.4)'">Annexes</a> de cette page.
+        </p>
     </div>
 </section>
 
@@ -990,7 +1355,7 @@
 
             <div class="figure-frame">
                 <img src="SB1.png" alt="Schéma bloc de l'alimentation des composants électriques" class="zoomable">
-                <div class="figure-caption"><strong>FIGURE 3</strong>Schéma bloc de l'alimentation des composants électriques</div>
+                <div class="figure-caption"><strong>FIGURE 4</strong>Schéma bloc de l'alimentation des composants électriques</div>
             </div>
         </div>
 
@@ -1149,7 +1514,7 @@
 
             <div class="figure-frame">
                 <img src="SB2.png" alt="Schéma bloc complet de l'alimentation des composants électriques" class="zoomable">
-                <div class="figure-caption"><strong>FIGURE 4</strong>Schéma bloc complet de l'alimentation des composants électriques</div>
+                <div class="figure-caption"><strong>FIGURE 5</strong>Schéma bloc complet de l'alimentation des composants électriques</div>
             </div>
         </div>
 
@@ -1255,11 +1620,11 @@
             <div class="id-grid">
                 <div class="figure-frame">
                     <img src="Pince.png" alt="Identification des composants de la pince" class="zoomable">
-                    <div class="figure-caption"><strong>FIGURE 5</strong>Composants de la pince</div>
+                    <div class="figure-caption"><strong>FIGURE 6</strong>Composants de la pince</div>
                 </div>
                 <div class="figure-frame">
                     <img src="Bras.png" alt="Identification des composants du bras" class="zoomable">
-                    <div class="figure-caption"><strong>FIGURE 6</strong>Composants du bras</div>
+                    <div class="figure-caption"><strong>FIGURE 7</strong>Composants du bras</div>
                 </div>
             </div>
         </div>
@@ -1394,8 +1759,31 @@
                 <div class="annexe-arrow">→</div>
             </a>
         </div>
+
+        <div class="reveal">
+            <div class="sub-title" style="margin-top: 60px;">
+                <span class="sub-title-num">A.2</span>
+                Calculs analytiques — Cahier manuscrit
+            </div>
+            <p class="text-plain" style="margin-bottom: 2rem;">
+                Pages du cahier de calculs ayant servi à l'établissement du Modèle Dynamique Inverse.
+            </p>
+            <button class="ca-open-btn" onclick="openCalcSlides()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Voir les 16 pages de calculs
+            </button>
+        </div>
     </div>
 </section>
+
+<!-- ═══ MODAL SLIDES CALCULS ANALYTIQUES ═══ -->
+<div class="ca-modal" id="caModal">
+    <div class="progress-bar" id="caProgressBar"></div>
+    <button class="close-btn" onclick="closeCalcSlides()">×</button>
+    <div class="nav-area nav-area-left"  id="caNavLeft"></div>
+    <div class="nav-area nav-area-right" id="caNavRight"></div>
+    <div class="slides-container" id="caSlidesContainer"></div>
+</div>
 
 <footer>
     <div class="footer-line"></div>
@@ -1593,6 +1981,274 @@
     document.addEventListener('gesturechange', (e) => {
         if (lightboxOverlay.classList.contains('active')) e.preventDefault();
     });
+
+    /* ─── VARIABLES 1.2 — BULLES CLIQUABLES ─── */
+    const varViewer  = document.getElementById('varViewer');
+    const varContent = document.getElementById('varViewerContent');
+    let activeVar = null;
+
+    document.querySelectorAll('.var-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (activeVar === item) {
+                // Refermer
+                item.classList.remove('active');
+                varViewer.classList.remove('open');
+                activeVar = null;
+            } else {
+                document.querySelectorAll('.var-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                // Swap du contenu avec fade
+                varContent.style.opacity = '0';
+                setTimeout(() => {
+                    varContent.innerHTML = item.querySelector('.var-def').innerHTML;
+                    varContent.style.opacity = '';
+                }, varViewer.classList.contains('open') ? 180 : 0);
+                varViewer.classList.add('open');
+                activeVar = item;
+            }
+        });
+    });
+
+    /* COUPLES MOTEURS — bulles + viewer */
+    const couplesEq = [
+        `\\begin{aligned}
+C_{01} = & \\ A_5 \\left[ \\ddot{\\Delta} \\sin(\\alpha+\\beta+\\gamma) + \\dot{\\Delta}(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma}) \\cos(\\alpha+\\beta+\\gamma) + \\ddot{\\theta} \\sin^2(\\alpha+\\beta+\\gamma) + \\dot{\\theta}(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma}) \\sin(2(\\alpha+\\beta+\\gamma)) \\right] \\\\
+& + \\frac{1}{2}(B_5 - C_5)(\\ddot{\\alpha}+\\ddot{\\beta}+\\ddot{\\gamma}) \\sin(2\\Delta) \\cos(\\alpha+\\beta+\\gamma) + (B_5 - C_5)(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma})\\dot{\\Delta} \\cos(2\\Delta) \\cos(\\alpha+\\beta+\\gamma) \\\\
+& - \\frac{1}{2}(B_5 - C_5)(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma})^2 \\sin(2\\Delta) \\sin(\\alpha+\\beta+\\gamma) + \\ddot{\\theta} \\cos^2(\\alpha+\\beta+\\gamma) (B_5 \\cos^2\\Delta + C_5 \\sin^2\\Delta) \\\\
+& - \\dot{\\theta}(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma}) \\sin(2(\\alpha+\\beta+\\gamma)) (B_5 \\cos^2\\Delta + C_5 \\sin^2\\Delta) + \\dot{\\theta}\\dot{\\Delta} \\cos^2(\\alpha+\\beta+\\gamma) \\sin(2\\Delta)(C_5 - B_5) \\\\
+& + m_5 \\ddot{\\theta} \\left[ b \\cos\\alpha + b \\cos(\\alpha+\\beta) + (l_4 + x') \\cos(\\alpha+\\beta+\\gamma) \\right]^2 \\\\
+& - 2m_5 \\dot{\\theta} \\left[ b \\dot{\\alpha} \\sin\\alpha + b (\\dot{\\alpha} + \\dot{\\beta}) \\sin(\\alpha+\\beta) + (l_4 + x')(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma}) \\sin(\\alpha+\\beta+\\gamma) \\right] \\left[ b \\cos\\alpha + b \\cos(\\alpha+\\beta) + (l_4+x') \\cos(\\alpha+\\beta+\\gamma) \\right] \\\\
+& + A_4 \\ddot{\\theta} \\sin^2(\\alpha+\\beta+\\gamma) + B_4 \\ddot{\\theta} \\cos^2(\\alpha+\\beta+\\gamma) + (A_4 - B_4) \\dot{\\theta}(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma}) \\sin(2(\\alpha+\\beta+\\gamma)) \\\\
+& + m_4 \\ddot{\\theta} \\left[ b \\cos\\alpha + b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma) \\right]^2 \\\\
+& - 2m_4 \\dot{\\theta} \\left[ b \\dot{\\alpha} \\sin\\alpha + b (\\dot{\\alpha} + \\dot{\\beta}) \\sin(\\alpha+\\beta) + x''(\\dot{\\alpha}+\\dot{\\beta}+\\dot{\\gamma}) \\sin(\\alpha+\\beta+\\gamma) \\right] \\left[ b \\cos\\alpha + b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma) \\right] \\\\
+& + A_3 \\ddot{\\theta} \\sin^2(\\alpha+\\beta) + B_3 \\ddot{\\theta} \\cos^2(\\alpha+\\beta) + (A_3 - B_3) \\dot{\\theta}(\\dot{\\alpha}+\\dot{\\beta}) \\sin(2(\\alpha+\\beta)) + m_3 \\ddot{\\theta} \\left[ b \\cos\\alpha + x''' \\cos(\\alpha+\\beta) \\right]^2 \\\\
+& - 2m_3 \\dot{\\theta} \\left[ b \\dot{\\alpha} \\sin\\alpha + x''' (\\dot{\\alpha} + \\dot{\\beta}) \\sin(\\alpha+\\beta) \\right] \\left[ b \\cos\\alpha + x''' \\cos(\\alpha+\\beta) \\right] \\\\
+& + A_2 \\ddot{\\theta} \\sin^2\\alpha + B_2 \\ddot{\\theta} \\cos^2\\alpha + (A_2 - B_2) \\dot{\\theta}\\dot{\\alpha} \\sin(2\\alpha) + m_2 \\ddot{\\theta} x'''^2 \\cos^2\\alpha - m_2 \\dot{\\theta}\\dot{\\alpha} x'''^2 \\sin(2\\alpha) + B_1 \\ddot{\\theta}
+\\end{aligned}`,
+        `\\begin{aligned}
+C_{12} = & \\ m_2 g x''' \\cos\\alpha + m_3 g \\left[ b \\cos\\alpha + x''' \\cos(\\alpha+\\beta) \\right] + m_4 g \\left[ b \\cos\\alpha + b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma) \\right] \\\\
+& + m_5 g \\left[ b \\cos\\alpha + b \\cos(\\alpha+\\beta) + (l_4 + x') \\cos(\\alpha+\\beta+\\gamma) \\right] \\\\
+& + m_5 b \\left[ \\dot{\\theta}^2 [b \\cos\\alpha + b \\cos(\\alpha+\\beta) + (l_4 + x') \\cos(\\alpha+\\beta+\\gamma)] \\sin\\alpha + b \\ddot{\\alpha} + b(\\ddot{\\alpha} + \\ddot{\\beta}) \\cos\\beta \\right. \\\\
+& \\quad \\left. + (l_4 + x')(\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\cos(\\beta+\\gamma) - b(\\dot{\\alpha} + \\dot{\\beta})^2 \\sin\\beta - (l_4 + x')(\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma})^2 \\sin(\\beta+\\gamma) \\right] \\\\
+& + m_4 b \\left[ \\dot{\\theta}^2 [b \\cos\\alpha + b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma)] \\sin\\alpha + b \\ddot{\\alpha} + b(\\ddot{\\alpha} + \\ddot{\\beta}) \\cos\\beta \\right. \\\\
+& \\quad \\left. + x''(\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\cos(\\beta+\\gamma) - b(\\dot{\\alpha} + \\dot{\\beta})^2 \\sin\\beta - x''(\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma})^2 \\sin(\\beta+\\gamma) \\right] \\\\
+& + m_3 b \\left[ \\dot{\\theta}^2 [b \\cos\\alpha + x''' \\cos(\\alpha+\\beta)] \\sin\\alpha + b \\ddot{\\alpha} + x'''(\\ddot{\\alpha} + \\ddot{\\beta}) \\cos\\beta - x'''(\\dot{\\alpha} + \\dot{\\beta})^2 \\sin\\beta \\right] \\\\
+& + (B_2 - A_2) \\dot{\\theta}^2 \\cos\\alpha \\sin\\alpha + C_2 \\ddot{\\alpha} + m_2 x'''^2 (\\dot{\\theta}^2 \\cos\\alpha \\sin\\alpha + \\ddot{\\alpha}) + C_{23} \\\\
+& - m_5 g \\left[ b \\cos(\\alpha+\\beta) + (l_4 + x') \\cos(\\alpha+\\beta+\\gamma) \\right] - m_4 g \\left[ b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma) \\right] \\\\
+& - m_3 g x''' \\cos(\\alpha+\\beta)
+\\end{aligned}`,
+        `\\begin{aligned}
+C_{23} = & \\ m_5 g [b \\cos(\\alpha+\\beta) + (l_4 + x') \\cos(\\alpha+\\beta+\\gamma)] + m_4 g [b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma)] + m_3 g x''' \\cos(\\alpha+\\beta) \\\\
+& + m_5 b \\left[ \\dot{\\theta}^2 [b \\cos\\alpha + b \\cos(\\alpha+\\beta) + (l_4 + x') \\cos(\\alpha+\\beta+\\gamma)] \\sin(\\alpha+\\beta) + b \\ddot{\\alpha} \\cos\\beta + b (\\ddot{\\alpha} + \\ddot{\\beta}) \\right. \\\\
+& \\quad \\left. + (l_4 + x') (\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\cos\\gamma + b \\dot{\\alpha}^2 \\sin\\beta - (l_4 + x') (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma})^2 \\sin\\gamma \\right] \\\\
+& + m_4 b \\left[ \\dot{\\theta}^2 [b \\cos\\alpha + b \\cos(\\alpha+\\beta) + x'' \\cos(\\alpha+\\beta+\\gamma)] \\sin(\\alpha+\\beta) + b \\ddot{\\alpha} \\cos\\beta + b (\\ddot{\\alpha} + \\ddot{\\beta}) \\right. \\\\
+& \\quad \\left. + x'' (\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\cos\\gamma + b \\dot{\\alpha}^2 \\sin\\beta - x'' (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma})^2 \\sin\\gamma \\right] \\\\
+& + \\frac{1}{2} (B_3 - A_3) \\dot{\\theta}^2 \\sin(2(\\alpha+\\beta)) + C_3 (\\ddot{\\alpha} + \\ddot{\\beta}) \\\\
+& + m_3 x''' \\left[ \\dot{\\theta}^2 [b \\cos\\alpha + x''' \\cos(\\alpha+\\beta)] \\sin(\\alpha+\\beta) + b \\ddot{\\alpha} \\cos\\beta + x''' (\\ddot{\\alpha} + \\ddot{\\beta}) + b \\dot{\\alpha}^2 \\sin\\beta \\right] + C_{34} \\\\
+& - g \\cos(\\alpha+\\beta+\\gamma) [m_5 (l_4 + x') + m_4 x'']
+\\end{aligned}`,
+        `\\begin{aligned}
+C_{34} = & \\ g \\cos(\\alpha+\\beta+\\gamma) \\left[ m_5(l_4 + x') + m_4 x'' \\right] \\\\
+& + \\left[ \\dot{\\Delta} + \\dot{\\theta} \\sin(\\alpha+\\beta+\\gamma) \\right] \\left[ (B_5 - A_5) \\left[ (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\sin\\Delta + \\dot{\\theta} \\cos(\\alpha+\\beta+\\gamma) \\cos^2\\Delta \\right] \\right. \\\\
+& \\quad \\left. + (A_5 - C_5) \\left[ (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\cos\\Delta - \\dot{\\theta} \\cos(\\alpha+\\beta+\\gamma) \\sin^2\\Delta \\right] \\right] \\\\
+& + B_5 \\left[ (\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\sin\\Delta + (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\dot{\\Delta} \\cos\\Delta + \\ddot{\\theta} \\cos(\\alpha+\\beta+\\gamma) \\cos\\Delta \\right. \\\\
+& \\quad \\left. - \\dot{\\theta}(\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\sin(\\alpha+\\beta+\\gamma) \\cos\\Delta - \\dot{\\theta} \\cos(\\alpha+\\beta+\\gamma) \\dot{\\Delta} \\sin^2\\Delta \\right] \\\\
+& + C_5 \\left[ (\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\cos\\Delta - (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\dot{\\Delta} \\sin\\Delta - \\ddot{\\theta} \\cos(\\alpha+\\beta+\\gamma) \\sin\\Delta \\right. \\\\
+& \\quad \\left. + \\dot{\\theta}(\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\sin(\\alpha+\\beta+\\gamma) \\sin\\Delta - \\dot{\\theta} \\cos(\\alpha+\\beta+\\gamma) \\dot{\\Delta} \\cos^2\\Delta \\right] \\\\
+& + m_5(l_4 + x') \\left[ \\left[ b \\dot{\\theta}^2 \\cos\\alpha + b \\dot{\\theta}^2 \\cos(\\alpha+\\beta) + (l_4 + x') \\dot{\\theta}^2 \\cos(\\alpha+\\beta+\\gamma) \\right] \\sin(\\alpha+\\beta+\\gamma) \\right. \\\\
+& \\quad \\left. + b \\ddot{\\alpha} \\cos(\\beta+\\gamma) + b (\\ddot{\\alpha} + \\ddot{\\beta}) \\cos\\gamma + (l_4 + x')(\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) + b \\dot{\\alpha}^2 \\sin(\\beta+\\gamma) + b (\\dot{\\alpha} + \\dot{\\beta})^2 \\sin\\gamma \\right] \\\\
+& + (B_4 - A_4) \\dot{\\theta}^2 \\cos(\\alpha+\\beta+\\gamma) \\sin(\\alpha+\\beta+\\gamma) + C_4(\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) \\\\
+& + m_4 x'' \\left[ \\left[ b \\dot{\\theta}^2 \\cos\\alpha + b \\dot{\\theta}^2 \\cos(\\alpha+\\beta) + x'' \\dot{\\theta}^2 \\cos(\\alpha+\\beta+\\gamma) \\right] \\sin(\\alpha+\\beta+\\gamma) \\right. \\\\
+& \\quad \\left. + b \\ddot{\\alpha} \\cos(\\beta+\\gamma) + b (\\ddot{\\alpha} + \\ddot{\\beta}) \\cos\\gamma + x''(\\ddot{\\alpha} + \\ddot{\\beta} + \\ddot{\\gamma}) + b \\dot{\\alpha}^2 \\sin(\\beta+\\gamma) + b (\\dot{\\alpha} + \\dot{\\beta})^2 \\sin\\gamma \\right]
+\\end{aligned}`,
+        `\\begin{aligned}
+C_{45} = & A_5 \\left[ \\ddot{\\Delta} + \\ddot{\\theta} \\sin(\\alpha + \\beta + \\gamma) + \\dot{\\theta} (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\cos(\\alpha + \\beta + \\gamma) \\right] \\\\
+& + \\frac{1}{2} [C_5 - B_5] \\left[ \\left\\{ (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma})^2 - \\dot{\\theta}^2 \\cos^2(\\alpha + \\beta + \\gamma) \\right\\} \\sin(2\\Delta) \\right. \\\\
+& \\quad \\left. + 2 \\dot{\\theta} (\\dot{\\alpha} + \\dot{\\beta} + \\dot{\\gamma}) \\cos(\\alpha + \\beta + \\gamma) \\cos(2\\Delta) \\right]
+\\end{aligned}`
+    ];
+
+    let activeViewer = -1;
+
+    function renderEquation(index) {
+        const inner = document.getElementById('couplesViewerInner');
+        const viewer = document.getElementById('couplesViewer');
+        inner.innerHTML = `<div class="couples-viewer-content fading"></div>`;
+        const content = inner.querySelector('.couples-viewer-content');
+        katex.render(couplesEq[index], content, { displayMode: true, throwOnError: false });
+        viewer.classList.add('open');
+        // double rAF pour laisser le navigateur appliquer opacity:0 avant de retirer .fading
+        requestAnimationFrame(() => requestAnimationFrame(() => content.classList.remove('fading')));
+    }
+
+    function toggleViewer(btn, index) {
+        const viewer  = document.getElementById('couplesViewer');
+        const inner   = document.getElementById('couplesViewerInner');
+        const bubbles = document.querySelectorAll('.couple-bubble');
+
+        if (activeViewer === index) {
+            // même bulle → fade out et fermeture simultanés
+            const content = inner.querySelector('.couples-viewer-content');
+            if (content) content.classList.add('fading');
+            btn.classList.remove('active');
+            activeViewer = -1;
+            viewer.classList.remove('open');
+
+        } else if (activeViewer === -1) {
+            // viewer fermé → ouvrir avec fade in
+            bubbles.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeViewer = index;
+            renderEquation(index);
+
+        } else {
+            // switch d'une bulle à une autre → fade out, swap, fade in
+            bubbles.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeViewer = index;
+            const content = inner.querySelector('.couples-viewer-content');
+            if (content) {
+                content.classList.add('fading');
+                setTimeout(() => renderEquation(index), 200);
+            } else {
+                renderEquation(index);
+            }
+        }
+    }
+
+    /* ══════════════════════════════════════════
+       SYSTÈME DE SLIDES — CALCULS ANALYTIQUES
+    ══════════════════════════════════════════ */
+    const CA_COUNT = 16;
+    let caSlideIndex = 0;
+    let caScrollLockY = 0;
+    let caTouchStartX = 0, caTouchStartY = 0, caTouchEndX = 0, caTouchEndY = 0;
+    let caTouchDirection = null;
+    let caThrottled = false;
+
+    function openCalcSlides() {
+        caSlideIndex = 0;
+        const container = document.getElementById('caSlidesContainer');
+        container.innerHTML = '';
+
+        for (let i = 1; i <= CA_COUNT; i++) {
+            const slide = document.createElement('div');
+            slide.className = 'slide';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'slide-wrapper';
+
+            const img = document.createElement('img');
+            img.src = i <= 3 ? `CA${i}.jpg` : '';
+            if (i > 3) img.dataset.src = `CA${i}.jpg`;
+            img.alt = `Calculs analytiques — page ${i}`;
+            img.onerror = function() {
+                this.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100"><rect width="800" height="1100" fill="%23000"/><text x="50%" y="50%" text-anchor="middle" fill="%23ff7a00" font-family="Arial" font-size="36">CA${i}.jpg introuvable</text></svg>`;
+            };
+
+            const num = document.createElement('div');
+            num.className = 'slide-number';
+            num.textContent = i;
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(num);
+            slide.appendChild(wrapper);
+            container.appendChild(slide);
+        }
+
+        const modal = document.getElementById('caModal');
+        modal.classList.add('active');
+
+        caScrollLockY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${caScrollLockY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+
+        caShowSlide(0);
+
+        document.getElementById('caNavLeft').onclick  = caPrevSlide;
+        document.getElementById('caNavRight').onclick = caNextSlide;
+        modal.addEventListener('touchstart', caTouchStart, { passive: true });
+        modal.addEventListener('touchmove',  caTouchMove,  { passive: false });
+        modal.addEventListener('touchend',   caTouchEnd,   { passive: true });
+        modal.addEventListener('wheel', caWheel, { passive: false });
+        document.addEventListener('keydown', caKeyPress);
+    }
+
+    function closeCalcSlides() {
+        const modal = document.getElementById('caModal');
+        modal.classList.remove('active');
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        // Désactive temporairement le smooth scroll pour éviter l'animation visible
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollTo(0, caScrollLockY);
+        requestAnimationFrame(() => { document.documentElement.style.scrollBehavior = ''; });
+        modal.removeEventListener('touchstart', caTouchStart);
+        modal.removeEventListener('touchmove',  caTouchMove);
+        modal.removeEventListener('touchend',   caTouchEnd);
+        modal.removeEventListener('wheel', caWheel);
+        document.removeEventListener('keydown', caKeyPress);
+    }
+
+    function caShowSlide(index) {
+        const slides = document.querySelectorAll('#caSlidesContainer .slide');
+        slides.forEach((s, i) => {
+            s.classList.remove('active', 'exit-left');
+            if (i === index)     s.classList.add('active');
+            else if (i < index)  s.classList.add('exit-left');
+        });
+        [index - 1, index, index + 1, index + 2].forEach(i => {
+            if (i < 0 || i >= slides.length) return;
+            const img = slides[i].querySelector('img');
+            if (img && !img.src && img.dataset.src) img.src = img.dataset.src;
+        });
+        caSlideIndex = index;
+        document.getElementById('caProgressBar').style.width = ((index + 1) / CA_COUNT * 100) + '%';
+    }
+
+    function caNextSlide() { if (caSlideIndex < CA_COUNT - 1) caShowSlide(caSlideIndex + 1); }
+    function caPrevSlide() { if (caSlideIndex > 0) caShowSlide(caSlideIndex - 1); }
+
+    function caTouchStart(e) {
+        caTouchStartX = caTouchEndX = e.changedTouches[0].screenX;
+        caTouchStartY = caTouchEndY = e.changedTouches[0].screenY;
+        caTouchDirection = null;
+    }
+    function caTouchMove(e) {
+        caTouchEndX = e.changedTouches[0].screenX;
+        caTouchEndY = e.changedTouches[0].screenY;
+        if (caTouchDirection === null) {
+            const dx = Math.abs(caTouchEndX - caTouchStartX);
+            const dy = Math.abs(caTouchEndY - caTouchStartY);
+            if (dx > 10 || dy > 10) caTouchDirection = dx > dy ? 'horizontal' : 'vertical';
+        }
+        if (caTouchDirection === 'horizontal') e.preventDefault();
+    }
+    function caTouchEnd() {
+        if (caTouchDirection === 'horizontal') {
+            const diff = caTouchStartX - caTouchEndX;
+            if (Math.abs(diff) > 50) diff > 0 ? caNextSlide() : caPrevSlide();
+        }
+    }
+    function caWheel(e) {
+        if (Math.abs(e.deltaX) > 0) e.preventDefault();
+        if (caThrottled) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            if (e.deltaX > 10)       { caNextSlide(); caThrottled = true; setTimeout(() => { caThrottled = false; }, 500); }
+            else if (e.deltaX < -10) { caPrevSlide(); caThrottled = true; setTimeout(() => { caThrottled = false; }, 500); }
+        }
+    }
+    function caKeyPress(e) {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); caNextSlide(); }
+        else if (e.key === 'ArrowLeft')               { e.preventDefault(); caPrevSlide(); }
+        else if (e.key === 'Escape')                   closeCalcSlides();
+    }
 </script>
 </body>
 </html>
