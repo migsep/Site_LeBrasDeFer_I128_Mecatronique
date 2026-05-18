@@ -400,6 +400,17 @@
         .var-item:hover .var-symbol {
             color: #ffffff;
         }
+        @keyframes varSquish {
+            0%   { transform: scale(1); }
+            20%  { transform: scale(0.82) scaleX(1.1); }
+            50%  { transform: scale(1.12) scaleX(0.94); }
+            70%  { transform: scale(0.96) scaleX(1.02); }
+            85%  { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        .var-item.squish {
+            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
+        }
         @media (hover: none) {
             .var-item:hover {
                 background: #ffffff;
@@ -2022,11 +2033,13 @@
     document.querySelectorAll('.var-item').forEach(item => {
         // Feedback tactile mobile
         item.addEventListener('touchstart', () => {
-            item.classList.add('tapped');
+            item.classList.remove('squish');
+            void item.offsetWidth; // force reflow pour relancer l'anim si retap rapide
+            item.classList.add('squish', 'tapped');
             if (navigator.vibrate) navigator.vibrate(8);
         }, { passive: true });
         item.addEventListener('touchend',    () => setTimeout(() => item.classList.remove('tapped'), 150), { passive: true });
-        item.addEventListener('touchcancel', () => item.classList.remove('tapped'), { passive: true });
+        item.addEventListener('touchcancel', () => { item.classList.remove('tapped', 'squish'); }, { passive: true });
 
         item.addEventListener('click', () => {
             if (activeVar === item) {
