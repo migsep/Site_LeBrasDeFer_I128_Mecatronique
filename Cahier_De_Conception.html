@@ -921,12 +921,9 @@
             stroke: var(--neon);
             transform: translateX(3px);
         }
-        /* Feedback tactile annexe (mobile) */
+        /* Feedback tactile annexe (mobile) — subtil */
         .annexe-item {
             -webkit-tap-highlight-color: transparent;
-        }
-        .annexe-item.squish {
-            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
         }
         @media (hover: none) {
             .annexe-item:hover {
@@ -941,14 +938,16 @@
         }
         .annexe-item:active,
         .annexe-item.tapped {
-            transform: scale(0.97);
-            border-color: var(--border-neon);
-            background: rgba(255,122,0,0.04);
-            transition: transform 0.08s ease, background 0.08s ease, border-color 0.08s ease;
+            transform: scale(0.985);
+            background: rgba(255,255,255,0.025);
+            transition: transform 0.12s ease, background 0.12s ease;
         }
-        /* Feedback tactile bouton "Voir le calcul analytique" */
-        .ca-open-btn.squish {
-            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
+        /* Feedback tactile bouton "Voir le calcul analytique" — subtil */
+        .ca-open-btn:active,
+        .ca-open-btn.tapped {
+            transform: scale(0.985);
+            background: rgba(255,255,255,0.025);
+            transition: transform 0.12s ease, background 0.12s ease;
         }
 
         /* ─── BOUTON CALCULS ANALYTIQUES ─── */
@@ -983,7 +982,6 @@
             .ca-open-btn:hover::before { left: 0; }
             .ca-open-btn:hover { color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
         }
-        .ca-open-btn:active { transform: scale(0.96); }
 
         /* ─── MODAL SLIDES CALCULS ─── */
         .ca-modal {
@@ -2593,8 +2591,17 @@
         btn.addEventListener('touchcancel', () => { btn.classList.remove('tapped', 'squish'); }, { passive: true });
     });
 
-    /* ─── ANNEXE — FEEDBACK TACTILE pour les 6 fiches techniques + bouton "Calcul analytique" + bulle de nav + bouton retour ─── */
-    document.querySelectorAll('.annexe-item, .ca-open-btn, .nav-bubble-toggle, .btn-back').forEach(btn => {
+    /* ─── ANNEXE — FEEDBACK TACTILE SUBTIL pour les 6 fiches techniques + bouton "Calcul analytique" ─── */
+    document.querySelectorAll('.annexe-item, .ca-open-btn').forEach(btn => {
+        btn.addEventListener('touchstart', () => {
+            btn.classList.add('tapped');
+        }, { passive: true });
+        btn.addEventListener('touchend',    () => setTimeout(() => btn.classList.remove('tapped'), 120), { passive: true });
+        btn.addEventListener('touchcancel', () => { btn.classList.remove('tapped'); }, { passive: true });
+    });
+
+    /* ─── FEEDBACK TACTILE PRONONCÉ : bulle de nav + bouton retour ─── */
+    document.querySelectorAll('.nav-bubble-toggle, .btn-back').forEach(btn => {
         btn.addEventListener('touchstart', () => {
             btn.classList.remove('squish');
             void btn.offsetWidth;
