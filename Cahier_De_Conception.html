@@ -473,6 +473,20 @@
         }
         .var-viewer.open .var-viewer-content { opacity: 1; }
         .var-viewer-content strong { color: var(--text-main); }
+        /* Formule (matrice d'inertie) injectée dans le viewer */
+        .var-viewer-content .var-def-formula {
+            margin-top: 16px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            text-align: center;
+        }
+        .var-viewer-content .var-def-formula .katex-display {
+            margin: 0;
+            color: var(--text-main);
+        }
+        .var-viewer-content .var-def-formula::-webkit-scrollbar { height: 4px; }
+        .var-viewer-content .var-def-formula::-webkit-scrollbar-track { background: transparent; }
+        .var-viewer-content .var-def-formula::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
 
         /* ─────────────────────────────────────────
            SECTION II — TABLE
@@ -1062,6 +1076,8 @@
             .id-grid,
             .materials-grid,
             .annexe-grid { grid-template-columns: 1fr; }
+            /* Plus d'air entre les deux figures empilées en 3.2 sur mobile */
+            .id-grid { gap: 40px; }
             .step-card {
                 background: transparent;
                 border: none;
@@ -1411,7 +1427,7 @@
                 </div>
                 <div class="var-item var-item-rect">
                     <div class="var-symbol">Aᵢ, Bᵢ, Cᵢ</div>
-                    <div class="var-def">Moments principaux d'inertie de <strong>i</strong> au point <strong>Gᵢ</strong></div>
+                    <div class="var-def">Moments principaux d'inertie de <strong>i</strong> au point <strong>Gᵢ</strong><div class="var-def-formula">$$\overline{\overline{I}}_{G_i}(S_i) = \begin{bmatrix} A_i & 0 & 0 \\ 0 & B_i & 0 \\ 0 & 0 & C_i \end{bmatrix}_{b_i}$$</div></div>
                 </div>
                 <div class="var-item">
                     <div class="var-symbol">b</div>
@@ -2002,7 +2018,7 @@
                 <div class="annexe-arrow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
             </a>
             <a href="https://www.systeal.com/fr/profiles-aluminium-6-mm/1221-profile-aluminium-v-slot-20x20-fente-6-mm.html" target="_blank" class="annexe-item">
-                <div class="annexe-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+                <div class="annexe-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
                 <div class="annexe-text">
                     <div class="annexe-name">Profilé V-slot 20×20</div>
                 </div>
