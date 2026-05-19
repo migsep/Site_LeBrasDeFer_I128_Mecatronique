@@ -83,6 +83,23 @@
             background: rgba(255,255,255,0.14);
             border-color: rgba(255,255,255,0.28);
         }
+        /* Feedback tactile bulle de nav */
+        .nav-bubble-toggle {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-bubble-toggle.squish {
+            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @media (hover: none) {
+            .nav-bubble-toggle:hover {
+                background: rgba(255,255,255,0.10);
+            }
+        }
+        .nav-bubble-toggle:active,
+        .nav-bubble-toggle.tapped {
+            background: rgba(255,255,255,0.18);
+            transition: background 0.08s ease;
+        }
         .nav-bubble-menu {
             position: absolute;
             top: 54px; right: 0;
@@ -1118,8 +1135,25 @@
             border: 1px solid var(--neon); color: var(--neon);
             text-decoration: none; font-family: "Orbitron";
             font-size: 0.85rem; transition: 0.3s; letter-spacing: 1px;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-back:hover { background: var(--neon); color: black; box-shadow: 0 0 30px rgba(255,122,0,0.5); }
+        /* Feedback tactile bouton retour */
+        .btn-back.squish {
+            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @media (hover: none) {
+            .btn-back:hover {
+                background: transparent;
+                color: var(--neon);
+                box-shadow: none;
+            }
+        }
+        .btn-back:active,
+        .btn-back.tapped {
+            background: rgba(255,122,0,0.10);
+            transition: background 0.08s ease;
+        }
 
         /* ─────────────────────────────────────────
            RESPONSIVE
@@ -2559,8 +2593,8 @@
         btn.addEventListener('touchcancel', () => { btn.classList.remove('tapped', 'squish'); }, { passive: true });
     });
 
-    /* ─── ANNEXE — FEEDBACK TACTILE pour les 6 fiches techniques + bouton "Calcul analytique" ─── */
-    document.querySelectorAll('.annexe-item, .ca-open-btn').forEach(btn => {
+    /* ─── ANNEXE — FEEDBACK TACTILE pour les 6 fiches techniques + bouton "Calcul analytique" + bulle de nav + bouton retour ─── */
+    document.querySelectorAll('.annexe-item, .ca-open-btn, .nav-bubble-toggle, .btn-back').forEach(btn => {
         btn.addEventListener('touchstart', () => {
             btn.classList.remove('squish');
             void btn.offsetWidth;
