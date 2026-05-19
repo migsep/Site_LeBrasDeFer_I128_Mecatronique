@@ -253,25 +253,52 @@
         }
         .couple-bubble {
             background: #ffffff;
-            color: #111;
-            border: none;
+            color: #000000;
+            border: 1.5px solid #000000;
             border-radius: 999px;
             padding: 12px 28px;
             font-family: "JetBrains Mono", monospace;
             font-size: 1.15rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+            transition: background 0.22s ease, color 0.22s ease,
+                        box-shadow 0.22s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
         }
         .couple-bubble:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(255,183,0,0.25);
+            background: #000000;
+            color: #ffffff;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.5), 0 0 0 3px rgba(255,255,255,0.15);
+            transform: translateY(-3px) scale(1.06);
+        }
+        @media (hover: none) {
+            .couple-bubble:hover {
+                background: #ffffff;
+                color: #000000;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+                transform: none;
+            }
+        }
+        .couple-bubble:active,
+        .couple-bubble.tapped {
+            transform: translateY(0px) scale(0.93);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            background: #000000;
+            color: #ffffff;
+            border-color: #ffffff;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease, border-color 0.08s ease;
+        }
+        .couple-bubble.squish {
+            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
         }
         .couple-bubble.active {
-            background: var(--neon);
-            color: #111;
-            box-shadow: 0 0 20px rgba(255,183,0,0.5);
+            background: #000000;
+            color: #ffffff;
+            border-color: #ffffff;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,255,255,0.12);
+            transform: translateY(-2px) scale(1.04);
         }
         .couples-viewer {
             display: grid;
@@ -561,10 +588,7 @@
             overflow: hidden;
         }
         .converter-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            content: none;
         }
         .converter-name {
             font-family: "Orbitron"; font-size: 1.1rem;
@@ -712,10 +736,7 @@
             overflow: hidden;
         }
         .material-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            content: none;
         }
         .material-tag {
             display: inline-block;
@@ -1065,6 +1086,13 @@
             .id-grid,
             .materials-grid,
             .annexe-grid { grid-template-columns: 1fr; }
+            .step-card {
+                background: transparent;
+                border: none;
+                border-radius: 0;
+                padding: 12px 0;
+            }
+            .step-card::before { content: none; }
             .components-table-wrapper { overflow-x: auto; }
             .components-table { min-width: 640px; }
             .nav-bubble-wrapper { top: 16px; right: 16px; }
@@ -1244,6 +1272,7 @@
             </div>
 
             <!-- Figures CB1, CB2, CB3 -->
+            <p class="text-plain" style="margin-top: 2rem;">Les schémas ci-dessous illustrent les rotations successives et les changements de repères associés à ces variables géométriques.</p>
             <div class="figure-frame" style="margin-top: 2rem;">
                 <div style="display: flex; gap: 1rem; justify-content: center; align-items: flex-start; flex-wrap: wrap;">
                     <img src="CB1.jpg" alt="Schéma changement de base 1" style="flex: 1 1 0; min-width: 120px; max-width: 100%; object-fit: contain; border-radius: 6px;">
@@ -1313,7 +1342,7 @@
             </div>
         </div>
         <p class="text-plain" style="margin-top: 2rem; text-align: center; width: 100%; max-width: 100%; margin-left: auto; margin-right: auto;">
-            Retrouvez le détail complet des calculs analytiques dans la section <a href="#annexe" style="color: var(--neon); text-decoration: none; border-bottom: 1px solid rgba(255,122,0,0.4); transition: border-color 0.2s;" onmouseover="this.style.borderColor='rgba(255,122,0,1)'" onmouseout="this.style.borderColor='rgba(255,122,0,0.4)'">Annexes</a> de cette page.
+            Le détail des calculs analytiques est disponible en annexe.
         </p>
     </div>
 </section>
@@ -1335,7 +1364,7 @@
                 Caractéristiques des composants
             </div>
             <p class="text-plain">
-                Les caractéristiques de tension maximale et de courant de blocage de chaque composant sont relevées directement depuis leurs data sheet officielles afin de dimensionner correctement la chaîne d'alimentation.
+                Les caractéristiques de tension maximale et de courant de blocage de chaque composant sont relevées directement depuis leurs data sheet officielles (disponibles en annexe) afin de dimensionner correctement la chaîne d'alimentation.
             </p>
 
             <div class="components-table-wrapper">
@@ -1345,7 +1374,6 @@
                             <th>Composant</th>
                             <th>Tension max</th>
                             <th>Courant de blocage</th>
-                            <th>Data sheet</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1353,31 +1381,26 @@
                             <td class="comp-name">Raspberry Pi 5</td>
                             <td class="comp-value">5 V</td>
                             <td class="comp-value">5 A</td>
-                            <td><a href="https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008348-DS-4-raspberry-pi-5-product-brief.pdf?disposition=inline" target="_blank">Raspberry Pi 5</a><span class="ds-pages">— Page 3</span></td>
                         </tr>
                         <tr>
                             <td class="comp-name">Arduino MEGA 2560</td>
                             <td class="comp-value">12 V</td>
                             <td class="comp-value">1 A</td>
-                            <td><a href="https://docs.arduino.cc/resources/datasheets/A000067-datasheet.pdf" target="_blank">Arduino MEGA 2560</a><span class="ds-pages">— Pages 6 et 8</span></td>
                         </tr>
                         <tr>
                             <td class="comp-name">Capteur TCS34725</td>
                             <td class="comp-value">3,6 V</td>
                             <td class="comp-value">330 µA</td>
-                            <td><a href="https://cdn-shop.adafruit.com/datasheets/TCS34725.pdf" target="_blank">TCS34725</a><span class="ds-pages">— Pages 3 et 4</span></td>
                         </tr>
                         <tr>
                             <td class="comp-name">Servomoteur SCS15</td>
                             <td class="comp-value">6 V</td>
                             <td class="comp-value">2,5 A</td>
-                            <td><a href="https://www.feetechrc.com/Data/feetechrc/upload/file/20221201/6380550421311512053793525.pdf" target="_blank">SCS15</a><span class="ds-pages">— Page 3</span></td>
                         </tr>
                         <tr>
                             <td class="comp-name">Servomoteur HS-422</td>
                             <td class="comp-value">6 V</td>
                             <td class="comp-value">0,75 A</td>
-                            <td><a href="https://cdn.sparkfun.com/assets/1/1/f/a/3/HCS_HS-422_Specsheet_v2.2__102623.pdf" target="_blank">HS-422</a></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1718,8 +1741,7 @@
                     <span class="material-tag">Profilé V-slot</span>
                     <div class="material-name">Aluminium — Profilé 20×20</div>
                     <p class="material-desc">
-                        Pour l'étude de l'aluminium, on retient un <strong>profilé V-slot 20×20</strong> à fente 6&nbsp;mm. Les profilés étant relativement standards, les calculs s'appuient sur la fiche technique du produit&nbsp;:<br>
-                        <a href="https://www.systeal.com/fr/profiles-aluminium-6-mm/1221-profile-aluminium-v-slot-20x20-fente-6-mm.html" target="_blank">systeal.com — Profilé V-slot 20×20</a>
+                        Pour l'étude de l'aluminium, on retient un <strong>profilé V-slot 20×20</strong> à fente 6&nbsp;mm. Les profilés étant relativement standards, les calculs s'appuient sur la fiche technique du produit (disponible en annexe).
                     </p>
 
                     <div class="material-stats">
@@ -1759,8 +1781,8 @@
 <section id="annexe">
     <div class="container">
         <div class="reveal">
-            <span class="section-tag">Annexe — Liens vers les Data Sheets</span>
-            <h2 class="section-title">Sources<br>techniques.</h2>
+            <span class="section-tag">Annexes</span>
+            <h2 class="section-title" style="margin-bottom: 20px;">Sources<br>techniques.</h2>
         </div>
 
         <p class="text-plain reveal">
@@ -1803,13 +1825,17 @@
                 </div>
                 <div class="annexe-arrow">→</div>
             </a>
+            <a href="https://www.systeal.com/fr/profiles-aluminium-6-mm/1221-profile-aluminium-v-slot-20x20-fente-6-mm.html" target="_blank" class="annexe-item">
+                <div class="annexe-icon">📄</div>
+                <div class="annexe-text">
+                    <div class="annexe-name">Profilé V-slot 20×20</div>
+                </div>
+                <div class="annexe-arrow">→</div>
+            </a>
         </div>
 
         <div class="reveal">
-            <div class="sub-title" style="margin-top: 60px;">
-                <span class="sub-title-num">A.2</span>
-                Calculs analytiques — Cahier manuscrit
-            </div>
+            <h2 class="section-title" style="margin-top: 60px; margin-bottom: 20px;">Calculs<br>analytiques.</h2>
             <p class="text-plain" style="margin-bottom: 2rem;">
                 Pages du cahier de calculs ayant servi à l'établissement du Modèle Dynamique Inverse.
             </p>
@@ -2060,6 +2086,18 @@
                 activeVar = item;
             }
         });
+    });
+
+    /* ─── COUPLES 1.3 — FEEDBACK TACTILE & SQUISH ─── */
+    document.querySelectorAll('.couple-bubble').forEach(btn => {
+        btn.addEventListener('touchstart', () => {
+            btn.classList.remove('squish');
+            void btn.offsetWidth;
+            btn.classList.add('squish', 'tapped');
+            if (navigator.vibrate) navigator.vibrate(8);
+        }, { passive: true });
+        btn.addEventListener('touchend',    () => setTimeout(() => btn.classList.remove('tapped'), 150), { passive: true });
+        btn.addEventListener('touchcancel', () => { btn.classList.remove('tapped', 'squish'); }, { passive: true });
     });
 
     /* COUPLES MOTEURS — bulles + viewer */
