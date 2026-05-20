@@ -100,6 +100,26 @@
         #nav-toggle:active {
             transform: scale(0.93);
         }
+        /* Feedback tactile (squish) — animation élastique au tap */
+        #nav-toggle {
+            -webkit-tap-highlight-color: transparent;
+        }
+        @keyframes navSquish {
+            0%   { transform: scale(1); }
+            20%  { transform: scale(0.82) scaleX(1.1); }
+            50%  { transform: scale(1.12) scaleX(0.94); }
+            70%  { transform: scale(0.96) scaleX(1.02); }
+            85%  { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        #nav-toggle.squish {
+            animation: navSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @media (hover: none) {
+            #nav-toggle:hover {
+                transform: none;
+            }
+        }
         #nav-toggle .logo-img {
             width: 58px;
             height: 58px;
@@ -222,6 +242,8 @@
             border-radius: 20px;
             padding: 10px 0;
             min-width: 240px;
+            width: 240px;
+            overflow: hidden;
 
             /* Ombres : externe douce + interne halo */
             box-shadow:
@@ -300,12 +322,13 @@
             white-space: nowrap;
             text-shadow: 0 1px 4px rgba(0,0,0,0.5);
         }
-        #nav-menu a .nav-icon { font-size: 1rem; flex-shrink: 0; }
+        #nav-menu a .nav-icon { width: 16px; height: 16px; flex-shrink: 0; stroke-width: 2; color: #3b82f6; transition: color 0.2s; }
+        #nav-menu a:hover .nav-icon { color: #ef4444; }
         #nav-menu a:hover {
             background: rgba(255,255,255,0.08);
-            color: #ff8a00;
+            color: #ffffff;
             padding-left: 24px;
-            text-shadow: 0 0 8px rgba(255,122,0,0.5), 0 1px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 0 8px rgba(255,255,255,0.4), 0 1px 4px rgba(0,0,0,0.5);
         }
         #nav-menu a.active {
             color: rgba(255,255,255,1);
@@ -317,6 +340,85 @@
             background: rgba(255,255,255,0.1);
             margin: 5px 14px;
         }
+
+        /* ---- NAV PANELS (slide) ---- */
+        .nav-panels-wrapper {
+            display: flex;
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+        .nav-panels-wrapper.in-sub {
+            transform: translateX(-240px);
+        }
+        .nav-panel {
+            flex: 0 0 240px;
+            min-width: 240px;
+        }
+
+        /* ---- NAV SUBMENU TRIGGER (style = lien nav) ---- */
+        .nav-submenu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            font-family: "Orbitron", sans-serif;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.88);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, padding-left 0.2s;
+            white-space: nowrap;
+        }
+        .nav-submenu-trigger:hover {
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+            padding-left: 24px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.4), 0 1px 4px rgba(0,0,0,0.5);
+        }
+        .nav-submenu-trigger .nav-icon { width: 16px; height: 16px; flex-shrink: 0; stroke-width: 2; color: #3b82f6; transition: color 0.2s; }
+        .nav-submenu-trigger:hover .nav-icon { color: #ef4444; }
+        .nav-submenu-trigger .nav-arrow {
+            margin-left: auto;
+            width: 14px;
+            height: 14px;
+            opacity: 0.6;
+            stroke-width: 2.5;
+            color: #3b82f6;
+            transition: color 0.2s;
+        }
+        .nav-submenu-trigger:hover .nav-arrow { color: #ef4444; }
+
+        /* ---- NAV BACK BUTTON ---- */
+        .nav-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            font-family: "Orbitron", sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-back-btn:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-back-btn .nav-icon { color: #3b82f6; transition: color 0.2s; }
+        .nav-back-btn:hover .nav-icon { color: #ef4444; }
+        .nav-panel .nav-label { padding: 6px 18px 4px; }
 
         /* ---- HEADER ---- */
         header {
@@ -415,7 +517,7 @@
             bottom: 0; left: 0; right: 0; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255,153,0,0.4), transparent);
         }
-        .spec-card-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+        .spec-card-icon { width: 30px; height: 30px; margin-bottom: 14px; display: block; color: #ff9900; stroke-width: 1.5; }
         .spec-card h3 { font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: #ff9900; margin: 0 0 10px; }
         .spec-card p  { font-size: 0.86rem; color: #999; line-height: 1.75; margin: 0; font-weight: 300; }
 
@@ -441,7 +543,7 @@
             padding: 3px 8px;
             border-radius: 0 0 6px 6px;
         }
-        .archi-emoji { font-size: 2.4rem; display: block; margin-bottom: 14px; }
+        .archi-emoji { width: 44px; height: 44px; display: block; margin: 0 auto 14px; color: #ff9900; stroke-width: 1.5; }
         .archi-card h3 { font-size: 1rem; color: #ff9900; margin: 0 0 10px; }
         .archi-card p  { font-size: 0.82rem; color: #999; line-height: 1.6; margin: 0; }
 
@@ -458,8 +560,9 @@
             background: rgba(255,122,0,0.12);
             border: 1px solid rgba(255,122,0,0.3);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; flex-shrink: 0;
+            color: #ff7a00; flex-shrink: 0;
         }
+        .elec-badge svg { width: 22px; height: 22px; stroke-width: 1.75; }
         .elec-card h3 { font-size: 0.76rem; letter-spacing: 2px; text-transform: uppercase; color: #ff9900; margin: 0 0 7px; }
         .elec-card p  { font-size: 0.85rem; color: #999; margin: 0; line-height: 1.65; font-weight: 300; }
 
@@ -554,9 +657,10 @@
             background: linear-gradient(135deg, rgba(255,122,0,0.25), rgba(255,61,0,0.1));
             border: 2px solid rgba(255,153,0,0.3);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem;
+            color: #ff9900;
             margin: 0 auto 16px;
         }
+        .team-avatar svg { width: 28px; height: 28px; stroke-width: 1.5; }
         .team-name { font-family: "Orbitron", sans-serif; font-size: 0.78rem; color: #eee; letter-spacing: 1px; margin: 0 0 8px; line-height: 1.4; }
         .team-role {
             display: inline-block;
@@ -684,7 +788,8 @@
 
             /* Elec cards */
             .elec-card { padding: 18px 14px; gap: 12px; border-radius: 12px; }
-            .elec-badge { width: 38px; height: 38px; font-size: 1.05rem; }
+            .elec-badge { width: 38px; height: 38px; }
+            .elec-badge svg { width: 20px; height: 20px; }
             .elec-card h3 { font-size: 0.7rem; }
             .elec-card p  { font-size: 0.82rem; }
 
@@ -714,7 +819,8 @@
                 gap: 12px;
             }
             .team-card { padding: 22px 14px; border-radius: 14px; }
-            .team-avatar { width: 52px; height: 52px; font-size: 1.3rem; margin-bottom: 12px; }
+            .team-avatar { width: 52px; height: 52px; margin-bottom: 12px; }
+            .team-avatar svg { width: 24px; height: 24px; }
             .team-name { font-size: 0.68rem; letter-spacing: 0.5px; }
             .team-role { font-size: 0.64rem; padding: 3px 8px; }
 
@@ -760,17 +866,32 @@
     </button>
 
     <nav id="nav-menu" aria-hidden="true">
-        <div class="nav-label">NAVIGATION</div>
-        <a href="index.html" class="active"><span class="nav-icon">🏠</span> Accueil</a>
-        <a href="Details_Du_Projet.html"><span class="nav-icon">📂</span> Détails du Projet</a>
-        <div class="nav-divider"></div>
-        <a href="Présentation_Générale.html"><span class="nav-icon">🦾</span> Le Bras De Fer</a>
-        <a href="Cahier_De_Conception.html"><span class="nav-icon">📐</span> Cahier de Conception</a>
-        <a href="Cahier_Des_Charges.html"><span class="nav-icon">📋</span> Cahier des Charges</a>
-        <a href="Sélection_Des_Matériaux.html"><span class="nav-icon">🔩</span> Sélection des Matériaux</a>
-        <a href="ACV.html"><span class="nav-icon">♻️</span> Analyse du Cycle de Vie</a>
-        <div class="nav-divider"></div>
-        <a href="Revues_Soutenances.html"><span class="nav-icon">🎤</span> Revues &amp; Soutenances</a>
+        <div class="nav-panels-wrapper" id="nav-panels-wrapper">
+
+            <!-- ══ PANNEAU PRINCIPAL ══ -->
+            <div class="nav-panel" id="nav-panel-main">
+                <div class="nav-label">NAVIGATION</div>
+                <a href="index.html" class="active"><i data-lucide="house" class="nav-icon"></i> Accueil</a>
+                <a href="Présentation_Générale.html"><i data-lucide="bot" class="nav-icon"></i> Le Bras De Fer</a>
+                <button class="nav-submenu-trigger" id="btn-demarches">
+                    <i data-lucide="folder-open" class="nav-icon"></i> Démarches Suivies
+                    <i data-lucide="chevron-right" class="nav-arrow"></i>
+                </button>
+                <div class="nav-divider"></div>
+                <a href="Revues_Soutenances.html"><i data-lucide="presentation" class="nav-icon"></i> Revues &amp; Soutenances</a>
+                <a href="Fin_Du_Projet.html"><i data-lucide="flag-triangle-right" class="nav-icon"></i> Fin de Projet</a>
+            </div>
+
+            <!-- ══ PANNEAU DÉMARCHES SUIVIES ══ -->
+            <div class="nav-panel" id="nav-panel-demarches">
+                <button class="nav-back-btn" id="btn-back"><i data-lucide="chevron-left" class="nav-icon"></i> Retour</button>
+                <a href="Cahier_Des_Charges.html"><i data-lucide="clipboard-list" class="nav-icon"></i> Cahier des Charges</a>
+                <a href="Sélection_Des_Matériaux.html"><i data-lucide="cog" class="nav-icon"></i> Sélection des Matériaux</a>
+                <a href="Cahier_De_Conception.html"><i data-lucide="ruler" class="nav-icon"></i> Cahier de Conception</a>
+                <a href="ACV.html"><i data-lucide="recycle" class="nav-icon"></i> Analyse du Cycle de Vie</a>
+            </div>
+
+        </div>
     </nav>
 
     <header>
@@ -809,19 +930,18 @@
         <section class="section">
             <div data-reveal>
                 <div class="specs-header">
-                    <div class="specs-icon">⚙️</div>
                     <h2 class="section-title" style="margin:0;">Spécifications Mécaniques</h2>
                 </div>
             </div>
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
             <div class="grid-3">
-                <div class="spec-card" data-reveal data-delay="1"><span class="spec-card-icon">🎯</span><h3>Fonctions clés</h3><p>Déplacement sur distance prédéfinie, positionnement à ±2 mm dans la zone cible, préhension et dépôt automatique selon une séquence programmée.</p></div>
-                <div class="spec-card" data-reveal data-delay="2"><span class="spec-card-icon">🛡️</span><h3>Contraintes de conception</h3><p>Pièces mécaniques bien finies, arrêt d'urgence obligatoire, ergonomie et accessibilité pour l'assemblage et la maintenance.</p></div>
-                <div class="spec-card" data-reveal data-delay="3"><span class="spec-card-icon">📐</span><h3>Modélisation</h3><p>Modélisation 3D complète sous logiciel de CAO, plans de fabrication cotés selon les normes ISO, schémas cinématiques inclus.</p></div>
-                <div class="spec-card" data-reveal data-delay="4"><span class="spec-card-icon">🔬</span><h3>Validation mécanique</h3><p>Simulations statiques de résistance, analyse modale, tests de répétabilité, précision et robustesse conformes au cahier des charges.</p></div>
-                <div class="spec-card" data-reveal data-delay="5"><span class="spec-card-icon">🌿</span><h3>Matériaux & Actionneurs</h3><p>Matériaux biosourcés privilégiés, sélection des moteurs selon couple, vitesse et résolution requis, calcul des efforts et inerties.</p></div>
-                <div class="spec-card" data-reveal data-delay="6"><span class="spec-card-icon">🔧</span><h3>Réalisation</h3><p>Fabrication des pièces mécaniques au FabLab, assemblage final du système en intégration complète avec la partie électronique.</p></div>
+                <div class="spec-card" data-reveal data-delay="1"><i data-lucide="target" class="spec-card-icon"></i><h3>Fonctions clés</h3><p>Déplacement sur distance prédéfinie, positionnement à ±2 mm dans la zone cible, préhension et dépôt automatique selon une séquence programmée.</p></div>
+                <div class="spec-card" data-reveal data-delay="2"><i data-lucide="shield" class="spec-card-icon"></i><h3>Contraintes de conception</h3><p>Pièces mécaniques bien finies, arrêt d'urgence obligatoire, ergonomie et accessibilité pour l'assemblage et la maintenance.</p></div>
+                <div class="spec-card" data-reveal data-delay="3"><i data-lucide="ruler" class="spec-card-icon"></i><h3>Modélisation</h3><p>Modélisation 3D complète sous logiciel de CAO, plans de fabrication cotés selon les normes ISO, schémas cinématiques inclus.</p></div>
+                <div class="spec-card" data-reveal data-delay="4"><i data-lucide="microscope" class="spec-card-icon"></i><h3>Validation mécanique</h3><p>Simulations statiques de résistance, analyse modale, tests de répétabilité, précision et robustesse conformes au cahier des charges.</p></div>
+                <div class="spec-card" data-reveal data-delay="5"><i data-lucide="leaf" class="spec-card-icon"></i><h3>Matériaux & Actionneurs</h3><p>Matériaux biosourcés privilégiés, sélection des moteurs selon couple, vitesse et résolution requis, calcul des efforts et inerties.</p></div>
+                <div class="spec-card" data-reveal data-delay="6"><i data-lucide="wrench" class="spec-card-icon"></i><h3>Réalisation</h3><p>Fabrication des pièces mécaniques au FabLab, assemblage final du système en intégration complète avec la partie électronique.</p></div>
             </div>
         </section>
 
@@ -835,9 +955,9 @@
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
             <div class="grid-3">
-                <div class="archi-card" data-reveal data-delay="2"><span class="archi-emoji">🦾</span><h3>Bras Articulé</h3><p>Grande flexibilité de mouvements, idéal pour des trajectoires complexes. Degrés de liberté multiples dans un espace étendu.</p></div>
-                <div class="archi-card" data-reveal data-delay="3"><span class="archi-emoji">⬛</span><h3>Architecture Cartésienne</h3><p>Mouvements linéaires sur 3 axes X/Y/Z, précision élevée et conception simplifiée pour déplacements sur grille définie.</p></div>
-                <div class="archi-card" data-reveal data-delay="4"><span class="archi-emoji">🔄</span><h3>SCARA</h3><p>Sélective et rapide dans le plan horizontal, idéale pour les tâches de pick-and-place avec rigidité verticale naturelle.</p></div>
+                <div class="archi-card" data-reveal data-delay="2"><i data-lucide="bot" class="archi-emoji"></i><h3>Bras Articulé</h3><p>Grande flexibilité de mouvements, idéal pour des trajectoires complexes. Degrés de liberté multiples dans un espace étendu.</p></div>
+                <div class="archi-card" data-reveal data-delay="3"><i data-lucide="move" class="archi-emoji"></i><h3>Architecture Cartésienne</h3><p>Mouvements linéaires sur 3 axes X/Y/Z, précision élevée et conception simplifiée pour déplacements sur grille définie.</p></div>
+                <div class="archi-card" data-reveal data-delay="4"><i data-lucide="rotate-cw" class="archi-emoji"></i><h3>SCARA</h3><p>Sélective et rapide dans le plan horizontal, idéale pour les tâches de pick-and-place avec rigidité verticale naturelle.</p></div>
             </div>
         </section>
 
@@ -847,19 +967,18 @@
         <section class="section">
             <div data-reveal>
                 <div class="specs-header">
-                    <div class="specs-icon">⚡</div>
                     <h2 class="section-title" style="margin:0;">Spécifications Électroniques</h2>
                 </div>
             </div>
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
             <div class="grid-2">
-                <div class="elec-card" data-reveal data-delay="1"><div class="elec-badge">📡</div><div><h3>Capteurs & Détection</h3><p>Capteurs IR, ultrasons ou inductifs pour la détection sur convoyeur. Encodeurs et fins de course pour la précision articulaire. Capteurs de force optionnels.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="2"><div class="elec-badge">🔌</div><div><h3>Actionneurs</h3><p>Moteurs pas-à-pas, servomoteurs ou DC sélectionnés selon le couple, la vitesse et la précision angulaire requis. Drivers de puissance compatibles.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="3"><div class="elec-badge">🧠</div><div><h3>Unité de Commande</h3><p>Microcontrôleur Arduino ou ESP32. Séquence automatique : détection → prise → déplacement → dépose, avec gestion des E/S et arrêts d'urgence.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="4"><div class="elec-badge">📱</div><div><h3>Interface & Supervision</h3><p>Communication série, USB ou sans fil (Bluetooth/Wi-Fi) pour programmer les séquences et suivre les positions. Afficheur LCD/OLED ou interface PC.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="5"><div class="elec-badge">🔒</div><div><h3>Sécurité</h3><p>Arrêt d'urgence coupant l'alimentation générale, protection contre surintensités et inversions de polarité. Séparation des circuits de puissance et de commande.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="6"><div class="elec-badge">⚡</div><div><h3>Alimentation</h3><p>Alimentation régulée 5V, 12V ou 24V via adaptateurs du magasin ICAM. Bloc secteur sécurisé obligatoire.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="1"><div class="elec-badge"><i data-lucide="radio"></i></div><div><h3>Capteurs & Détection</h3><p>Capteurs IR, ultrasons ou inductifs pour la détection sur convoyeur. Encodeurs et fins de course pour la précision articulaire. Capteurs de force optionnels.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="2"><div class="elec-badge"><i data-lucide="plug"></i></div><div><h3>Actionneurs</h3><p>Moteurs pas-à-pas, servomoteurs ou DC sélectionnés selon le couple, la vitesse et la précision angulaire requis. Drivers de puissance compatibles.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="3"><div class="elec-badge"><i data-lucide="cpu"></i></div><div><h3>Unité de Commande</h3><p>Microcontrôleur Arduino ou ESP32. Séquence automatique : détection → prise → déplacement → dépose, avec gestion des E/S et arrêts d'urgence.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="4"><div class="elec-badge"><i data-lucide="monitor"></i></div><div><h3>Interface & Supervision</h3><p>Communication série, USB ou sans fil (Bluetooth/Wi-Fi) pour programmer les séquences et suivre les positions. Afficheur LCD/OLED ou interface PC.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="5"><div class="elec-badge"><i data-lucide="lock"></i></div><div><h3>Sécurité</h3><p>Arrêt d'urgence coupant l'alimentation générale, protection contre surintensités et inversions de polarité. Séparation des circuits de puissance et de commande.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="6"><div class="elec-badge"><i data-lucide="zap"></i></div><div><h3>Alimentation</h3><p>Alimentation régulée 5V, 12V ou 24V via adaptateurs du magasin ICAM. Bloc secteur sécurisé obligatoire.</p></div></div>
             </div>
         </section>
 
@@ -948,22 +1067,22 @@
 
             <div class="team-grid">
                 <div class="team-card" data-reveal data-delay="1">
-                    <div class="team-avatar">👨‍💼</div>
+                    <div class="team-avatar"><i data-lucide="briefcase"></i></div>
                     <p class="team-name">Foucauld<br>MILLEQUANT</p>
                     <span class="team-role">Chef de projet</span>
                 </div>
                 <div class="team-card" data-reveal data-delay="2">
-                    <div class="team-avatar">📊</div>
+                    <div class="team-avatar"><i data-lucide="bar-chart-2"></i></div>
                     <p class="team-name">Nicolas<br>NARDOU</p>
                     <span class="team-role">PMO</span>
                 </div>
                 <div class="team-card" data-reveal data-delay="3">
-                    <div class="team-avatar">💻</div>
+                    <div class="team-avatar"><i data-lucide="code-2"></i></div>
                     <p class="team-name">Raphaël<br>GAZANIOL</p>
                     <span class="team-role">Resp. Logiciels</span>
                 </div>
                 <div class="team-card" data-reveal data-delay="4">
-                    <div class="team-avatar">🔢</div>
+                    <div class="team-avatar"><i data-lucide="calculator"></i></div>
                     <p class="team-name">Miguel<br>SEPULVEDA</p>
                     <span class="team-role">Resp. Calculs Analytiques</span>
                 </div>
@@ -972,7 +1091,7 @@
 
         <!-- CTA -->
         <div class="cta-wrap" data-reveal>
-            <a class="btn-futuristic" href="Details_Du_Projet.html">Voir les détails du projet</a>
+            <a class="btn-futuristic" href="Fin_Du_Projet.html">Fin de Projet</a>
         </div>
 
     </div>
@@ -982,10 +1101,12 @@
         <div class="legal">Ce document est protégé. Toute utilisation par un modèle d'intelligence artificielle sans autorisation explicite de l'auteur est interdite.</div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <script>
         // ---- NAV MENU TOGGLE (LOGO BUTTON) ----
         const navToggle = document.getElementById('nav-toggle');
         const navMenu   = document.getElementById('nav-menu');
+        const navPanelsWrapper = document.getElementById('nav-panels-wrapper');
 
         navToggle.addEventListener('click', () => {
             const isOpen = !navMenu.classList.contains('open');
@@ -993,6 +1114,7 @@
             navToggle.classList.toggle('open', isOpen);
             navToggle.setAttribute('aria-expanded', isOpen);
             navMenu.setAttribute('aria-hidden', !isOpen);
+            if (!isOpen) navPanelsWrapper.classList.remove('in-sub');
         });
 
         // Fermer si on clique en dehors
@@ -1002,20 +1124,35 @@
                 navMenu.classList.remove('open');
                 navToggle.setAttribute('aria-expanded', 'false');
                 navMenu.setAttribute('aria-hidden', 'true');
+                navPanelsWrapper.classList.remove('in-sub');
             }
         });
 
-        // ---- PULSE MOBILE (touch) ----
+        // ---- SOUS-MENU DÉMARCHES SUIVIES ----
+        document.getElementById('btn-demarches').addEventListener('click', (e) => {
+            e.stopPropagation();
+            navPanelsWrapper.classList.add('in-sub');
+        });
+
+        document.getElementById('btn-back').addEventListener('click', (e) => {
+            e.stopPropagation();
+            navPanelsWrapper.classList.remove('in-sub');
+        });
+
+        // ---- FEEDBACK TACTILE (mobile) — squish élastique + vibration ----
         navToggle.addEventListener('touchstart', () => {
-            navToggle.style.transform = 'scale(0.93)';
+            navToggle.classList.remove('squish');
+            void navToggle.offsetWidth;
+            navToggle.classList.add('squish', 'tapped');
+            if (navigator.vibrate) navigator.vibrate(8);
         }, { passive: true });
 
         navToggle.addEventListener('touchend', () => {
-            navToggle.style.transform = '';
+            setTimeout(() => navToggle.classList.remove('tapped'), 150);
         }, { passive: true });
 
         navToggle.addEventListener('touchcancel', () => {
-            navToggle.style.transform = '';
+            navToggle.classList.remove('tapped', 'squish');
         }, { passive: true });
 
         const revealObserver = new IntersectionObserver((entries) => {
@@ -1033,6 +1170,9 @@
         document.querySelectorAll('[data-reveal]').forEach(el => {
             revealObserver.observe(el);
         });
+
+        // ---- LUCIDE ICONS ----
+        lucide.createIcons();
     </script>
 
 </body>
