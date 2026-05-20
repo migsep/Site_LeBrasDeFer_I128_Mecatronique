@@ -349,7 +349,9 @@
         /* ---- NAV PANELS (slide) ---- */
         .nav-panels-wrapper {
             display: flex;
-            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Courbe "Apple spring" — accélération douce, décélération étendue.
+               Donne une glisse continue, sans à-coup, du panneau principal au sous-panneau. */
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
             will-change: transform;
         }
         .nav-panels-wrapper.in-sub {
