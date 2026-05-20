@@ -17,6 +17,15 @@
             --text-sub: #86868b; /* Le gris "Apple" */
         }
 
+        html {
+            /* Prevent iOS Safari & Chrome Android from auto-enlarging text
+               on certain blocks (the "text size adjust" / "Boost text"
+               feature). Keeps font sizes exactly as authored. */
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }        
+
         body {
             margin: 0;
             background-color: var(--bg-deep);
