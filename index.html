@@ -224,28 +224,26 @@
             top: 82px;
             left: 14px;
             z-index: 9998;
-
-            /* === LIQUID GLASS CORE === */
+            /* 1. On passe sur une base sombre transparente pour teinter le verre */
             background: linear-gradient(
                 145deg,
-                rgba(255,255,255,0.13) 0%,
-                rgba(255,255,255,0.06) 40%,
-                rgba(255,255,255,0.04) 60%,
-                rgba(255,255,255,0.10) 100%
+                rgba(0, 0, 0, 0.45) 0%,
+                rgba(0, 0, 0, 0.3) 40%,
+                rgba(0, 0, 0, 0.25) 60%,
+                rgba(0, 0, 0, 0.4) 100%
             );
-            backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
-            -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
-
-            /* Bord avec reflet lumineux en haut */
-            border: 1px solid rgba(255,255,255,0.22);
-            border-top-color: rgba(255,255,255,0.42);
+            /* 2. On baisse le brightness sous les 100% (0.65) pour assombrir l'arrière-plan */
+            backdrop-filter: blur(28px) saturate(180%) brightness(0.65);
+            -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(0.65);
+    
+            /* On garde tes superbes bordures et ombres intactes */
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-top-color: rgba(255, 255, 255, 0.42);
             border-radius: 20px;
             padding: 10px 0;
             min-width: 240px;
             width: 240px;
             overflow: hidden;
-
-            /* Ombres : externe douce + interne halo */
             box-shadow:
                 0 8px 40px rgba(0,0,0,0.45),
                 0 2px 8px rgba(0,0,0,0.3),
@@ -253,8 +251,6 @@
                 inset 0 -1px 0 rgba(255,255,255,0.06),
                 inset 1px 0 0 rgba(255,255,255,0.12),
                 inset -1px 0 0 rgba(255,255,255,0.08);
-
-            /* Ouverture / fermeture */
             opacity: 0;
             transform: translateY(-8px) scale(0.97);
             pointer-events: none;
@@ -535,6 +531,7 @@
         .spec-card-icon { width: 30px; height: 30px; margin-bottom: 14px; display: block; color: #ff9900; stroke-width: 1.5; }
         .spec-card h3 { font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: #ff9900; margin: 0 0 10px; }
         .spec-card p  { font-size: 0.86rem; color: #999; line-height: 1.75; margin: 0; font-weight: 300; }
+        .spec-card--wide { grid-column: 1 / -1; }
 
         /* ---- ARCHITECTURE CARD ---- */
         .archi-card {
@@ -564,22 +561,21 @@
 
         /* ---- ELEC CARD ---- */
         .elec-card {
-            background: rgba(255,255,255,0.02);
+            background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.07);
             border-radius: 14px;
-            padding: 22px 20px;
-            display: flex; gap: 16px; align-items: flex-start;
+            padding: 24px 20px;
+            position: relative;
+            overflow: hidden;
         }
-        .elec-badge {
-            width: 42px; height: 42px; border-radius: 10px;
-            background: rgba(255,122,0,0.12);
-            border: 1px solid rgba(255,122,0,0.3);
-            display: flex; align-items: center; justify-content: center;
-            color: #ff7a00; flex-shrink: 0;
+        .elec-card::after {
+            content: "";
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,153,0,0.4), transparent);
         }
-        .elec-badge svg { width: 22px; height: 22px; stroke-width: 1.75; }
-        .elec-card h3 { font-size: 0.76rem; letter-spacing: 2px; text-transform: uppercase; color: #ff9900; margin: 0 0 7px; }
-        .elec-card p  { font-size: 0.85rem; color: #999; margin: 0; line-height: 1.65; font-weight: 300; }
+        .elec-card h3 { font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: #ff9900; margin: 0 0 10px; }
+        .elec-card p  { font-size: 0.86rem; color: #999; margin: 0; line-height: 1.75; font-weight: 300; }
 
         /* ---- SPECS HEADER ---- */
         .specs-header { display: flex; align-items: center; gap: 14px; }
@@ -785,31 +781,39 @@
             .grid-2,
             .constraints-row { grid-template-columns: 1fr; gap: 12px; }
 
-            /* Spec cards */
-            .spec-card { padding: 20px 16px; border-radius: 12px; }
-            .spec-card-icon { font-size: 1.5rem; margin-bottom: 10px; }
+            /* Spec cards — fond supprimé sur mobile */
+            .spec-card {
+                background: transparent;
+                border: none;
+                border-radius: 0;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            .spec-card::after { display: none; }
+            .spec-card-icon { margin-bottom: 8px; }
             .spec-card h3 { font-size: 0.72rem; }
             .spec-card p  { font-size: 0.84rem; }
 
-            /* Specs header (icône + titre) */
-            .specs-header { gap: 12px; }
-            .specs-icon { width: 40px; height: 40px; font-size: 1.1rem; border-radius: 10px; }
+            /* Elec cards — fond supprimé sur mobile */
+            .elec-card {
+                background: transparent;
+                border: none;
+                border-radius: 0;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            .elec-card::after { display: none; }
+            .elec-card h3 { font-size: 0.72rem; }
+            .elec-card p  { font-size: 0.84rem; }
 
-            /* Architecture */
-            .archi-card { padding: 24px 18px; border-radius: 14px; }
-            .archi-emoji { font-size: 2rem; }
-            .archi-card h3 { font-size: 0.92rem; }
-            .archi-card p  { font-size: 0.8rem; }
-
-            /* Elec cards */
-            .elec-card { padding: 18px 14px; gap: 12px; border-radius: 12px; }
-            .elec-badge { width: 38px; height: 38px; }
-            .elec-badge svg { width: 20px; height: 20px; }
-            .elec-card h3 { font-size: 0.7rem; }
-            .elec-card p  { font-size: 0.82rem; }
-
-            /* Constraints */
-            .constraint-pill { padding: 18px 16px; border-radius: 12px; }
+            /* Constraint pills — fond supprimé sur mobile */
+            .constraint-pill {
+                background: transparent;
+                border: none;
+                border-radius: 0;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
             .constraint-pill .tag { font-size: 0.58rem; }
             .constraint-pill p { font-size: 0.83rem; }
 
@@ -868,6 +872,155 @@
             .team-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .team-name { font-size: 0.62rem; }
         }
+    
+
+        /* ═══════════════════════════════════════════
+           NAV BUBBLE intra-page — ajoutée pour la nav par sections
+           ═══════════════════════════════════════════ */
+
+        /* ─── iOS 26 LIQUID GLASS NAV BUBBLE (intra-page, en haut à droite) ─── */
+        .nav-bubble-wrapper {
+            position: fixed;
+            top: 24px; right: 24px;
+            z-index: 1000;
+        }
+        .nav-bubble-toggle {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.10);
+            backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            border: 1px solid rgba(255,255,255,0.22);
+            box-shadow:
+                0 2px 20px rgba(0,0,0,0.35),
+                inset 0 1.5px 0 rgba(255,255,255,0.28),
+                inset 0 -1px 0 rgba(0,0,0,0.10);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s ease;
+            color: rgba(255,255,255,0.85);
+            font-size: 1rem;
+            user-select: none;
+        }
+        .nav-bubble-toggle:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.1);
+        }
+        .nav-bubble-toggle.open {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.28);
+        }
+        /* Icônes Lucide (menu / x) à l'intérieur de la bulle */
+        .nav-bubble-toggle svg {
+            width: 20px;
+            height: 20px;
+            stroke: rgba(255,255,255,0.9);
+            stroke-width: 2;
+            display: block;
+        }
+        .nav-bubble-toggle .nb-icon-x { display: none; }
+        .nav-bubble-toggle.open .nb-icon-menu { display: none; }
+        .nav-bubble-toggle.open .nb-icon-x { display: block; }
+        /* Feedback tactile bulle de nav (aligné sur la nav inter-page) */
+        .nav-bubble-toggle {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-bubble-toggle.squish {
+            animation: varSquish 0.42s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @media (hover: none) {
+            .nav-bubble-toggle:hover {
+                background: rgba(255,255,255,0.10);
+                transform: none;
+            }
+        }
+        .nav-bubble-toggle:active,
+        .nav-bubble-toggle.tapped {
+            background: rgba(255,255,255,0.18);
+            transform: scale(0.93);
+            transition: background 0.08s ease, transform 0.08s ease;
+        }
+        .nav-bubble-menu {
+            position: absolute;
+            top: 54px; right: 0;
+            background: rgba(28,28,30,0.55);
+            backdrop-filter: blur(50px) saturate(220%) brightness(1.05);
+            -webkit-backdrop-filter: blur(50px) saturate(220%) brightness(1.05);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 22px;
+            padding: 8px 6px;
+            min-width: 230px;
+            box-shadow:
+                0 16px 60px rgba(0,0,0,0.55),
+                inset 0 1.5px 0 rgba(255,255,255,0.14),
+                inset 0 -1px 0 rgba(0,0,0,0.08);
+            opacity: 0;
+            transform: translateY(-6px) scale(0.96);
+            pointer-events: none;
+            transition: all 0.20s cubic-bezier(0.16,1,0.3,1);
+            transform-origin: top right;
+        }
+        .nav-bubble-menu.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+        .nav-bubble-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 13px; border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.12s;
+            text-decoration: none;
+            color: rgba(255,255,255,0.65);
+            font-size: 0.78rem; letter-spacing: 0.2px;
+            font-weight: 400;
+            position: relative;
+        }
+        .nav-bubble-item + .nav-bubble-item::before {
+            content: '';
+            position: absolute; top: 0; left: 13px; right: 13px;
+            height: 0.5px;
+            background: rgba(255,255,255,0.08);
+        }
+        .nav-bubble-item:hover {
+            background: rgba(255,255,255,0.09);
+            color: rgba(255,255,255,0.95);
+        }
+        .nav-bubble-item .nb-num {
+            font-family: "Orbitron"; font-size: 0.55rem;
+            color: var(--neon); min-width: 22px; opacity: 0.85;
+            font-weight: 600;
+        }
+
+        /* varSquish keyframes (utilisées par .nav-bubble-toggle au tap mobile + .btn-back) */
+        @keyframes varSquish {
+            0%   { transform: scale(1); }
+            20%  { transform: scale(0.82) scaleX(1.1); }
+            50%  { transform: scale(1.12) scaleX(0.94); }
+            70%  { transform: scale(0.96) scaleX(1.02); }
+            85%  { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-bubble-wrapper { top: 16px; right: 16px; }
+            /* Bulle intra-page sur mobile : pas de flou, fond gris foncé
+               translucide. Les états hover/open/active gardent une teinte
+               sombre pour éviter le flash blanc des règles desktop. */
+            .nav-bubble-toggle {
+                background: rgba(28, 28, 30, 0.85);
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            .nav-bubble-toggle:hover,
+            .nav-bubble-toggle.open {
+                background: rgba(40, 40, 42, 0.9);
+            }
+            .nav-bubble-toggle:active,
+            .nav-bubble-toggle.tapped {
+                background: rgba(50, 50, 52, 0.92);
+            }
+        }
     </style>
 </head>
 <body>
@@ -909,6 +1062,23 @@
         </div>
     </nav>
 
+    <!-- ─── iOS 26 LIQUID GLASS NAV BUBBLE (intra-page, en haut à droite) ─── -->
+    <div class="nav-bubble-wrapper">
+        <div class="nav-bubble-toggle" id="navToggle">
+            <i data-lucide="menu" class="nb-icon-menu"></i>
+            <i data-lucide="x" class="nb-icon-x"></i>
+        </div>
+        <div class="nav-bubble-menu" id="navMenu">
+            <a class="nav-bubble-item" href="#mission"><span class="nb-num">I</span>Mission</a>
+            <a class="nav-bubble-item" href="#specs-mecaniques"><span class="nb-num">II</span>Mécanique</a>
+            <a class="nav-bubble-item" href="#specs-electroniques"><span class="nb-num">III</span>Électronique</a>
+            <a class="nav-bubble-item" href="#contraintes"><span class="nb-num">IV</span>Contraintes</a>
+            <a class="nav-bubble-item" href="#livrables"><span class="nb-num">V</span>Livrables</a>
+            <a class="nav-bubble-item" href="#rapport"><span class="nb-num">VI</span>Rapport</a>
+            <a class="nav-bubble-item" href="#equipe"><span class="nb-num">VII</span>Équipe</a>
+        </div>
+    </div>
+
     <header>
         <h1>LE BRAS DE FER</h1>
         <p class="subtitle">Projet Mécatronique : Bras Robot 3 Axes</p>
@@ -919,7 +1089,7 @@
         <!-- ══════════════════════════════════════
              MISSION
         ══════════════════════════════════════ -->
-        <section class="section">
+        <section class="section" id="mission">
             <div data-reveal data-delay="1">
                 <h2 class="section-title large">Conception & Réalisation<br>d'un Bras Robotique</h2>
             </div>
@@ -933,8 +1103,7 @@
                 <div class="mission-stats">
                     <div class="stat-card" data-reveal data-delay="2"><span class="stat-value">3</span><span class="stat-label">Axes de déplacement</span></div>
                     <div class="stat-card" data-reveal data-delay="3"><span class="stat-value">±2mm</span><span class="stat-label">Précision de positionnement</span></div>
-                    <div class="stat-card" data-reveal data-delay="4"><span class="stat-value">100%</span><span class="stat-label">Séquence automatisée</span></div>
-                    <div class="stat-card" data-reveal data-delay="5"><span class="stat-value">ICAM</span><span class="stat-label">Ressources FabLab</span></div>
+                    <div class="stat-card" data-reveal data-delay="4" style="grid-column: span 2;"><span class="stat-value">100%</span><span class="stat-label">Séquence automatisée</span></div>
                 </div>
             </div>
         </section>
@@ -942,7 +1111,7 @@
         <!-- ══════════════════════════════════════
              SPÉCS MÉCANIQUES
         ══════════════════════════════════════ -->
-        <section class="section">
+        <section class="section" id="specs-mecaniques">
             <div data-reveal>
                 <div class="specs-header">
                     <h2 class="section-title" style="margin:0;">Spécifications Mécaniques</h2>
@@ -957,29 +1126,17 @@
                 <div class="spec-card" data-reveal data-delay="4"><i data-lucide="microscope" class="spec-card-icon"></i><h3>Validation mécanique</h3><p>Simulations statiques de résistance, analyse modale, tests de répétabilité, précision et robustesse conformes au cahier des charges.</p></div>
                 <div class="spec-card" data-reveal data-delay="5"><i data-lucide="leaf" class="spec-card-icon"></i><h3>Matériaux & Actionneurs</h3><p>Matériaux biosourcés privilégiés, sélection des moteurs selon couple, vitesse et résolution requis, calcul des efforts et inerties.</p></div>
                 <div class="spec-card" data-reveal data-delay="6"><i data-lucide="wrench" class="spec-card-icon"></i><h3>Réalisation</h3><p>Fabrication des pièces mécaniques au FabLab, assemblage final du système en intégration complète avec la partie électronique.</p></div>
+                <div class="spec-card spec-card--wide" data-reveal data-delay="7"><i data-lucide="git-branch" class="spec-card-icon"></i><h3>Architecture & Structure</h3><p>Analyse comparative et choix de l'architecture du bras (SCARA, cartésien ou articulé). Définition du nombre de degrés de liberté nécessaires pour assurer les mouvements requis. Réalisation des schémas cinématiques et des plans mécaniques.</p></div>
             </div>
         </section>
 
         <!-- ══════════════════════════════════════
              ARCHITECTURE
         ══════════════════════════════════════ -->
-        <section class="section">
-            <div data-reveal>
-                <h2 class="section-title">Analyse Comparative des Architectures</h2>
-            </div>
-            <div data-reveal data-delay="1"><div class="divider"></div></div>
-
-            <div class="grid-3">
-                <div class="archi-card" data-reveal data-delay="2"><i data-lucide="bot" class="archi-emoji"></i><h3>Bras Articulé</h3><p>Grande flexibilité de mouvements, idéal pour des trajectoires complexes. Degrés de liberté multiples dans un espace étendu.</p></div>
-                <div class="archi-card" data-reveal data-delay="3"><i data-lucide="move" class="archi-emoji"></i><h3>Architecture Cartésienne</h3><p>Mouvements linéaires sur 3 axes X/Y/Z, précision élevée et conception simplifiée pour déplacements sur grille définie.</p></div>
-                <div class="archi-card" data-reveal data-delay="4"><i data-lucide="rotate-cw" class="archi-emoji"></i><h3>SCARA</h3><p>Sélective et rapide dans le plan horizontal, idéale pour les tâches de pick-and-place avec rigidité verticale naturelle.</p></div>
-            </div>
-        </section>
-
         <!-- ══════════════════════════════════════
              SPÉCS ÉLECTRONIQUES
         ══════════════════════════════════════ -->
-        <section class="section">
+        <section class="section" id="specs-electroniques">
             <div data-reveal>
                 <div class="specs-header">
                     <h2 class="section-title" style="margin:0;">Spécifications Électroniques</h2>
@@ -988,19 +1145,19 @@
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
             <div class="grid-2">
-                <div class="elec-card" data-reveal data-delay="1"><div class="elec-badge"><i data-lucide="radio"></i></div><div><h3>Capteurs & Détection</h3><p>Capteurs IR, ultrasons ou inductifs pour la détection sur convoyeur. Encodeurs et fins de course pour la précision articulaire. Capteurs de force optionnels.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="2"><div class="elec-badge"><i data-lucide="plug"></i></div><div><h3>Actionneurs</h3><p>Moteurs pas-à-pas, servomoteurs ou DC sélectionnés selon le couple, la vitesse et la précision angulaire requis. Drivers de puissance compatibles.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="3"><div class="elec-badge"><i data-lucide="cpu"></i></div><div><h3>Unité de Commande</h3><p>Microcontrôleur Arduino ou ESP32. Séquence automatique : détection → prise → déplacement → dépose, avec gestion des E/S et arrêts d'urgence.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="4"><div class="elec-badge"><i data-lucide="monitor"></i></div><div><h3>Interface & Supervision</h3><p>Communication série, USB ou sans fil (Bluetooth/Wi-Fi) pour programmer les séquences et suivre les positions. Afficheur LCD/OLED ou interface PC.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="5"><div class="elec-badge"><i data-lucide="lock"></i></div><div><h3>Sécurité</h3><p>Arrêt d'urgence coupant l'alimentation générale, protection contre surintensités et inversions de polarité. Séparation des circuits de puissance et de commande.</p></div></div>
-                <div class="elec-card" data-reveal data-delay="6"><div class="elec-badge"><i data-lucide="zap"></i></div><div><h3>Alimentation</h3><p>Alimentation régulée 5V, 12V ou 24V via adaptateurs du magasin ICAM. Bloc secteur sécurisé obligatoire.</p></div></div>
+                <div class="elec-card" data-reveal data-delay="1"><i data-lucide="radio" class="spec-card-icon"></i><h3>Capteurs & Détection</h3><p>Capteurs IR, ultrasons ou inductifs pour la détection sur convoyeur. Encodeurs et fins de course pour la précision articulaire. Capteurs de force optionnels.</p></div>
+                <div class="elec-card" data-reveal data-delay="2"><i data-lucide="plug" class="spec-card-icon"></i><h3>Actionneurs</h3><p>Moteurs pas-à-pas, servomoteurs ou DC sélectionnés selon le couple, la vitesse et la précision angulaire requis. Drivers de puissance compatibles.</p></div>
+                <div class="elec-card" data-reveal data-delay="3"><i data-lucide="cpu" class="spec-card-icon"></i><h3>Unité de Commande</h3><p>Microcontrôleur Arduino ou ESP32. Séquence automatique : détection → prise → déplacement → dépose, avec gestion des E/S et arrêts d'urgence.</p></div>
+                <div class="elec-card" data-reveal data-delay="4"><i data-lucide="monitor" class="spec-card-icon"></i><h3>Interface & Supervision</h3><p>Communication série, USB ou sans fil (Bluetooth/Wi-Fi) pour programmer les séquences et suivre les positions. Afficheur LCD/OLED ou interface PC.</p></div>
+                <div class="elec-card" data-reveal data-delay="5"><i data-lucide="lock" class="spec-card-icon"></i><h3>Sécurité</h3><p>Arrêt d'urgence coupant l'alimentation générale, protection contre surintensités et inversions de polarité. Séparation des circuits de puissance et de commande.</p></div>
+                <div class="elec-card" data-reveal data-delay="6"><i data-lucide="zap" class="spec-card-icon"></i><h3>Alimentation</h3><p>Alimentation régulée 5V, 12V ou 24V via adaptateurs du magasin ICAM. Bloc secteur sécurisé obligatoire.</p></div>
             </div>
         </section>
 
         <!-- ══════════════════════════════════════
              CONTRAINTES
         ══════════════════════════════════════ -->
-        <section class="section">
+        <section class="section" id="contraintes">
             <div data-reveal><h2 class="section-title">Contraintes du Projet</h2></div>
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
@@ -1014,8 +1171,8 @@
         <!-- ══════════════════════════════════════
              LIVRABLES
         ══════════════════════════════════════ -->
-        <section class="section">
-            <div data-reveal><h2 class="section-title">Livrables & Jalons</h2></div>
+        <section class="section" id="livrables">
+            <div data-reveal><h2 class="section-title">Livrables</h2></div>
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
             <div class="timeline">
@@ -1045,7 +1202,7 @@
         <!-- ══════════════════════════════════════
              RAPPORT
         ══════════════════════════════════════ -->
-        <section class="section">
+        <section class="section" id="rapport">
             <div data-reveal><h2 class="section-title">Rapport Final</h2></div>
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
@@ -1076,7 +1233,7 @@
         <!-- ══════════════════════════════════════
              ÉQUIPE
         ══════════════════════════════════════ -->
-        <section class="section">
+        <section class="section" id="equipe">
             <div data-reveal><h2 class="section-title">L'Équipe</h2></div>
             <div data-reveal data-delay="1"><div class="divider"></div></div>
 
@@ -1130,6 +1287,18 @@
             navToggle.setAttribute('aria-expanded', isOpen);
             navMenu.setAttribute('aria-hidden', !isOpen);
             if (!isOpen) navPanelsWrapper.classList.remove('in-sub');
+
+            // Exclusion mutuelle des deux menus sur mobile uniquement :
+            // si on ouvre l'inter-page, on ferme l'intra-page si elle l'était.
+            if (isOpen && window.matchMedia('(max-width: 768px)').matches) {
+                const intraToggleEl = document.getElementById('navToggle');
+                const intraMenuEl   = document.getElementById('navMenu');
+                if (intraToggleEl && intraToggleEl.classList.contains('open')) {
+                    intraToggleEl.classList.remove('open');
+                    intraMenuEl.classList.remove('open');
+                    if (typeof intraOpen !== 'undefined') intraOpen = false;
+                }
+            }
         });
 
         // Fermer si on clique en dehors
@@ -1187,6 +1356,57 @@
         });
 
         // ---- LUCIDE ICONS ----
+
+        // ─── NAV BUBBLE intra-page (☰ en haut à droite) — ancres internes ───
+        const intraToggle = document.getElementById('navToggle');
+        const intraMenu   = document.getElementById('navMenu');
+        let intraOpen     = false;
+
+        intraToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            intraOpen = !intraOpen;
+            intraToggle.classList.toggle('open', intraOpen);
+            intraMenu.classList.toggle('open', intraOpen);
+
+            // Exclusion mutuelle des deux menus sur mobile uniquement :
+            // si on ouvre l'intra-page, on ferme l'inter-page si elle l'était.
+            if (intraOpen && window.matchMedia('(max-width: 768px)').matches) {
+                if (navToggle.classList.contains('open')) {
+                    navToggle.classList.remove('open');
+                    navMenu.classList.remove('open');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                    navMenu.setAttribute('aria-hidden', 'true');
+                    navPanelsWrapper.classList.remove('in-sub');
+                }
+            }
+        });
+        document.addEventListener('click', () => {
+            if (intraOpen) {
+                intraOpen = false;
+                intraToggle.classList.remove('open');
+                intraMenu.classList.remove('open');
+            }
+        });
+        document.querySelectorAll('.nav-bubble-item').forEach(item => {
+            item.addEventListener('click', () => {
+                intraOpen = false;
+                intraToggle.classList.remove('open');
+                intraMenu.classList.remove('open');
+            });
+        });
+
+        // ─── FEEDBACK TACTILE PRONONCÉ : bulle de nav intra-page + bouton retour du footer ───
+        document.querySelectorAll('.nav-bubble-toggle, .btn-back').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.classList.remove('squish');
+                void btn.offsetWidth;
+                btn.classList.add('squish', 'tapped');
+                if (navigator.vibrate) navigator.vibrate(8);
+            }, { passive: true });
+            btn.addEventListener('touchend',    () => setTimeout(() => btn.classList.remove('tapped'), 150), { passive: true });
+            btn.addEventListener('touchcancel', () => { btn.classList.remove('tapped', 'squish'); }, { passive: true });
+        });
+
         lucide.createIcons();
     </script>
 
