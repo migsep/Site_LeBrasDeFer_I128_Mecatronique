@@ -3238,11 +3238,11 @@ C_{45} = & A_5 \\left[ \\ddot{\\Delta} + \\ddot{\\theta} \\sin(\\alpha + \\beta 
             wrapper.className = 'slide-wrapper';
 
             const img = document.createElement('img');
-            img.src = i <= 3 ? `CA${i}.jpg` : '';
-            if (i > 3) img.dataset.src = `CA${i}.jpg`;
+            img.src = i <= 3 ? `CA${i}.jpeg` : '';
+            if (i > 3) img.src = `CA${i}.jpeg`;
             img.alt = `Calculs analytiques — page ${i}`;
             img.onerror = function() {
-                this.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100"><rect width="800" height="1100" fill="%23000"/><text x="50%" y="50%" text-anchor="middle" fill="%23ff7a00" font-family="Arial" font-size="36">CA${i}.jpg introuvable</text></svg>`;
+                this.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100"><rect width="800" height="1100" fill="%23000"/><text x="50%" y="50%" text-anchor="middle" fill="%23ff7a00" font-family="Arial" font-size="36">CA${i}.jpeg introuvable</text></svg>`;
             };
 
             const num = document.createElement('div');
