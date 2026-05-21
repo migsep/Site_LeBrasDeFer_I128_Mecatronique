@@ -44,27 +44,57 @@
             object-fit: cover;
             display: block;
         }
-        /* Texte EN OVERLAY dans le tiers haut de l'image, centré horizontalement */
+        /* Texte EN OVERLAY dans le tiers haut de l'image, centré horizontalement.
+           Top padding généreuse pour laisser ~10-13% d'air entre le bord supérieur
+           de la card et le texte, façon overlay des pages produits Apple. */
         .atouts-text {
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 33.33%;
-            padding: 18px;
+            padding: 48px 20px 18px;
             display: flex;
             align-items: flex-start;
             justify-content: center;
             text-align: center;
             pointer-events: none;
         }
+        /* Typographie inspirée des pages produits Apple (iPhone 17 Pro) :
+           - SF Pro / -apple-system pour la police
+           - Semibold (600) blanc pur
+           - line-height resserrée et tracking négatif typiques de l'identité Apple
+           - Taille fluide via clamp() pour rester cohérent sur tous les écrans
+           Sur Apple, le "titre" et la "phrase suivante" partagent exactement la
+           même graisse et la même couleur — c'est la ponctuation qui rythme. */
         .atouts-text p {
-            font-size: 0.9rem;
-            color: #cfcfcf;
-            line-height: 1.55;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                         "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: clamp(1rem, 1.4vw, 1.4rem);
+            color: #ffffff;
+            font-weight: 600;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
             margin: 0;
         }
         .atouts-text p .atouts-title {
-            color: #ffffff;
-            font-weight: 600;
+            /* Plus de différenciation visuelle : on garde le span pour la
+               sémantique mais la graisse et la couleur héritent du paragraphe */
+            color: inherit;
+            font-weight: inherit;
+        }
+
+        /* ── Variantes par card ──
+           Cards 3 / 4 / 6 (Cadence · Modularité · Autonomie) : texte en NOIR
+           pour contraster avec leurs images plus claires.
+           Card 2 (Vision) : on force un fond noir derrière l'image — utile
+           si LBF2.PNG a un fond transparent ou clair. Sans effet si l'image
+           couvre déjà 100% de la card en object-fit: cover. */
+        .atouts-item:nth-child(3) .atouts-text p,
+        .atouts-item:nth-child(4) .atouts-text p,
+        .atouts-item:nth-child(6) .atouts-text p {
+            color: #000000;
+        }
+        .atouts-item:nth-child(2) .atouts-visual {
+            background-color: #000000;
         }
 
         /* ── Mécanique du carrousel (toujours active) ── */
@@ -101,6 +131,29 @@
             flex: 0 0 auto;
             pointer-events: none;
             scroll-snap-align: none !important;
+        }
+
+        /* ── Desktop : snap par paire ──
+           Sur desktop on garde le snap natif (scroll-snap-type: x mandatory hérité
+           de .carousel-wrap), mais on ne snap QUE les items "anchors" de paire
+           (1er, 3ème, 5ème enfant — soit 0, 2, 4 en 0-indexé). Combiné au
+           scroll-padding-left = sidePad réglé en JS, snap-align: start aligne
+           le bord gauche de chaque anchor sur la position où la paire est
+           visuellement centrée dans le viewport.
+           Mobile : règle .carousel-track > * (scroll-snap-align: center)
+           continue de s'appliquer, comportement inchangé. */
+        @media (min-width: 769px) {
+            /* Sur desktop, les cards sont plus grandes → on accentue le top
+               padding pour conserver la même proportion d'air en haut */
+            .atouts-text {
+                padding: 64px 32px 24px;
+            }
+            .atouts-item {
+                scroll-snap-align: none;
+            }
+            .atouts-item:nth-child(odd) {
+                scroll-snap-align: start;
+            }
         }
 
         /* Dots Liquid Glass — visibles partout */
@@ -154,8 +207,6 @@
 
         /* ── Adaptations mobile : padding réduit + fade in + dots plus serrés ── */
         @media (max-width: 768px) {
-            .atouts-text p { font-size: 0.82rem; }
-
             .carousel-wrap {
                 opacity: 0;
                 transition: opacity 1s ease;
@@ -177,6 +228,7 @@
             --text-sub: #86868b;
         }
 
+        html { overflow-x: hidden; }
         * { box-sizing: border-box; }
 
         body {
@@ -379,7 +431,7 @@
 
 
     <header style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;" class="reveal">
-        <span class="section-tag">Ingénierie de Précision S1</span>
+        <span class="section-tag">Ingénierie de Précision</span>
         
         <h1 style="font-size: clamp(2.5rem, 12vw, 5rem); margin: 20px 0; color: #ff7a00; text-shadow: 0 0 30px rgba(255, 122, 0, 0.6), 0 0 60px rgba(255, 122, 0, 0.3); letter-spacing: -2px; line-height: 1.1; font-family: 'Orbitron'; font-weight: 900;">
             LE BRAS<br>DE FER.
@@ -414,7 +466,7 @@
                         <div class="atouts-visual">
                             <img src="LBF1.PNG" alt="Atout 1" class="atouts-image">
                             <div class="atouts-text">
-                                <p><span class="atouts-title">Précision. </span>Tolérance ±2 mm sur tout le volume de travail, cycle après cycle.</p>
+                                <p>Au nombre de 5, les servomoteurs SCS15 assurent l'intégralité des mouvements du bras.</p>
                             </div>
                         </div>
                     </div>
@@ -423,7 +475,7 @@
                         <div class="atouts-visual">
                             <img src="LBF2.PNG" alt="Atout 2" class="atouts-image">
                             <div class="atouts-text">
-                                <p><span class="atouts-title">Vision. </span>Capteur colorimétrique embarqué, analyse en millisecondes.</p>
+                                <p>Le rail HIWIN MGN12H, pour une prise et une manipulation optimale des cubes.</p>
                             </div>
                         </div>
                     </div>
@@ -432,7 +484,7 @@
                         <div class="atouts-visual">
                             <img src="LBF3.PNG" alt="Atout 3" class="atouts-image">
                             <div class="atouts-text">
-                                <p><span class="atouts-title">Cadence. </span>Cycle complet en moins de 30 secondes pour un débit industriel.</p>
+                                <p>Le moteur HS-422, offrant un contrôle total sur la translation des mors sur le rail.</p>
                             </div>
                         </div>
                     </div>
@@ -441,7 +493,7 @@
                         <div class="atouts-visual">
                             <img src="LBF4.PNG" alt="Atout 4" class="atouts-image">
                             <div class="atouts-text">
-                                <p><span class="atouts-title">Modularité. </span>Architecture V-Slot et impression 3D, évolution facile.</p>
+                                <p>Capteur colorimétrique TCS34725 embarqué, analyse en millisecondes de la couleur de chaque cube.</p>
                             </div>
                         </div>
                     </div>
@@ -450,7 +502,7 @@
                         <div class="atouts-visual">
                             <img src="LBF5.PNG" alt="Atout 5" class="atouts-image">
                             <div class="atouts-text">
-                                <p><span class="atouts-title">Robustesse. </span>Aluminium 6061-T6, conçu pour le cycle continu.</p>
+                                <p>Arduino MEGA 2560, le chef de l'orchestre mécanique. Dirige chaque composant au millième de seconde près.</p>
                             </div>
                         </div>
                     </div>
@@ -459,7 +511,7 @@
                         <div class="atouts-visual">
                             <img src="LBF6.PNG" alt="Atout 6" class="atouts-image">
                             <div class="atouts-text">
-                                <p><span class="atouts-title">Autonomie. </span>Décisions de tri en temps réel, sans intervention humaine.</p>
+                                <p>Les profilés V-Slot 20x20 pour une structure à la fois rigide et légère.</p>
                             </div>
                         </div>
                     </div>
@@ -472,8 +524,8 @@
     <section class="container reveal" style="padding: 100px 40px;">
         <div style="max-width: 800px;">
             <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 1rem; font-weight: 600; color: #FF6B00; margin-bottom: 10px;">Structure</p>
-            <h2 style="font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: #ffffff; line-height: 1.1; margin: 0 0 60px 0;">Équilibre parfait.<br>Entre légèreté<br>et rigidité.</h2>
-            <p style="font-size: 1.2rem; color: var(--text-sub); line-height: 1.7; max-width: 620px;">Chaque composant a été choisi pour ce qu'il apporte — et pour ce qu'il ne pèse pas. L'ossature du Bras de Fer n'est pas un compromis. C'est une décision d'ingénierie.</p>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: #ffffff; line-height: 1.1; margin: 0 0 60px 0;">Équilibre.<br>Entre légèreté<br>et rigidité.</h2>
+            <p style="font-size: 1.2rem; color: var(--text-sub); line-height: 1.7; max-width: 620px;">Chaque composant a été choisi pour ce qu'il apporte. L'ossature du Bras de Fer est une décision d'ingénierie.</p>
         </div>
     </section>
 
@@ -491,17 +543,16 @@
         <div style="position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none;">
             <div id="struct-text" style="position: absolute; left: 50%; transform: translateX(-50%); width: min(760px, 90%); padding: 60px 0;">
 
-                <p style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #888; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 32px;">Châssis · Pince · Guidage</p>
-
+                
                 <h3 style="font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; color: #fff; line-height: 1.15; margin: 0 0 20px;">Aluminium 6061-T6.</h3>
                 <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 8px;">L'alliage des industries aérospatiale et médicale. Choisi pour sa rigidité structurelle hors pair et sa résistance à la fatigue mécanique — même en cycle continu.</p>
-                <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 56px;">Les profilés V-Slot 20×20 garantissent un assemblage modulaire de précision, sans jeu, sans vibration parasite.</p>
+                <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 56px;">Les profilés V-Slot 20×20 garantissent un assemblage modulaire de précision, sans jeu, sans vibration parasite. Le châssis en est composé majoritairement, et les sections en sont composés essentiellement.</p>
 
                 <h3 style="font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; color: #fff; line-height: 1.15; margin: 0 0 20px;">PLA. <span style="color: #555;">La légèreté comme arme.</span></h3>
-                <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 8px;">En bout de bras, chaque gramme compte. La structure de la pince en PLA n'est pas un choix économique — c'est un choix cinématique.</p>
+                <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 8px;">En bout de bras, chaque gramme compte, surtout en présence du rail HIWIN MGN12H. La structure de la pince en PLA est plus qu'un choix économique, c'est un choix cinématique.</p>
                 <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 56px;">Moins de masse en extrémité, c'est moins d'inertie, moins de vibration, et des mouvements plus vifs. La précision commence par la légèreté.</p>
 
-                <h3 style="font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; color: #fff; line-height: 1.15; margin: 0 0 20px;">HIWIN MGN12H. <span style="color: #555;">Zéro jeu. Zéro compromis.</span></h3>
+                <h3 style="font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; color: #fff; line-height: 1.15; margin: 0 0 20px;">HIWIN MGN12H. <span style="color: #555;">Zéro jeu.</span></h3>
                 <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0 0 8px;">Le rail de référence mondiale en guidage linéaire de précision — utilisé en robotique médicale et en machines CNC haut de gamme.</p>
                 <p style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; margin: 0;">Les deux mors de la pince coulissent sur ce rail avec une répétabilité infaillible. Chaque cube est saisi au même millimètre, à chaque cycle, sans exception.</p>
             </div>
@@ -522,8 +573,8 @@
         gsap.set('#struct-img-center', { scale: 0.05,  opacity: 0 });
         gsap.set('#struct-text',       { y: vh });
 
-        var scrollDist = vh * 5;
-        var endY = -(textH + 80);
+        var scrollDist = Math.max(vh * 3, textH * 2.2);
+        var endY = vh / 2 - textH;
 
         var tl = gsap.timeline({
             scrollTrigger: {
@@ -584,54 +635,138 @@
     });
     </script>
 
-    <section class="container reveal" style="padding: 100px 40px;">
+    <section id="perf-intro" class="container" style="padding: 100px 40px;">
         <div style="max-width: 800px;">
-            <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 1rem; font-weight: 600; color: #FF6B00; margin-bottom: 10px;">Performances</p>
-            <h2 style="font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: #ffffff; line-height: 1.1; margin: 0 0 80px 0;">Précision millimétrée.<br>Mouvements maîtrisés.</h2>
+            <p id="perf-tag" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 1rem; font-weight: 600; color: #FF6B00; margin-bottom: 10px;">Performances</p>
+            <div style="overflow: hidden;">
+                <h2 id="perf-title-1" style="font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: #ffffff; line-height: 1.1; margin: 0 0 6px 0;">Précision millimétrée.</h2>
+            </div>
+            <div style="overflow: hidden;">
+                <h2 id="perf-title-2" style="font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: #ffffff; line-height: 1.1; margin: 0 0 24px 0;">Mouvements maîtrisés.</h2>
+            </div>
+            <p id="perf-subtitle" style="font-size: 1.2rem; color: var(--text-sub); line-height: 1.7; max-width: 620px; margin: 0;">Cinq axes coordonnés. Une cinématique sans compromis, du moteur à la pince. Chaque mouvement se mesure au millimètre près.</p>
         </div>
     </section>
 
     <!-- Performances — stats style Apple -->
-    <section class="reveal" style="position: relative; width: 100%; overflow: hidden; background: #000;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center; max-width: 1400px; margin: 0 auto;">
+    <section id="perf-stats" style="position: relative; width: 100%; overflow: hidden; background: #000;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center; max-width: 1400px; margin: 0 auto; padding-bottom: 0;">
 
             <!-- Image moteur -->
-            <div style="display: flex; justify-content: center; align-items: center; padding: 60px 40px;">
-                <img src="SCS15.PNG" style="width: 100%; max-width: 580px; object-fit: contain;">
+            <div style="display: flex; justify-content: center; align-items: center; padding: 60px 40px 10px 120px;">
+                <img id="perf-img" src="SCS15.PNG" style="width: 100%; max-width: 580px; object-fit: contain;">
             </div>
 
             <!-- Stats -->
-            <div style="padding: 60px 60px 60px 20px; display: flex; flex-direction: column; gap: 60px;">
+            <div style="padding: 60px 60px 60px 180px; display: flex; flex-direction: column; gap: 60px;">
 
-                <div>
-                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.05rem; font-weight: 400; color: #888; margin: 0 0 4px 0; letter-spacing: -0.01em;">Portée hémisphérique jusqu'à</p>
-                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 700; color: #FF6B00; margin: 0; line-height: 1; letter-spacing: -0.03em;">80 cm</p>
+                <div id="perf-stat-block-1">
+                    <p id="perf-stat-label-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.05rem; font-weight: 400; color: #888; margin: 0 0 4px 0; letter-spacing: -0.01em;">Portée hémisphérique jusqu'à</p>
+                    <p id="perf-stat-val-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1.75rem, 4vw, 3.25rem); font-weight: 700; color: #FF6B00; margin: 0; line-height: 1; letter-spacing: -0.03em;">80 cm</p>
                 </div>
 
-                <div>
-                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.05rem; font-weight: 400; color: #888; margin: 0 0 4px 0; letter-spacing: -0.01em;">Précision</p>
-                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 700; color: #FF6B00; margin: 0; line-height: 1; letter-spacing: -0.03em;">±2 mm</p>
+                <div id="perf-stat-block-2">
+                    <p id="perf-stat-label-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.05rem; font-weight: 400; color: #888; margin: 0 0 4px 0; letter-spacing: -0.01em;">Précision</p>
+                    <p id="perf-stat-val-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1.75rem, 4vw, 3.25rem); font-weight: 700; color: #FF6B00; margin: 0; line-height: 1; letter-spacing: -0.03em;">±2 mm</p>
                 </div>
 
             </div>
         </div>
     </section>
 
-    <section class="container reveal" style="padding: 80px 40px;">
+    <section id="perf-desc-section" class="container" style="padding: 0px 40px 80px; margin-top: -40px;">
         <div style="max-width: 720px;">
-            <p style="font-size: 1.15rem; color: var(--text-sub); line-height: 1.9;">
+            <p id="perf-desc" style="font-size: 1.15rem; color: var(--text-sub); line-height: 1.9;">
                 Grâce à ses <strong style="color: #fff; font-weight: 600;">5 servomoteurs SCS15</strong> répartis sur l'ensemble de sa structure, Le Bras de Fer dispose de <strong style="color: #fff; font-weight: 600;">5 liaisons pivot indépendantes</strong> — soit 5 axes de rotation distincts. Cette architecture cinématique lui confère une liberté de mouvement totale dans l'espace, couvrant une <strong style="color: #fff; font-weight: 600;">zone hémisphérique de 80 cm de diamètre</strong> avec une précision répétable de <strong style="color: #fff; font-weight: 600;">±2 mm</strong>.
             </p>
         </div>
     </section>
 
     <!-- HS422 pince -->
-    <section class="container reveal" style="padding: 80px 40px; text-align: center;">
-        <img src="HS422.PNG" style="max-height: 480px; max-width: 90%; object-fit: contain; margin: 0 auto 48px; display: block;">
-        <p style="font-size: 1.1rem; color: var(--text-sub); line-height: 1.9; max-width: 680px; margin: 0 auto;">
+    <section id="perf-hs422" class="container" style="padding: 80px 40px 160px; text-align: center;">
+        <img id="perf-hs422-img" src="HS422.PNG" style="max-height: 480px; max-width: 90%; object-fit: contain; margin: 0 auto 48px; display: block;">
+        <p id="perf-hs422-text" style="font-size: 1.1rem; color: var(--text-sub); line-height: 1.9; max-width: 680px; margin: 0 auto;">
             Le <strong style="color: #fff; font-weight: 600;">servomoteur HS-422</strong> est encastré dans la structure en PLA de la pince. Son mouvement de rotation est converti en translation à l'aide d'un <strong style="color: #fff; font-weight: 600;">mécanisme bielle-manivelle</strong> à deux bielles symétriques — ce qui permet, par une simple rotation du HS-422, de faire translater les deux mors simultanément sur le rail <strong style="color: #fff; font-weight: 600;">HIWIN MGN12H</strong> avec précision et régularité. La pince offre une <strong style="color: #fff; font-weight: 600;">ouverture maximale de 7,5 cm</strong>, dimensionnée pour saisir des cubes allant jusqu'à 5 cm de côté — avec toujours une marge de manœuvre suffisante pour une prise sûre et répétable.
         </p>
     </section>
+
+    <script>
+    /* =============================================
+       PERFORMANCES — Animations GSAP ScrollTrigger
+       ============================================= */
+    window.addEventListener('load', function () {
+
+        /* -- 1. INTRO : tag glisse depuis la gauche, lignes du titre
+              remontent via clip-path, sous-titre fade-up ------------ */
+        var tlIntro = gsap.timeline({
+            scrollTrigger: { trigger: '#perf-intro', start: 'top 78%', once: true }
+        });
+        tlIntro
+            .from('#perf-tag',      { opacity: 0, x: -35, duration: 0.55, ease: 'power2.out' })
+            .from('#perf-title-1',  { y: '110%',  duration: 0.75, ease: 'power3.out' }, '-=0.1')
+            .from('#perf-title-2',  { y: '110%',  duration: 0.75, ease: 'power3.out' }, '-=0.55')
+            .from('#perf-subtitle', { opacity: 0, y: 24,  duration: 0.65, ease: 'power2.out' }, '-=0.3');
+
+        /* -- 2. IMAGE SCS15 : entre depuis la gauche ---------------- */
+        gsap.from('#perf-img', {
+            scrollTrigger: { trigger: '#perf-stats', start: 'top 80%', once: true },
+            opacity: 0, x: -90, duration: 1.1, ease: 'power3.out'
+        });
+
+        /* -- 3. STATS : labels fade-up en cascade + counter animé --- */
+        var tlStats = gsap.timeline({
+            scrollTrigger: { trigger: '#perf-stats', start: 'top 75%', once: true }
+        });
+        tlStats
+            .from('#perf-stat-label-1', { opacity: 0, y: 18, duration: 0.5, ease: 'power2.out' }, 0.3)
+            .from('#perf-stat-val-1',   { opacity: 0, y: 18, duration: 0.5, ease: 'power2.out' }, 0.45)
+            .from('#perf-stat-label-2', { opacity: 0, y: 18, duration: 0.5, ease: 'power2.out' }, 0.65)
+            .from('#perf-stat-val-2',   { opacity: 0, y: 18, duration: 0.5, ease: 'power2.out' }, 0.8);
+
+        /* Counter animé : 0 → 80 cm et 0 → 2 mm */
+        ScrollTrigger.create({
+            trigger: '#perf-stats',
+            start: 'top 75%',
+            once: true,
+            onEnter: function () {
+                var obj1 = { val: 0 };
+                gsap.to(obj1, {
+                    val: 80, duration: 1.6, delay: 0.5, ease: 'power2.out',
+                    onUpdate: function () {
+                        document.getElementById('perf-stat-val-1').textContent = Math.round(obj1.val) + ' cm';
+                    },
+                    onComplete: function () {
+                        document.getElementById('perf-stat-val-1').textContent = '80 cm';
+                    }
+                });
+                var obj2 = { val: 0 };
+                gsap.to(obj2, {
+                    val: 2, duration: 1.4, delay: 0.85, ease: 'power2.out',
+                    onUpdate: function () {
+                        document.getElementById('perf-stat-val-2').textContent = '±' + obj2.val.toFixed(1) + ' mm';
+                    },
+                    onComplete: function () {
+                        document.getElementById('perf-stat-val-2').textContent = '±2 mm';
+                    }
+                });
+            }
+        });
+
+        /* -- 4. PARAGRAPHE : fade-up simple ----------------------- */
+        gsap.from('#perf-desc', {
+            scrollTrigger: { trigger: '#perf-desc-section', start: 'top 85%', once: true },
+            opacity: 0, y: 36, duration: 0.9, ease: 'power2.out'
+        });
+
+        /* -- 5. HS422 : image scale-up + texte fade-up ------------ */
+        var tlHS = gsap.timeline({
+            scrollTrigger: { trigger: '#perf-hs422', start: 'top 80%', once: true }
+        });
+        tlHS
+            .from('#perf-hs422-img',  { opacity: 0, scale: 0.92, duration: 1.1, ease: 'power3.out' })
+            .from('#perf-hs422-text', { opacity: 0, y: 30,        duration: 0.85, ease: 'power2.out' }, '-=0.5');
+    });
+    </script>
 
     <!-- =============================================
          IL VOIT TOUT — EN TEMPS RÉEL
@@ -654,21 +789,21 @@
         <!-- Texte -->
         <div class="optics-text" style="max-width: 800px; margin: 0 auto; padding: 0 40px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; z-index: 10; pointer-events: none;">
             <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 1rem; font-weight: 600; color: #FF6B00; margin-bottom: 10px;">Vision</p>
-            <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2rem, 5vw, 3.8rem); color: #ffffff; line-height: 1.1; margin: 0 0 0 0;">Il voit tout.</h2>
-            <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2rem, 5vw, 3.8rem); color: transparent; -webkit-text-stroke: 2px #fff; line-height: 1.1; margin: 0 0 40px 0;">En temps réel.</h2>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2.5rem, 6.5vw, 5.5rem); color: #ffffff; line-height: 1.1; margin: 0 0 0 0;">Il voit tout.</h2>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2.5rem, 6.5vw, 5.5rem); color: transparent; -webkit-text-stroke: 2px #fff; line-height: 1.1; margin: 0 0 40px 0;">En temps réel.</h2>
             <p class="optics-desc" style="font-size: 1.2rem; color: var(--text-sub); font-weight: 400; max-width: 620px; line-height: 1.7;">Analyse du spectre colorimétrique en millisecondes. Décision instantanée avant l'arrêt du convoyeur.</p>
         </div>
     </section>
 
     <!-- Section capteur TCS34725 — fond blanc -->
-    <section class="tcs-section" style="background: #ffffff; padding: 100px 40px; opacity: 0;">
+    <section class="tcs-section" style="background: #ffffff; padding: 100px 40px; opacity: 0; position: relative; box-shadow: 100vw 0 0 #ffffff, -100vw 0 0 #ffffff;">
         <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
 
             <!-- Texte à gauche -->
             <div>
                 <h3 style="font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 900; color: #000000; line-height: 1.15; margin: 0 0 28px 0;">TCS34725.</h3>
                 <p style="font-size: 1.15rem; color: #444444; line-height: 1.85; margin: 0;">
-                    Grâce au capteur TCS34725 embarqué dans la pince — 16 bits de résolution, filtre infrarouge intégré — Le Bras de Fer ne se contente pas de bouger : <strong style="color: #000; font-weight: 600;">il perçoit.</strong>
+                    Grâce au capteur TCS34725 embarqué dans la pince avec 16 bits de résolution, et un filtre infrarouge intégré, Le Bras de Fer ne se contente pas de bouger : <strong style="color: #000; font-weight: 600;">il perçoit.</strong>
                     <br><br>
                     Capable de distinguer les nuances chromatiques les plus fines, il prend des décisions de tri autonomes en quelques millisecondes, même sous un éclairage industriel variable.
                 </p>
@@ -682,43 +817,98 @@
         </div>
     </section>
 
-    <section class="container reveal">
-        <div class="grid-feature">
-            <div class="feature-card" style="height: 500px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <div class="stat-number">±2<span style="font-size: 2rem;">mm</span></div>
-                <div class="stat-label">Tolérance de Pose</div>
-                <div style="width: 80%; height: 1px; background: #333; margin: 40px 0;"></div>
-                <div class="stat-number">80<span style="font-size: 2rem;">cm</span></div>
-                <div class="stat-label">Portée Hémisphérique</div>
-            </div>
-            <div>
-                <h2 class="section-title">Contrôle Absolu.<br><span class="neon-text">Sur 3 Axes.</span></h2>
-                <p class="text-body" style="margin: 0;">
-                    La puissance n'est rien sans la maîtrise. Nous avons conçu une architecture cinématique à 3 axes capable de couvrir une zone de travail hémisphérique de 80 cm.
-                    <br><br>
-                    Qu'il s'agisse d'aller chercher un cube en bout de course ou de le déposer délicatement dans un packaging étroit, le mouvement est fluide, calculé, et répétable à l'infini avec une précision de 2 millimètres.
-                </p>
-            </div>
+    <section class="container reveal" style="padding: 100px 40px;">
+        <div style="max-width: 800px;">
+            <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 1rem; font-weight: 600; color: #FF6B00; margin-bottom: 10px;">Commande</p>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: #ffffff; line-height: 1.1; margin: 0 0 24px 0;">De la simulation.<br>À l'action.</h2>
+            <p style="font-size: 1.2rem; color: var(--text-sub); line-height: 1.7; max-width: 620px; margin: 0;">Chaque mouvement de notre bras robot est le fruit d'une collaboration parfaite entre modélisation 3D, intelligence logicielle, programmation et précision matérielle.</p>
         </div>
     </section>
 
-    <section class="container section-full reveal">
-        <h2 class="section-title" style="margin-bottom: 60px;">Le Rythme de la Production.</h2>
-        <div class="stats-wrapper">
-            <div class="feature-card">
-                <h3 class="tech-font" style="color: var(--neon); font-size: 1.5rem;">VITESSE</h3>
-                <p class="stat-number" style="font-size: 3.5rem; margin: 20px 0;">&lt;30s</p>
-                <p style="color: #999;">Temps de cycle complet pour garantir le débit de la ligne.</p>
+    <section id="commande-scene" style="position: relative; height: 100vh; overflow: hidden;">
+        <img id="commande-bg" src="Fond.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div id="commande-text" style="position: absolute; top: 0; left: 0; right: 0; padding: 60px 40px; z-index: 2; will-change: transform;">
+            <p style="font-family: 'Inter', sans-serif; font-size: clamp(1rem, 1.6vw, 1.2rem); color: #86868b; font-weight: 400; line-height: 1.85; max-width: 760px; margin: 0 auto; text-align: center;">
+                Pour donner vie à notre bras robot, nous transformons un simple dessin virtuel en <span style="color:#ffffff;">un mouvement bien réel.</span> Tout commence sur <span style="color:#ffffff;">OnShape</span>, où le robot est dessiné en 3D <span style="color:#ffffff;">au millimètre près</span>, avant d'être traduit en un fichier <span style="color:#ffffff;">URDF</span>, le squelette numérique de la machine. L'ordinateur utilise ensuite le programme <span style="color:#ffffff;">ROS 2</span> comme un véritable cerveau : il analyse ce squelette pour calculer instantanément <span style="color:#ffffff;">la trajectoire parfaite.</span> Cet ordre est envoyé par câble à la carte <span style="color:#ffffff;">Arduino Mega 2560</span>, le système nerveux du robot. C'est elle qui pilote ses "muscles" <span style="color:#ffffff;">au millième de seconde</span>, distribuant la force aux servomoteurs intelligents <span style="color:#ffffff;">SCS15</span> et l'agilité au moteur <span style="color:#ffffff;">HS-422.</span> Enfin, l'Arduino reste connectée aux « yeux » du robot, le capteur de couleur <span style="color:#ffffff;">TCS34725</span>, pour vérifier sa position et ajuster le geste en temps réel. Cette alliance entre réflexion informatique et précision mécanique rend le bras <span style="color:#ffffff;">fluide, autonome et incroyablement réactif.</span>
+            </p>
+        </div>
+    </section>
+
+    <script>
+    window.addEventListener('load', function () {
+        var scene  = document.getElementById('commande-scene');
+        var bg     = document.getElementById('commande-bg');
+        var textEl = document.getElementById('commande-text');
+        var vh     = window.innerHeight;
+
+        /* Le texte commence entièrement sous le viewport */
+        gsap.set(textEl, { y: vh });
+
+        var textH = textEl.offsetHeight;
+
+        /* Position finale : dernière ligne visible en bas du viewport */
+        var endY = vh - textH;
+
+        /* Durées relatives dans la timeline
+           - fade   : 1 unité  (~25 % du scroll total)
+           - texte  : 3 unités (~75 % du scroll total)
+           On calibre le scroll total pour que la phase texte
+           corresponde à ~1× la hauteur du texte (feeling naturel). */
+        var fadeDur  = 1;
+        var textDur  = 3;
+        var totalDur = fadeDur + textDur;
+
+        var textScrollDist = textH * 1.1;
+        var totalScroll    = textScrollDist * (totalDur / textDur);
+
+        var tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: scene,
+                start: 'top top',
+                end: '+=' + totalScroll,
+                pin: true,
+                scrub: 1.2,
+                anticipatePin: 1
+            }
+        });
+
+        tl.to(bg,     { opacity: 0.08, duration: fadeDur, ease: 'power1.inOut' }, 0)
+          .to(textEl, { y: endY,       duration: textDur, ease: 'none'         }, fadeDur);
+    });
+    </script>
+
+    <section class="reveal" style="position: relative; width: 100%; overflow: hidden; background: #000;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center; max-width: 1400px; margin: 0 auto;">
+
+            <!-- Image Arduino à gauche -->
+            <div style="display: flex; justify-content: center; align-items: center; padding: 60px 40px 60px 120px;">
+                <img src="ArduinoMEGA2560.png" style="width: 120%; max-width: 820px; object-fit: contain; margin-left: -10%;">
             </div>
-            <div class="feature-card">
-                <h3 class="tech-font" style="color: var(--neon); font-size: 1.5rem;">FORCE</h3>
-                <p class="stat-number" style="font-size: 3.5rem; margin: 20px 0;">200g</p>
-                <p style="color: #999;">Charge utile calibrée pour la manipulation des cubes en bois.</p>
-            </div>
-            <div class="feature-card">
-                <h3 class="tech-font" style="color: var(--neon); font-size: 1.5rem;">INTÉGRATION</h3>
-                <p class="stat-number" style="font-size: 3.5rem; margin: 20px 0;">SYNC</p>
-                <p style="color: #999;">Dialogue en temps réel avec le convoyeur pour un flux continu.</p>
+
+            <!-- Specs Apple-style à droite -->
+            <div style="padding: 80px 80px 80px 60px; display: flex; flex-direction: column; gap: 0;">
+
+                <!-- Spec 1 -->
+                <div style="padding-bottom: 36px;">
+                    <h3 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1.1rem, 1.8vw, 1.4rem); font-weight: 700; color: #ffffff; margin: 0 0 16px 0; letter-spacing: -0.02em;">Connectivité totale</h3>
+                    <div style="height: 1px; background: rgba(255,255,255,0.15); margin-bottom: 20px;"></div>
+                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.95rem; color: #86868b; line-height: 1.7; margin: 0; font-weight: 400;">Grâce à ses nombreuses broches de connexion, elle centralise tous les éléments du bras (moteurs <span style="color:#fff;">SCS15</span>, <span style="color:#fff;">HS-422</span> et capteur <span style="color:#fff;">TCS34725</span>) sur une seule et unique carte.</p>
+                </div>
+
+                <!-- Spec 2 -->
+                <div style="padding-bottom: 36px;">
+                    <h3 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1.1rem, 1.8vw, 1.4rem); font-weight: 700; color: #ffffff; margin: 0 0 16px 0; letter-spacing: -0.02em;">Zéro latence</h3>
+                    <div style="height: 1px; background: rgba(255,255,255,0.15); margin-bottom: 20px;"></div>
+                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.95rem; color: #86868b; line-height: 1.7; margin: 0; font-weight: 400;">Pendant que l'ordinateur réfléchit aux calculs lourds, l'Arduino se concentre uniquement sur l'action électrique. Résultat : une réponse immédiate <span style="color:#fff;">au millième de seconde près.</span></p>
+                </div>
+
+                <!-- Spec 3 -->
+                <div>
+                    <h3 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1.1rem, 1.8vw, 1.4rem); font-weight: 700; color: #ffffff; margin: 0 0 16px 0; letter-spacing: -0.02em;">Passerelle USB sécurisée</h3>
+                    <div style="height: 1px; background: rgba(255,255,255,0.15); margin-bottom: 20px;"></div>
+                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.95rem; color: #86868b; line-height: 1.7; margin: 0; font-weight: 400;">Elle sert de bouclier et de traducteur universel entre la <span style="color:#fff;">puissance numérique</span> de ton PC et la <span style="color:#fff;">réalité mécanique</span> des moteurs.</p>
+                </div>
+
             </div>
         </div>
     </section>
@@ -748,7 +938,7 @@
 
     <footer style="text-align: center; padding: 80px 0; margin-top: 100px;">
         <div class="divider"></div>
-        <a href="Details_Du_Projet.html" class="btn-back">Retour au Menu Principal</a>
+        <a href="index.html" class="btn-back">Retour à l'Accueil</a>
     </footer>
 
     <script type="module">
@@ -1100,67 +1290,107 @@
                 track.appendChild(spacer);
 
                 const items = Array.from(track.children).filter(el => !el.classList.contains('carousel-spacer'));
-                const count = items.length;
+                const itemCount = items.length;
                 let cur = 0;
+
+                /* Nombre d'items visibles à la fois (= unité de snap) :
+                   - mobile  : 1 item centré
+                   - desktop : 2 items, la paire est centrée → snap par paire */
+                const visiblePerSlide = () => isMobile() ? 1 : 2;
+                /* Nombre de positions snap (et donc de dots) */
+                const slideCount = () => Math.ceil(itemCount / visiblePerSlide());
 
                 /* Largeur d'un item :
                    - mobile  : viewport - 48 (1 item visible centré)
-                   - desktop : maximum sans dépasser → min(75vw, 70vh)
-                              (en 3:4, height = width × 4/3 ; à 70vh × 4/3 = 93vh,
-                              l'image prend presque toute la hauteur du viewport) */
+                   - desktop : min(40vw, 70vh).
+                               Le 70vh est IDENTIQUE à l'ancien sizing 1-card
+                               → sur la plupart des écrans desktop (1366+),
+                               c'est la contrainte vh qui s'applique, donc
+                               la card a exactement la même taille qu'avant.
+                               Le 40vw garantit juste que 2 cards + gap tiennent
+                               dans le viewport sur les écrans plus étroits. */
                 const itemW = () => isMobile()
                     ? (window.innerWidth - 48)
-                    : Math.min(window.innerWidth * 0.75, window.innerHeight * 0.7);
+                    : Math.min(window.innerWidth * 0.4, window.innerHeight * 0.7);
                 const gap   = () => isMobile() ? 12 : 14;
-                const step  = () => itemW() + gap();
-                /* Padding latéral nécessaire pour centrer l'item dans le viewport
-                   (scroll-snap-align: center s'appuie sur ce padding au début et
-                   sur le spacer à la fin) */
-                const sidePad = () => Math.max(0, (window.innerWidth - itemW()) / 2);
+                /* Distance entre deux positions de snap :
+                   - mobile  : 1 item + gap
+                   - desktop : 2 items + 2 gaps (on saute d'une paire à la suivante) */
+                const step  = () => isMobile()
+                    ? (itemW() + gap())
+                    : (2 * itemW() + 2 * gap());
+                /* Padding latéral pour que la première "slide" soit centrée :
+                   - mobile  : centrer 1 item
+                   - desktop : centrer une paire (2 items + 1 gap entre eux) */
+                const sidePad = () => isMobile()
+                    ? Math.max(0, (window.innerWidth - itemW()) / 2)
+                    : Math.max(0, (window.innerWidth - 2 * itemW() - gap()) / 2);
 
                 function sizeItems() {
                     items.forEach(it => it.style.width = itemW() + 'px');
                     track.style.paddingLeft = sidePad() + 'px';
                     spacer.style.width = sidePad() + 'px';
+                    /* Snap natif partout. Sur desktop, c'est le CSS qui assigne
+                       scroll-snap-align: start aux items anchors (index pair),
+                       et scroll-padding-left = sidePad place ce "start"
+                       exactement à la position où la paire est centrée. */
+                    wrap.style.scrollPaddingLeft = isMobile() ? '' : (sidePad() + 'px');
                 }
+
+                // Dots — pill Liquid Glass, reconstruits si le nombre de slides change
+                function buildDots() {
+                    dotsEl.innerHTML = '';
+                    const inner = document.createElement('div');
+                    inner.className = 'carousel-dots-inner';
+                    dotsEl.appendChild(inner);
+
+                    const sc = slideCount();
+                    for (let i = 0; i < sc; i++) {
+                        const btn = document.createElement('button');
+                        btn.className = 'carousel-dot';
+                        btn.type = 'button';
+                        btn.addEventListener('click', () => goTo(i));
+                        inner.appendChild(btn);
+                    }
+                    attachDragScrub(inner, sc, goTo);
+                }
+
                 sizeItems();
-                window.addEventListener('resize', sizeItems);
-                window.addEventListener('load', sizeItems);
+                buildDots();
 
-                // Dots — pill Liquid Glass partout
-                dotsEl.innerHTML = '';
-                const inner = document.createElement('div');
-                inner.className = 'carousel-dots-inner';
-                dotsEl.appendChild(inner);
-
-                items.forEach((_, i) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'carousel-dot';
-                    btn.type = 'button';
-                    btn.addEventListener('click', () => goTo(i));
-                    inner.appendChild(btn);
+                /* Au resize, on rebuild les dots si on traverse le breakpoint
+                   mobile <-> desktop (le nombre de slides change) */
+                let lastSlideCount = slideCount();
+                window.addEventListener('resize', () => {
+                    sizeItems();
+                    if (slideCount() !== lastSlideCount) {
+                        lastSlideCount = slideCount();
+                        buildDots();
+                        goTo(0, true);
+                    }
                 });
-
-                attachDragScrub(inner, count, goTo);
+                window.addEventListener('load', sizeItems);
 
                 function maxScroll() {
                     return Math.max(0, wrap.scrollWidth - wrap.clientWidth);
                 }
 
                 function goTo(idx, instant) {
-                    cur = Math.max(0, Math.min(count - 1, idx));
+                    const sc = slideCount();
+                    cur = Math.max(0, Math.min(sc - 1, idx));
                     const target = Math.min(cur * step(), maxScroll());
                     wrap.scrollTo({ left: target, behavior: instant ? 'auto' : 'smooth' });
                 }
 
                 wrap.addEventListener('scroll', () => {
-                    /* Sur desktop, plusieurs items visibles → on normalise par maxScroll
-                       pour que le dernier dot s'allume bien quand on est en bout de scroll */
+                    const sc = slideCount();
+                    /* On normalise par maxScroll pour que le dernier dot
+                       s'allume bien en bout de course */
                     const ms = maxScroll();
                     const progress = ms > 0
-                        ? (wrap.scrollLeft / ms) * (count - 1)
+                        ? (wrap.scrollLeft / ms) * (sc - 1)
                         : 0;
-                    const left = Math.min(Math.floor(progress), count - 1);
+                    const left = Math.min(Math.floor(progress), sc - 1);
                     const frac = progress - left;
                     dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
                         let op;
@@ -1185,7 +1415,8 @@
 
         /* Effet parallaxe + fade sur le texte (repris de initSubsysParallax dans ACV)
            Le texte se déplace à FACTOR × scrollSpeed dans le sens opposé,
-           et fade out à mesure qu'on s'éloigne du snap point */
+           et fade out à mesure qu'on s'éloigne du snap point.
+           ⚠ Actif uniquement sur MOBILE — sur desktop le texte reste fixe. */
         function initAtoutsParallax() {
             document.querySelectorAll('[data-carousel]').forEach(wrap => {
                 const texts = Array.from(wrap.querySelectorAll('.atouts-text'));
@@ -1193,13 +1424,22 @@
 
                 const FACTOR = 0.70;
 
-                const itemW = () => isMobile()
-                    ? (window.innerWidth - 48)
-                    : Math.min(window.innerWidth * 0.7, window.innerHeight * 0.55);
-                const gap   = () => isMobile() ? 12 : 14;
+                // Sur mobile uniquement : un item = viewport - 48
+                const itemW = () => window.innerWidth - 48;
+                const gap   = () => 12;
                 const step  = () => itemW() + gap();
 
+                function resetTexts() {
+                    texts.forEach(text => {
+                        text.style.transform = '';
+                        text.style.opacity = '';
+                    });
+                }
+
                 wrap.addEventListener('scroll', () => {
+                    // Desktop : pas de parallaxe, on ne touche pas au texte
+                    if (!isMobile()) return;
+
                     const s = wrap.scrollLeft;
                     const stepVal = step();
                     const maxDist = stepVal * 0.6;
@@ -1213,6 +1453,15 @@
                         text.style.opacity = opacity;
                     });
                 }, { passive: true });
+
+                // Si on traverse le breakpoint mobile → desktop, on nettoie
+                // les inline styles laissés par la parallaxe pour que le texte
+                // revienne à sa position fixe.
+                window.addEventListener('resize', () => {
+                    if (!isMobile()) resetTexts();
+                });
+                // État initial : si on charge directement en desktop, rien à faire
+                if (!isMobile()) resetTexts();
             });
         }
 
